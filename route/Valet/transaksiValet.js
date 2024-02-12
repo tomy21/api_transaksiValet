@@ -20,6 +20,7 @@ router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
         TransactionParkingValet.ReqPickupOn,
         TransactionParkingValet.ConfirmReqPickupOn,
         TransactionParkingValet.ConfirmReqPickupUserId,
+        TransactionParkingValet.CreatedBy,
         TransactionParkingValet.ArrivedTimeStart,
         TransactionParkingValet.ArrivedTimeFinish
     FROM 

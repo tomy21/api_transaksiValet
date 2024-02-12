@@ -5,9 +5,6 @@ const http = require("http");
 const app = express();
 const connection = require("./config/dbConfig.js");
 const dateTimeCurrent = require("./config/currentDateTime.js");
-const Transaction = require("./route/Transactions/getData.js");
-const TransactionPost = require("./route/Transactions/postData.js");
-const TransactionUpdate = require("./route/Transactions/updateData.js");
 const Locations = require("./route/Locations/Location.js");
 const Issuer = require("./route/Issuer/Issuer.js");
 const Payment = require("./route/Unpaid/Payment.js");
@@ -17,6 +14,7 @@ const userLocation = require("./route/Users/UserLocation.js");
 const registerUser = require("./route/Users/Register.js");
 const loginUsers = require("./route/Users/login.js");
 const trxValet = require("./route/Valet/transaksiValet.js");
+require("dotenv").config();
 
 const { Server } = require("socket.io");
 const server = http.createServer(app);
@@ -692,6 +690,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(5000, "192.168.43.201", () => {
+server.listen(process.env.PORT, () => {
   console.log("Server is running on port 5000");
 });
