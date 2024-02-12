@@ -2,6 +2,9 @@
   "name": "backend_transaksi",
   "version": "1.0.0",
   "description": "API FOR Transaction SKY Parking",
+  "engines": {
+    "node": "18.x"
+  },
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
