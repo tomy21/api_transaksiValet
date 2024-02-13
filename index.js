@@ -16,6 +16,9 @@ const loginUsers = require("./route/Users/login.js");
 const trxValet = require("./route/Valet/transaksiValet.js");
 require("dotenv").config();
 
+const PORT = process.env.PORT || 5000;
+const HOST = "192.168.43.201";
+
 const { Server } = require("socket.io");
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -690,6 +693,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(process.env.PORT, () => {
-  console.log("Server is running on port 5000");
+server.listen(PORT, HOST, "", () => {
+  console.log(`Server is running on port ${PORT} - ${HOST}`);
 });

@@ -1,4 +1,3 @@
-// Function to get the current date and time in the timezone specified
 function getCurrentDateTime(timeZone) {
   let nz_date_string = new Date().toLocaleString("en-US", {
     timeZone: timeZone,
