@@ -694,5 +694,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, HOST, "", () => {
-  console.log(`Server is running on port ${PORT} - ${HOST}`);
+  console.log(`Server is running on port ${PORT}`);
 });

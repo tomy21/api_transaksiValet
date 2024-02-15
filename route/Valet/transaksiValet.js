@@ -63,6 +63,61 @@ router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
   });
 });
 
+router.get("/transactions/:id", verifyToken, (req, res) => {
+  const id = req.params.id;
+  const query = `
+  SELECT 
+    TransactionParkingValet.Id,
+    TransactionParkingValet.LocationCode,
+    TransactionParkingValet.TrxNo,
+    TransactionParkingValet.TicketNumber,
+    TransactionParkingValet.VehiclePlate,
+    TransactionParkingValet.InTime,
+    TransactionParkingValet.OutTime,
+    TransactionParkingValet.ReceivedOn,
+    TransactionParkingValet.ReceivedBy,
+    TransactionParkingValet.ReqPickupOn,
+    TransactionParkingValet.ConfirmReqPickupOn,
+    TransactionParkingValet.ConfirmReqPickupUserId,
+    TransactionParkingValet.CreatedBy,
+    TransactionParkingValet.ArrivedTimeStart,
+    TransactionParkingValet.ArrivedTimeFinish,
+    TransactionParkingValet.foto1,
+    TransactionParkingValet.foto2,
+    TransactionParkingValet.foto3,
+    TransactionParkingValet.foto4,
+    TransactionParkingValet.foto5,
+    TransactionParkingValet.foto6,
+    TransactionParkingValet.foto7,
+    TransactionParkingValet.foto8,
+    TransactionParkingValet.foto9,
+    TransactionParkingValet.foto10,
+    TransactionParkingValet.foto11,
+    TransactionParkingValet.foto12
+  FROM 
+    TransactionParkingValet
+  WHERE 
+    Id = ?
+    AND DATE(CreatedOn) = CURDATE()
+  ORDER BY 
+    UpdatedOn 
+  DESC`;
+
+  connection.connection.query(query, [id], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal server error");
+    } else {
+      const response = {
+        code: 200,
+        message: "Success Getdata",
+        data: results,
+      };
+      res.status(200).json(response);
+    }
+  });
+});
+
 router.post(
   "/transactions",
   verifyToken,
