@@ -38,9 +38,20 @@ router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
         TransactionParkingValet.ConfirmReqPickupUserId,
         TransactionParkingValet.CreatedBy,
         TransactionParkingValet.ArrivedTimeStart,
-        TransactionParkingValet.ArrivedTimeFinish,
-        COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = CURDATE() AND TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
-        COUNT(CASE WHEN DATE(TransactionParkingValet.OutTime) = CURDATE() THEN 1 END) AS TotalOutToday
+        TransactionParkingValet.ArrivedTimeFinish
+    FROM 
+        TransactionParkingValet
+    WHERE 
+        LocationCode = ?
+        AND DATE(CreatedOn) = CURDATE()
+    ORDER BY 
+        UpdatedOn 
+    DESC`;
+
+  const countQuery = `
+    SELECT 
+		  COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = CURDATE() AND TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
+      COUNT(CASE WHEN DATE(TransactionParkingValet.OutTime) = CURDATE() THEN 1 END) AS TotalOutToday
     FROM 
         TransactionParkingValet
     WHERE 
@@ -55,12 +66,20 @@ router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
       console.error(err);
       res.status(500).send("Internal server error");
     } else {
-      const response = {
-        code: 200,
-        message: "Success Login",
-        data: results,
-      };
-      res.status(200).json(response);
+      connection.connection.query(
+        countQuery,
+        [codeLocations],
+        (err, result) => {
+          const response = {
+            code: 200,
+            message: "Success Login",
+            countIn: result[0],
+            countOut: result[1],
+            data: results,
+          };
+          res.status(200).json(response);
+        }
+      );
     }
   });
 });
