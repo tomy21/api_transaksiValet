@@ -20,6 +20,70 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
+  const codeLocations = req.params.codeLocations;
+  const query = `
+    SELECT 
+        TransactionParkingValet.Id,
+        TransactionParkingValet.LocationCode,
+        TransactionParkingValet.TrxNo,
+        TransactionParkingValet.TicketNumber,
+        TransactionParkingValet.VehiclePlate,
+        TransactionParkingValet.InTime,
+        TransactionParkingValet.OutTime,
+        TransactionParkingValet.ReceivedOn,
+        TransactionParkingValet.ReceivedBy,
+        TransactionParkingValet.ReqPickupOn,
+        TransactionParkingValet.ConfirmReqPickupOn,
+        TransactionParkingValet.ConfirmReqPickupUserId,
+        TransactionParkingValet.CreatedBy,
+        TransactionParkingValet.ArrivedTimeStart,
+        TransactionParkingValet.ArrivedTimeFinish
+    FROM 
+        TransactionParkingValet
+    WHERE 
+        LocationCode = ?
+        AND DATE(CreatedOn) = CURDATE()
+        AND OutTime IS NULL
+    ORDER BY 
+        UpdatedOn 
+    DESC`;
+
+  const countQuery = `
+    SELECT 
+		  COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = CURDATE() AND TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
+      COUNT(CASE WHEN DATE(TransactionParkingValet.OutTime) = CURDATE() THEN 1 END) AS TotalOutToday
+    FROM 
+        TransactionParkingValet
+    WHERE 
+        LocationCode = ?
+        AND DATE(CreatedOn) = CURDATE()
+    ORDER BY 
+        UpdatedOn 
+    DESC`;
+
+  connection.connection.query(query, [codeLocations], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal server error");
+    } else {
+      connection.connection.query(
+        countQuery,
+        [codeLocations],
+        (err, result) => {
+          const response = {
+            code: 200,
+            message: "Success Login",
+            countIn: result[0],
+            countOut: result[1],
+            data: results,
+          };
+          res.status(200).json(response);
+        }
+      );
+    }
+  });
+});
 router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
   const codeLocations = req.params.codeLocations;
   const query = `
