@@ -38,7 +38,9 @@ router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
         TransactionParkingValet.ConfirmReqPickupUserId,
         TransactionParkingValet.CreatedBy,
         TransactionParkingValet.ArrivedTimeStart,
-        TransactionParkingValet.ArrivedTimeFinish
+        TransactionParkingValet.ArrivedTimeFinish,
+        COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = CURDATE() AND TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
+        COUNT(CASE WHEN DATE(TransactionParkingValet.OutTime) = CURDATE() THEN 1 END) AS TotalOutToday
     FROM 
         TransactionParkingValet
     WHERE 
@@ -63,7 +65,7 @@ router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
   });
 });
 
-router.get("/transactions/:id", verifyToken, (req, res) => {
+router.get("/transactions/detail/:id", verifyToken, (req, res) => {
   const id = req.params.id;
   const query = `
   SELECT 
@@ -98,7 +100,6 @@ router.get("/transactions/:id", verifyToken, (req, res) => {
     TransactionParkingValet
   WHERE 
     Id = ?
-    AND DATE(CreatedOn) = CURDATE()
   ORDER BY 
     UpdatedOn 
   DESC`;
@@ -116,6 +117,54 @@ router.get("/transactions/:id", verifyToken, (req, res) => {
       res.status(200).json(response);
     }
   });
+});
+
+router.put("/transactions", verifyToken, (req, res) => {
+  try {
+    const dateCurrent = dateTimeCurrent("Asia/Jakarta");
+    const OutTime = dateCurrent.date_time;
+    const UpdatedOn = dateCurrent.date_time;
+    const UserName = req.body.Username;
+    const Id = req.body.Id;
+
+    const query = `
+    UPDATE 
+      TransactionParkingValet 
+    SET 
+      OutTime = ? , 
+      UpdatedOn = ? , 
+      UpdatedBy = ? 
+    WHERE 
+      Id = ? 
+    `;
+
+    connection.connection.query(
+      query,
+      [OutTime, UpdatedOn, UserName, Id],
+      (err, results) => {
+        if (err) {
+          console.error("Error executing query:", err);
+          res.status(500).json({ error: "Internal server error" });
+          return;
+        }
+
+        const response = {
+          statusCode: 200,
+          message: "success",
+          data: {
+            status: "Out",
+            outTime: OutTime,
+            processBy: UserName,
+          },
+        };
+
+        res.status(200).json(response);
+      }
+    );
+  } catch (err) {
+    console.error("Error executing SQL queries:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.post(
