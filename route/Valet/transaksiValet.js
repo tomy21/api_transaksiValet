@@ -22,6 +22,10 @@ const upload = multer({ storage: storage });
 
 router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
   const codeLocations = req.params.codeLocations;
+  const page = req.query.page || 1;
+  const limit = 10;
+
+  const offset = (page - 1) * limit;
   const query = `
     SELECT 
         TransactionParkingValet.Id,
@@ -47,7 +51,8 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
         AND OutTime IS NULL
     ORDER BY 
         UpdatedOn 
-    DESC`;
+    DESC
+    LIMIT ?, ?`;
 
   const countQuery = `
     SELECT 
@@ -62,27 +67,36 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
         UpdatedOn 
     DESC`;
 
-  connection.connection.query(query, [codeLocations], (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Internal server error");
-    } else {
-      connection.connection.query(
-        countQuery,
-        [codeLocations],
-        (err, result) => {
-          const response = {
-            code: 200,
-            message: "Success Login",
-            countIn: result[0],
-            countOut: result[1],
-            data: results,
-          };
-          res.status(200).json(response);
-        }
-      );
+  connection.connection.query(
+    query,
+    [codeLocations, offset, limit],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal server error");
+      } else {
+        connection.connection.query(
+          countQuery,
+          [codeLocations],
+          (err, result) => {
+            const totalInToday = result[0].TotalInToday || 0;
+            const totalOutToday = result[0].TotalOutToday || 0;
+            const totalPages = Math.ceil(totalInToday / limit);
+            const response = {
+              code: 200,
+              message: "Success Login",
+              countIn: totalInToday,
+              countOut: totalOutToday,
+              totalPages: totalPages,
+              currentPage: page,
+              data: results,
+            };
+            res.status(200).json(response);
+          }
+        );
+      }
     }
-  });
+  );
 });
 router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
   const codeLocations = req.params.codeLocations;
@@ -245,6 +259,51 @@ router.put("/transactions", verifyToken, (req, res) => {
       }
     );
   } catch (err) {
+    console.error("Error executing SQL queries:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.put("/transactions/inputTicket", verifyToken, (req, res) => {
+  try {
+    const dateCurrent = dateTimeCurrent("Asia/Jakarta");
+    const noTicket = req.body.noTicket;
+    const UpdatedOn = dateCurrent.date_time;
+    const UserName = req.body.Username;
+    const Id = req.body.Id;
+    const query = `
+  UPDATE 
+      TransactionParkingValet 
+    SET 
+      TicketNumber = ? , 
+      UpdatedOn = ? , 
+      UpdatedBy = ? 
+    WHERE 
+      Id = ?
+  `;
+
+    connection.connection.query(
+      query,
+      [noTicket, UpdatedOn, UserName, Id],
+      (err, results) => {
+        if (err) {
+          console.error("Error executing query:", err);
+          res.status(500).json({ error: "Internal server error" });
+          return;
+        }
+
+        const response = {
+          statusCode: 200,
+          message: "Success input no ticket",
+          data: {
+            processBy: UserName,
+          },
+        };
+
+        res.status(200).json(response);
+      }
+    );
+  } catch (error) {
     console.error("Error executing SQL queries:", err);
     res.status(500).json({ error: "Internal server error" });
   }
