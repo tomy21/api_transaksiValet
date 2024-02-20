@@ -27,7 +27,7 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
 
   const offset = (page - 1) * limit;
   const query = `
-    SELECT 
+     SELECT 
         TransactionParkingValet.Id,
         TransactionParkingValet.LocationCode,
         TransactionParkingValet.TrxNo,
@@ -42,16 +42,18 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
         TransactionParkingValet.ConfirmReqPickupUserId,
         TransactionParkingValet.CreatedBy,
         TransactionParkingValet.ArrivedTimeStart,
-        TransactionParkingValet.ArrivedTimeFinish
+        TransactionParkingValet.ArrivedTimeFinish,
+        RefLocation.Name
     FROM 
         TransactionParkingValet
+    JOIN 
+        RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code    
     WHERE 
-        LocationCode = ?
-        AND DATE(CreatedOn) = CURDATE()
-        AND OutTime IS NULL
+        TransactionParkingValet.LocationCode = ?
+        AND DATE(TransactionParkingValet.CreatedOn) = CURDATE()
+        AND TransactionParkingValet.OutTime IS NULL
     ORDER BY 
-        UpdatedOn 
-    DESC
+        TransactionParkingValet.UpdatedOn DESC
     LIMIT ?, ?`;
 
   const countQuery = `
@@ -192,13 +194,16 @@ router.get("/transactions/detail/:id", verifyToken, (req, res) => {
     TransactionParkingValet.foto9,
     TransactionParkingValet.foto10,
     TransactionParkingValet.foto11,
-    TransactionParkingValet.foto12
+    TransactionParkingValet.foto12,
+    RefLocation.Name
   FROM 
     TransactionParkingValet
+  JOIN 
+    RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code  
   WHERE 
-    Id = ?
+    TransactionParkingValet.Id = ?
   ORDER BY 
-    UpdatedOn 
+    TransactionParkingValet.UpdatedOn 
   DESC`;
 
   connection.connection.query(query, [id], (err, results) => {
