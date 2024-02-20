@@ -17,7 +17,6 @@ const trxValet = require("./route/Valet/transaksiValet.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 5000;
-const HOST = "192.168.0.184";
 
 const { Server } = require("socket.io");
 const server = http.createServer(app);
@@ -693,6 +692,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, HOST, "", () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

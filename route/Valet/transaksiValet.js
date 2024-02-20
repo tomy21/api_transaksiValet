@@ -86,7 +86,7 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
             const totalPages = Math.ceil(totalInToday / limit);
             const response = {
               code: 200,
-              message: "Success Login",
+              message: "Success Get Transactions",
               countIn: totalInToday,
               countOut: totalOutToday,
               totalPages: totalPages,
@@ -418,6 +418,8 @@ router.post(
       ) VALUES
       (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`; // Perbaikan penulisan kolom foto
 
+      const insertHistory = ` INSERT INTO LocationCode, TransactionParkingValetId, Description, CreatedOn, CreatedBy, RecordStatus VALUES ( ?, ?, ?, ?, ?, ?)`;
+
       connection.connection.query(
         query,
         [
@@ -438,19 +440,27 @@ router.post(
           ...photoPaths,
         ],
         (err, result) => {
-          // Ubah 'res' menjadi 'result' untuk menghindari kebingungan
           if (err) {
             console.error("Error executing query:", err);
             res.status(500).json({ error: "Internal server error" });
             return;
           }
 
-          const response = {
-            statusCode: 200,
-            message: "success",
-          };
+          const newUserId = result.insertId;
+          const descriptions = "Create New Transaction";
+          const recordStatus = 1;
+          connection.connection.query(
+            insertHistory,
+            [LocationCode, newUserId, descriptions, CreatedOn, recordStatus],
+            (err, result) => {
+              const response = {
+                statusCode: 200,
+                message: "success",
+              };
 
-          res.status(200).json(response);
+              res.status(200).json(response);
+            }
+          );
         }
       );
     } catch (error) {
@@ -459,5 +469,54 @@ router.post(
     }
   }
 );
+
+router.get("/transactions/history/:codeLocations", verifyToken, (req, res) => {
+  const codeLocations = req.params.codeLocations;
+  const page = req.query.page || 1;
+  const limit = 10;
+  const offset = (page - 1) * limit;
+
+  const queryHistory = `
+      SELECT 
+        TransactionParkingValetHistory.Id,
+        TransactionParkingValetHistory.LocationCode,
+        TransactionParkingValetHistory.TransactionParkingValetId,
+        TransactionParkingValetHistory.Description,
+        RefLocation.Name,
+        TransactionParkingValet.TicketNumber,
+        TransactionParkingValet.VehiclePlate,
+        TransactionParkingValet.TrxNo
+      FROM
+        TransactionParkingValetHistory
+      JOIN
+        RefLocation ON TransactionParkingValetHistory.LocationCode = RefLocation.Code
+      JOIN
+        TransactionParkingValet ON TransactionParkingValetHistory.TransactionParkingValetId = TransactionParkingValet.Id  
+      WHERE
+        TransactionParkingValet.LocationCode = ?
+        AND DATE(TransactionParkingValet.CreatedOn) = CURDATE()
+      ORDER BY 
+        TransactionParkingValet.UpdatedOn DESC
+      LIMIT ?, ?  
+      `;
+
+  connection.connection.query(
+    queryHistory,
+    [codeLocations, offset, limit],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal server error");
+      } else {
+        const response = {
+          code: 200,
+          message: "Success Get Transactions",
+          data: results,
+        };
+        res.status(200).json(response);
+      }
+    }
+  );
+});
 
 module.exports = router;
