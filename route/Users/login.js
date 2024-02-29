@@ -5,15 +5,16 @@ const crypto = require("crypto-js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const { v4: uuidv4 } = require("uuid");
 const connection = require("../../config/dbConfig.js");
 const currentdate = require("../../config/formatCurrentDate.js");
+const dateTimeCurrent = require("../../config/currentDateTime.js");
 const app = express();
 const SECRET_KEY = "skyparking12345";
 
 router.use(bodyParser.json());
 router.use(cors());
-const secretKey = currentdate + "PARTNER_KEY";
+const secretKey = "PARTNER_KEY";
+// const secretKey = currentdate + "PARTNER_KEY";
 
 // Route untuk login
 router.post("/login", (req, res) => {
@@ -21,6 +22,8 @@ router.post("/login", (req, res) => {
   const decryptedResult = crypto.AES.decrypt(encryptedData, secretKey).toString(
     crypto.enc.Utf8
   );
+  const dateCurrent = dateTimeCurrent("Asia/Jakarta");
+  const lastUpdated = dateCurrent.date_time;
   const decryptedObject = JSON.parse(decryptedResult);
   const email = decryptedObject.email;
   const password = decryptedObject.password;
@@ -36,6 +39,11 @@ router.post("/login", (req, res) => {
         U.HandPhone,
         RL.Name,
         UL.LocationCode,
+        UL.typeValet,
+        UL.qrisVVIP,
+        UL.qrisCasualValet,
+        UL.tariffVVIP,
+        UL.tariffCasualValet,
         COUNT(CASE WHEN DATE(TPV.InTime) = CURDATE() THEN 1 END) AS CountInTime,
         COUNT(CASE WHEN DATE(TPV.OutTime) = CURDATE() THEN 1 END) AS CountOutTime
     FROM 
@@ -49,43 +57,68 @@ router.post("/login", (req, res) => {
     WHERE Email = ?`;
 
     connection.connection.query(findUser, [email], async (err, results) => {
-      if (err) throw err;
+      try {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error retrieving user data");
+        }
 
-      // Jika user tidak ditemukan
-      if (results.length === 0) {
-        return res.status(400).send("Invalid email or password");
+        if (results.length === 0) {
+          return res.status(400).send("Invalid email or password");
+        }
+
+        const user = results[0];
+        const isPasswordValid = await bcrypt.compare(password, user.Password);
+        if (!isPasswordValid) {
+          return res.status(400).send("Invalid username or password");
+        }
+
+        // Buat token JWT
+        const token = jwt.sign(
+          { id: user.id, username: user.Username },
+          SECRET_KEY
+        );
+
+        const keyAES = "PARTNER_KEY";
+        // const keyAES = currentdate + "PARTNER_KEY";
+
+        const data = user;
+
+        const encryptedResult = crypto.AES.encrypt(
+          JSON.stringify(data),
+          keyAES
+        ).toString();
+
+        const query = `
+        UPDATE 
+          Users 
+        SET 
+          LastActivity = ? 
+        WHERE 
+          Id = ? 
+        `;
+        connection.connection.query(
+          query,
+          [lastUpdated, user.id],
+          async (err, results) => {
+            if (err) {
+              console.error(err);
+              return res.status(500).send("Error retrieving user data");
+            }
+
+            const response = {
+              code: 200,
+              message: "Success Login",
+              token: token,
+              data: encryptedResult,
+            };
+            res.status(200).json(response);
+          }
+        );
+      } catch (err) {
+        console.error(err);
+        res.status(500).send("Error logging in");
       }
-
-      // Bandingkan password yang dimasukkan dengan password di database
-      const user = results[0];
-      const isPasswordValid = await bcrypt.compare(password, user.Password);
-      if (!isPasswordValid) {
-        return res.status(400).send("Invalid username or password");
-      }
-
-      // Buat token JWT
-      const token = jwt.sign(
-        { id: user.id, username: user.Username },
-        SECRET_KEY
-      );
-
-      const keyAES = currentdate + "PARTNER_KEY";
-
-      const data = user;
-
-      const encryptedResult = crypto.AES.encrypt(
-        JSON.stringify(data),
-        keyAES
-      ).toString();
-
-      const response = {
-        code: 200,
-        message: "Success Login",
-        token: token,
-        data: encryptedResult,
-      };
-
-      res.status(200).json(response);
     });
   } catch (err) {
     console.error(err);
