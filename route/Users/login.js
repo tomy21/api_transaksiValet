@@ -44,6 +44,10 @@ router.post("/login", (req, res) => {
         UL.qrisCasualValet,
         UL.tariffVVIP,
         UL.tariffCasualValet,
+        UL.NMIDVIP,
+        UL.NameRekVIP,
+        UL.NMIDValet,
+        UL.NameRekValet,
         COUNT(CASE WHEN DATE(TPV.InTime) = CURDATE() THEN 1 END) AS CountInTime,
         COUNT(CASE WHEN DATE(TPV.OutTime) = CURDATE() THEN 1 END) AS CountOutTime
     FROM 
