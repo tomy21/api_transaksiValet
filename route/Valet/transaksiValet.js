@@ -821,7 +821,7 @@ router.put(
       const photoPaths = [];
 
       for (let i = 1; i <= 6; i++) {
-        const fieldName = "fotoBuktiPayment" +1;
+        const fieldName = "fotoBuktiPayment" + 1;
         if (req.files[fieldName] && req.files[fieldName].length > 0) {
           photoPaths.push(req.files[fieldName][0].path);
         } else {

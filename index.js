@@ -659,7 +659,6 @@ app.put("/api/transactions/requestCar", (req, res) => {
   }
 });
 
-
 io.on("connection", (socket) => {
   console.log(`server connected ${socket.id}`);
 
