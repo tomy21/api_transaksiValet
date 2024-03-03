@@ -93,16 +93,16 @@ router.get("/report", verifyToken, (req, res) => {
                       if (err) {
                         console.error(err);
                         res.status(500).send("Internal server error");
-                      } else {
+                      }else{
                         const response = {
-                          code: 200,
-                          message: "Success Get Report",
-                          hourly: resHourly,
-                          dayly: resDayly,
-                          monthly: resMonthly,
-                          yearly: resYearly,
-                        };
-                        res.status(200).json(response);
+                            code: 200,
+                            message: "Success Get Report",
+                            hourly: resHourly,
+                            dayly: resDayly,
+                            monthly: resMonthly,
+                            yearly: resYearly,
+                          };
+                          res.status(200).json(response);
                       }
                     }
                   );

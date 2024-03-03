@@ -66,33 +66,33 @@ router.post("/login", (req, res) => {
           console.error(err);
           return res.status(500).send("Error retrieving user data");
         }
-
+    
         if (results.length === 0) {
           return res.status(400).send("Invalid email or password");
         }
-
+    
         const user = results[0];
         const isPasswordValid = await bcrypt.compare(password, user.Password);
         if (!isPasswordValid) {
           return res.status(400).send("Invalid username or password");
         }
-
+    
         // Buat token JWT
         const token = jwt.sign(
           { id: user.id, username: user.Username },
           SECRET_KEY
         );
-
+    
         const keyAES = "PARTNER_KEY";
         // const keyAES = currentdate + "PARTNER_KEY";
-
+    
         const data = user;
-
+    
         const encryptedResult = crypto.AES.encrypt(
           JSON.stringify(data),
           keyAES
         ).toString();
-
+        
         const query = `
         UPDATE 
           Users 
@@ -101,29 +101,27 @@ router.post("/login", (req, res) => {
         WHERE 
           Id = ? 
         `;
-        connection.connection.query(
-          query,
-          [lastUpdated, user.id],
-          async (err, results) => {
-            if (err) {
-              console.error(err);
-              return res.status(500).send("Error retrieving user data");
-            }
-
-            const response = {
-              code: 200,
-              message: "Success Login",
-              token: token,
-              data: encryptedResult,
-            };
-            res.status(200).json(response);
+        connection.connection.query(query, [lastUpdated, user.id], async(err, results) => {
+          if (err) {
+            console.error(err);
+            return res.status(500).send("Error retrieving user data");
           }
-        );
+
+          const response = {
+            code: 200,
+            message: "Success Login",
+            token: token,
+            data: encryptedResult,
+          };
+          res.status(200).json(response);
+        })
+        
       } catch (err) {
         console.error(err);
         res.status(500).send("Error logging in");
       }
     });
+    
   } catch (err) {
     console.error(err);
     res.status(500).send("Error logging in");

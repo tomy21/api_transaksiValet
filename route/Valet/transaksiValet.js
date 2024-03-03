@@ -60,10 +60,9 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
         RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code    
     WHERE 
         TransactionParkingValet.LocationCode = ?
-        AND DATE(TransactionParkingValet.CreatedOn) = CURDATE()
         AND TransactionParkingValet.OutTime IS NULL
     ORDER BY 
-        TransactionParkingValet.UpdatedOn DESC
+        TransactionParkingValet.TrxNo DESC
     LIMIT ?, ?`;
 
   const countQuery = `
@@ -74,7 +73,6 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
         TransactionParkingValet
     WHERE 
         LocationCode = ?
-        AND DATE(CreatedOn) = CURDATE()
     ORDER BY 
         UpdatedOn 
     DESC`;
@@ -225,6 +223,59 @@ router.get("/transactions/detail/:codeTransaksi", (req, res) => {
     }
   });
 });
+
+router.get("/transactions/detailByPlate/:plate", (req, res) => {
+  const codeTransaksi = req.params.plate;
+  const query = `
+  SELECT 
+    TransactionParkingValet.Id,
+    TransactionParkingValet.LocationCode,
+    TransactionParkingValet.TrxNo,
+    TransactionParkingValet.TicketNumber,
+    TransactionParkingValet.VehiclePlate,
+    TransactionParkingValet.InTime,
+    TransactionParkingValet.OutTime,
+    TransactionParkingValet.ReceivedOn,
+    TransactionParkingValet.ReceivedBy,
+    TransactionParkingValet.ReqPickupOn,
+    TransactionParkingValet.ConfirmReqPickupOn,
+    TransactionParkingValet.ConfirmReqPickupUserId,
+    TransactionParkingValet.CreatedBy,
+    TransactionParkingValet.ArrivedTimeStart,
+    TransactionParkingValet.ArrivedTimeFinish,
+    TransactionParkingValet.foto1,
+    TransactionParkingValet.foto2,
+    TransactionParkingValet.foto3,
+    TransactionParkingValet.foto4,
+    TransactionParkingValet.foto5,
+    TransactionParkingValet.foto6,
+    RefLocation.Name
+  FROM 
+    TransactionParkingValet
+  JOIN 
+    RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code  
+  WHERE 
+    TransactionParkingValet.VehiclePlate = ? 
+  ORDER BY 
+    TransactionParkingValet.UpdatedOn 
+  DESC`;
+
+  connection.connection.query(query, [codeTransaksi], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal server error");
+    } else {
+      const response = {
+        code: 200,
+        message: "Success Getdata",
+        data: results,
+      };
+      io.emit("message", "Hello from the server!");
+      res.status(200).json(response);
+    }
+  });
+});
+
 router.get("/transactions/detailById/:id", verifyToken, (req, res) => {
   const id = req.params.id;
   const query = `
@@ -860,16 +911,16 @@ router.post(
       const TicketNumber = req.body.TicketNumber || null;
       const NokeySlot = req.body.NoKeySlot || null;
       const ParkingValetStatusId = 4;
-      const ParkingType = 2;
+      const ParkingType = req.body.ParkingType;
       const Tariff = parseInt(req.body.Tariff);
       const InTime = dateCurrent.date_time;
       const ReceivedOn = dateCurrent.date_time;
-      const ReceivedBy = 1;
+      const ReceivedBy = req.body.ReceivedUserId || null;;
       const ReceivedUserId = req.body.ReceivedUserId || null;
       const CreatedOn = dateCurrent.date_time;
       const UpdatedOn = dateCurrent.date_time;
       const CreatedBy = req.body.CreatedBy || null;
-      let VehiclePlate = null;
+      const VehiclePlate = req.body.VehiclePlate;
       const photoPaths = [];
 
       for (let i = 1; i <= 6; i++) {
@@ -881,30 +932,7 @@ router.post(
         }
       }
 
-      if (req.files["foto1"] && req.files["foto1"].length > 0) {
-        const imageData = req.files["foto1"][0].path;
-        // const imagePath = imageData.path; // Mendapatkan path dari gambar yang diunggah
-        const url = "https://api.platerecognizer.com/v1/plate-reader/";
-        const apiKey = "2ee83fb34e74d1bd32772ac11129862e8f8161e1";
-        const formData = new FormData();
-        formData.append("upload", fs.createReadStream(imageData));
-
-        try {
-          const response = await axios.post(url, formData, {
-            headers: {
-              Authorization: `Token ${apiKey}`,
-              ...formData.getHeaders(),
-            },
-          });
-
-          if (response.data.results && response.data.results.length > 0) {
-            // Jika plat nomor terdeteksi, gunakan hasilnya
-            VehiclePlate = response.data.results[0].plate.toUpperCase();
-          }
-        } catch (error) {
-          console.error("Error recognizing plate:", error);
-        }
-      }
+      
       // console.log(VehiclePlate);
       const query = `
       INSERT INTO
