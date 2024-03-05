@@ -10,17 +10,16 @@ const dateTimeCurrent = require("../../config/currentDateTime.js");
 router.get("/report", verifyToken, (req, res) => {
   const locationCode = req.query.LocationCode;
   const queryHourly = `
-    SELECT 
-        HOUR(CreatedOn) AS Hour,
-        SUM(Tariff) AS TotalTariff,
-        COUNT(1) AS TotalTransactions,
-        SUM(IF(OutTime IS NULL, TIMESTAMPDIFF(SECOND, CreatedOn, NOW()), 0)) AS TotalPendingOutTime
-    FROM 
-        TransactionParkingValet
-    WHERE 
-        LocationCode = ? 
-    GROUP BY
-        Hour
+  SELECT 
+    CONCAT(HOUR(CreatedOn), ':00') AS Hour,
+    COUNT(1) AS TotalTransactions
+  FROM 
+    TransactionParkingValet
+  WHERE 
+    LocationCode = ? 
+    AND DATE(CreatedOn) = CURDATE() 
+  GROUP BY
+    HOUR(CreatedOn)
     `;
   const queryDayly = `
     SELECT 
@@ -93,16 +92,16 @@ router.get("/report", verifyToken, (req, res) => {
                       if (err) {
                         console.error(err);
                         res.status(500).send("Internal server error");
-                      }else{
+                      } else {
                         const response = {
-                            code: 200,
-                            message: "Success Get Report",
-                            hourly: resHourly,
-                            dayly: resDayly,
-                            monthly: resMonthly,
-                            yearly: resYearly,
-                          };
-                          res.status(200).json(response);
+                          code: 200,
+                          message: "Success Get Report",
+                          hourly: resHourly,
+                          dayly: resDayly,
+                          monthly: resMonthly,
+                          yearly: resYearly,
+                        };
+                        res.status(200).json(response);
                       }
                     }
                   );
