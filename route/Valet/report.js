@@ -11,7 +11,7 @@ router.get("/report", verifyToken, (req, res) => {
   const locationCode = req.query.LocationCode;
   const queryHourly = `
     SELECT 
-        CONCAT(HOUR(CreatedOn), ':00') AS Hour,,
+        CONCAT(HOUR(CreatedOn), ':00') AS Hour,
         SUM(Tariff) AS TotalTariff,
         COUNT(1) AS TotalTransactions,
         SUM(IF(OutTime IS NULL, TIMESTAMPDIFF(SECOND, CreatedOn, NOW()), 0)) AS TotalPendingOutTime
