@@ -61,20 +61,36 @@ router.get("/transactionsValet", (req, res) => {
         TransactionParkingValet.TrxNo DESC
     LIMIT ?, ?`;
 
+  const countQuery = `
+    SELECT 
+		  COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = CURDATE() AND TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
+      COUNT(CASE WHEN DATE(TransactionParkingValet.OutTime) = CURDATE() THEN 1 END) AS TotalOutToday
+    FROM 
+        TransactionParkingValet
+    ORDER BY 
+        UpdatedOn 
+    DESC`;
+
   connection.connection.query(query, [offset, limit], (err, results) => {
     if (err) {
       console.error(err);
       res.status(500).send("Internal server error");
     } else {
-      const totalPages = Math.ceil(totalInToday / limit);
-      const response = {
-        code: 200,
-        message: "Success Get Transactions",
-        totalPages: totalPages,
-        currentPage: page,
-        data: results,
-      };
-      res.status(200).json(response);
+      connection.connection.query(countQuery, (err, result) => {
+        const totalInToday = result[0].TotalInToday || 0;
+        const totalOutToday = result[0].TotalOutToday || 0;
+        const totalPages = Math.ceil(totalInToday / limit);
+        const response = {
+          code: 200,
+          message: "Success Get Transactions",
+          countIn: totalInToday,
+          countOut: totalOutToday,
+          totalPages: totalPages,
+          currentPage: page,
+          data: results,
+        };
+        res.status(200).json(response);
+      });
     }
   });
 });
