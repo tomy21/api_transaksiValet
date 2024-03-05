@@ -22,6 +22,8 @@ router.get("/report", verifyToken, (req, res) => {
         DATE(CreatedOn) = CURDATE()
     GROUP BY
         Hour
+    ORDER BY
+        UpdatedOn DESC    
     `;
   const queryDayly = `
     SELECT 
@@ -35,6 +37,8 @@ router.get("/report", verifyToken, (req, res) => {
         LocationCode = ?     
     GROUP BY
         Day
+    ORDER BY
+        UpdatedOn DESC    
     `;
 
   const queryMonthly = `
@@ -50,6 +54,8 @@ router.get("/report", verifyToken, (req, res) => {
         LocationCode = ? 
     GROUP BY
         Year, Month
+    ORDER BY
+        UpdatedOn DESC    
     `;
 
   const queryYearly = `
@@ -64,6 +70,8 @@ router.get("/report", verifyToken, (req, res) => {
         LocationCode = ? 
     GROUP BY
         Year
+    ORDER BY
+        UpdatedOn DESC    
     `;
 
   connection.connection.query(queryHourly, [locationCode], (err, resHourly) => {
