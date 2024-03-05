@@ -67,7 +67,7 @@ router.get("/transactionsValet", (req, res) => {
       console.error(err);
       res.status(500).send("Internal server error");
     } else {
-      const totalPages = Math.ceil(results["total_count"] / limit);
+      const totalPages = Math.ceil(results[0].total_count / limit);
       const response = {
         code: 200,
         message: "Success Get Transactions",
