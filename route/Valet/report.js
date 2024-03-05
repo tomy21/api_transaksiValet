@@ -10,17 +10,17 @@ const dateTimeCurrent = require("../../config/currentDateTime.js");
 router.get("/report", verifyToken, (req, res) => {
   const locationCode = req.query.LocationCode;
   const queryHourly = `
-  SELECT 
-    SUM(Tariff) AS TotalTariff,
-    CONCAT(HOUR(CreatedOn), ':00') AS Hour,
-    COUNT(1) AS TotalTransactions
-  FROM 
-    TransactionParkingValet
-  WHERE 
-    LocationCode = ? 
-    AND DATE(CreatedOn) = CURDATE() 
-  GROUP BY
-    HOUR(CreatedOn)
+    SELECT 
+        CONCAT(HOUR(CreatedOn), ':00') AS Hour,,
+        SUM(Tariff) AS TotalTariff,
+        COUNT(1) AS TotalTransactions,
+        SUM(IF(OutTime IS NULL, TIMESTAMPDIFF(SECOND, CreatedOn, NOW()), 0)) AS TotalPendingOutTime
+    FROM 
+        TransactionParkingValet
+    WHERE 
+        LocationCode = ? 
+    GROUP BY
+        Hour
     `;
   const queryDayly = `
     SELECT 
