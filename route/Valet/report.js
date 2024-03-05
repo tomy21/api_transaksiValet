@@ -11,6 +11,7 @@ router.get("/report", verifyToken, (req, res) => {
   const locationCode = req.query.LocationCode;
   const queryHourly = `
   SELECT 
+    SUM(Tariff) AS TotalTariff,
     CONCAT(HOUR(CreatedOn), ':00') AS Hour,
     COUNT(1) AS TotalTransactions
   FROM 
