@@ -679,7 +679,7 @@ router.post(
       const TicketNumber = req.body.TicketNumber || null;
       const NokeySlot = req.body.NoKeySlot || null;
       const ParkingValetStatusId = 4;
-      const ParkingType = 2;
+      const ParkingType = req.body.ParkingType;
       const Tariff = parseInt(req.body.Tariff);
       const InTime = dateCurrent.date_time;
       const ReceivedOn = dateCurrent.date_time;
