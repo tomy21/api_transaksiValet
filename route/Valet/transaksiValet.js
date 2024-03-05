@@ -32,7 +32,7 @@ const upload = multer({ storage: storage });
 
 router.get("/transactionsValet", (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 3;
+  const limit = parseInt(req.query.limit) || 10;
 
   const offset = (page - 1) * limit;
   const query = `
@@ -63,7 +63,7 @@ router.get("/transactionsValet", (req, res) => {
 
   const countQuery = `
     SELECT 
-		  COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = CURDATE() AND TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
+		  COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
       COUNT(CASE WHEN DATE(TransactionParkingValet.OutTime) = CURDATE() THEN 1 END) AS TotalOutToday
     FROM 
         TransactionParkingValet
