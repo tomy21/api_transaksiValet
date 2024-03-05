@@ -30,6 +30,55 @@ const io = new Server(server, {
 
 const upload = multer({ storage: storage });
 
+router.get("/transactionsValet", (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 3;
+
+  const offset = (page - 1) * limit;
+  const query = `
+     SELECT 
+        TransactionParkingValet.Id,
+        TransactionParkingValet.LocationCode,
+        TransactionParkingValet.TrxNo,
+        TransactionParkingValet.TicketNumber,
+        TransactionParkingValet.VehiclePlate,
+        TransactionParkingValet.InTime,
+        TransactionParkingValet.OutTime,
+        TransactionParkingValet.ReceivedOn,
+        TransactionParkingValet.ReceivedBy,
+        TransactionParkingValet.ReqPickupOn,
+        TransactionParkingValet.ConfirmReqPickupOn,
+        TransactionParkingValet.ConfirmReqPickupUserId,
+        TransactionParkingValet.CreatedBy,
+        TransactionParkingValet.ArrivedTimeStart,
+        TransactionParkingValet.ArrivedTimeFinish,
+        RefLocation.Name
+    FROM 
+        TransactionParkingValet
+    JOIN 
+        RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code    
+    ORDER BY 
+        TransactionParkingValet.TrxNo DESC
+    LIMIT ?, ?`;
+
+  connection.connection.query(query, [offset, limit], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Internal server error");
+    } else {
+      const totalPages = Math.ceil(totalInToday / limit);
+      const response = {
+        code: 200,
+        message: "Success Get Transactions",
+        totalPages: totalPages,
+        currentPage: page,
+        data: results,
+      };
+      res.status(200).json(response);
+    }
+  });
+});
+
 router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
   const codeLocations = req.params.codeLocations;
   const page = parseInt(req.query.page) || 1;
@@ -108,6 +157,7 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
     }
   );
 });
+
 router.get("/transactions/:codeLocations", verifyToken, (req, res) => {
   const codeLocations = req.params.codeLocations;
   const query = `
@@ -915,7 +965,7 @@ router.post(
       const Tariff = parseInt(req.body.Tariff);
       const InTime = dateCurrent.date_time;
       const ReceivedOn = dateCurrent.date_time;
-      const ReceivedBy = req.body.ReceivedUserId || null;;
+      const ReceivedBy = req.body.ReceivedUserId || null;
       const ReceivedUserId = req.body.ReceivedUserId || null;
       const CreatedOn = dateCurrent.date_time;
       const UpdatedOn = dateCurrent.date_time;
@@ -932,7 +982,6 @@ router.post(
         }
       }
 
-      
       // console.log(VehiclePlate);
       const query = `
       INSERT INTO
