@@ -52,6 +52,8 @@ router.get("/transactionsValet", (req, res) => {
         TransactionParkingValet.CreatedBy,
         TransactionParkingValet.ArrivedTimeStart,
         TransactionParkingValet.ArrivedTimeFinish,
+        TransactionParkingValet.NoKeySlot,
+        TransactionParkingValet.fotoBuktiPayment1,
         RefLocation.Name,
         (SELECT COUNT(*) FROM TransactionParkingValet) AS total_count
     FROM 
