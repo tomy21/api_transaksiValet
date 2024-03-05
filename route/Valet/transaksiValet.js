@@ -119,7 +119,7 @@ router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
 
   const countQuery = `
     SELECT 
-		  COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = CURDATE() AND TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
+		  COUNT(CASE WHEN DATE(TransactionParkingValet.InTime) = TransactionParkingValet.OutTime IS NULL THEN 1 END) AS TotalInToday,
       COUNT(CASE WHEN DATE(TransactionParkingValet.OutTime) = CURDATE() THEN 1 END) AS TotalOutToday
     FROM 
         TransactionParkingValet
