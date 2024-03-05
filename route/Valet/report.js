@@ -18,7 +18,7 @@ router.get("/report", verifyToken, (req, res) => {
     FROM 
         TransactionParkingValet
     WHERE 
-        LocationCode = ? 
+        LocationCode = ? AND
         DATE(CreatedOn) = CURDATE()
     GROUP BY
         Hour
