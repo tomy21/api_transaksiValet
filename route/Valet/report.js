@@ -8,7 +8,7 @@ const multer = require("multer");
 const dateTimeCurrent = require("../../config/currentDateTime.js");
 const exceljs = require("exceljs");
 
-router.get("/report", (req, res) => {
+router.get("/report", verifyToken, (req, res) => {
   const locationCode = req.query.LocationCode;
   const queryHourly = `
     SELECT 
@@ -128,7 +128,7 @@ router.get("/report", (req, res) => {
   });
 });
 
-router.get("/exportExcelDayly", verifyToken, async (req, res) => {
+router.get("/exportExcelDayly", async (req, res) => {
   try {
     const date = req.query.date;
     const locationCode = req.query.locationCode;
