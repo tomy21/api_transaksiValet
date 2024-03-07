@@ -33,6 +33,8 @@ const upload = multer({ storage: storage });
 router.get("/transactionsValet", (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || "UpdatedOn";
+  const sortDirection = req.query.sortDirection || "desc";
 
   const offset = (page - 1) * limit;
   const query = `
@@ -55,13 +57,13 @@ router.get("/transactionsValet", (req, res) => {
         TransactionParkingValet.NoKeySlot,
         TransactionParkingValet.fotoBuktiPayment1,
         RefLocation.Name,
-        (SELECT COUNT(*) FROM TransactionParkingValet) AS total_count
+        (SELECT COUNT(1) FROM TransactionParkingValet) AS total_count
     FROM 
         TransactionParkingValet
     JOIN 
         RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code    
     ORDER BY 
-        TransactionParkingValet.TrxNo DESC
+        TransactionParkingValet.${sortBy} ${sortDirection}
     LIMIT ?, ?`;
 
   connection.connection.query(query, [offset, limit], (err, results) => {
@@ -74,6 +76,7 @@ router.get("/transactionsValet", (req, res) => {
         code: 200,
         message: "Success Get Transactions",
         totalPages: totalPages,
+        totalData: results[0].total_count,
         currentPage: page,
         data: results,
       };

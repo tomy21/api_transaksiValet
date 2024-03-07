@@ -15,14 +15,16 @@ router.post("/registerUser", async (req, res) => {
     const ipAddress = req.ip.includes("::ffff:")
       ? req.ip.split(":").pop()
       : req.ip;
-    const uniqueId = await connection.generateUniqueTransactionCode();
+    const locationCode = req.body.locationCode;
+    const uniqueId = await connection.generateUniqueTransactionCode(
+      locationCode
+    );
     const userCode = "USVAL" + uniqueId;
     const name = req.body.name;
     const gender = req.body.gender;
     const userName = req.body.userName;
     const email = req.body.email;
     const handphone = req.body.handphone;
-    const locationCode = req.body.locationCode;
     const password = "sky123";
     const passwordBcrypt = await bcrypt.hash(password, 10);
     const createdOn = currentDate;

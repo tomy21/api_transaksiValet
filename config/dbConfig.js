@@ -10,9 +10,9 @@ const connection = mysql.createPool({
   multipleStatements: true,
 });
 
-function generateUniqueTransactionCode() {
+function generateUniqueTransactionCode(locationCode) {
   return new Promise((resolve, reject) => {
-    const countQuery = "SELECT COUNT(1) AS total_rows FROM TransactionParking";
+    const countQuery = "SELECT COUNT(1) AS total_rows FROM Users";
 
     connection.query(countQuery, (error, results) => {
       if (error) {
@@ -22,12 +22,17 @@ function generateUniqueTransactionCode() {
 
       const totalRows = results[0].total_rows;
 
-      const transactionCode = generateTransactionCode(totalRows + 1);
+      const transactionCode = generateTransactionCode(
+        totalRows + 1,
+        locationCode
+      );
 
       resolve(transactionCode);
     });
   });
 }
+
+//generate transaksi valet
 function generateUniqueTransactionCodeValet() {
   return new Promise((resolve, reject) => {
     const countQuery =
@@ -48,19 +53,21 @@ function generateUniqueTransactionCodeValet() {
   });
 }
 
-function generateTransactionCode(totalRow) {
+function generateTransactionCode(totalRow, locationCode) {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
   const day = ("0" + currentDate.getDate()).slice(-2);
   const dateCode = year + month + day;
 
-  const randomCode = "ABC";
+  const randomCode = locationCode;
 
   const transactionCode = `${dateCode}${randomCode}${totalRow}`;
 
   return transactionCode;
 }
+
+//Generate code valet
 function generateTransactionCodeValet(totalRow) {
   const currentDate = new Date();
   const year = currentDate.getFullYear();

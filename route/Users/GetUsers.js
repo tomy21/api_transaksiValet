@@ -7,9 +7,8 @@ const connection = require("../../config/dbConfig.js");
 router.use(bodyParser.json());
 router.use(cors());
 
-router.get("/getUsers/:codeLocation", (req, res) => {
+router.get("/getUsers", (req, res) => {
   try {
-    const codeLocations = req.params.codeLocation;
     const page = parseInt(req.query.page) || 0;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
@@ -55,10 +54,6 @@ router.get("/getUsers/:codeLocation", (req, res) => {
         JOIN 
             RefLocation RL ON UL.LocationCode = RL.Code
         WHERE
-            UL.LocationCode = ? 
-        AND 
-            U.SetupRoleId IN (5,9)
-        AND 
             (U.Name LIKE ? OR U.Username LIKE ? OR U.Email LIKE ?)
         ORDER BY 
             U.UpdatedOn DESC
@@ -66,31 +61,20 @@ router.get("/getUsers/:codeLocation", (req, res) => {
 
     const queryCount = `
         SELECT 
-            COUNT(*) AS totalRows
+            COUNT(1) AS totalRows
         FROM
             Users U
         JOIN 
             UsersLocation UL ON U.Id = UL.UserId
         JOIN 
             RefLocation RL ON UL.LocationCode = RL.Code
-            WHERE
-            UL.LocationCode = ? 
-        AND 
-            U.SetupRoleId IN (5,9) 
-        AND 
+        WHERE
             (U.Name LIKE ? OR U.Username LIKE ? OR U.Email LIKE ?)
       `;
 
     connection.connection.query(
       query,
-      [
-        codeLocations,
-        `%${search}%`,
-        `%${search}%`,
-        `%${search}%`,
-        offset,
-        limit,
-      ],
+      [`%${search}%`, `%${search}%`, `%${search}%`, offset, limit],
       (err, results) => {
         if (err) {
           console.error(err);
@@ -100,7 +84,7 @@ router.get("/getUsers/:codeLocation", (req, res) => {
 
         connection.connection.query(
           queryCount,
-          [codeLocations, `%${search}%`, `%${search}%`, `%${search}%`],
+          [`%${search}%`, `%${search}%`, `%${search}%`],
           (err, countResult) => {
             if (err) {
               console.error(err);
