@@ -49,8 +49,8 @@ app.use("/api", userLocation);
 app.use("/api", registerUser);
 app.use("/api", loginUsers);
 app.use("/api", getUsers);
-app.use("/api", trxValet); 
-app.use("/api", getReport); 
+app.use("/api", trxValet);
+app.use("/api", getReport);
 
 app.get("/transaction", async (req, res) => {
   const page = parseInt(req.query.page) || 0;
@@ -644,13 +644,13 @@ app.put("/api/transactions/requestCar", (req, res) => {
                 result: {
                   LocationCode,
                   Id,
-                }
+                },
               },
             };
-            io.emit('requestPickup', response.data.result);
+            io.emit("requestPickup", response.data.result);
             res.status(200).json(response);
           }
-          );
+        );
       }
     );
   } catch (err) {
