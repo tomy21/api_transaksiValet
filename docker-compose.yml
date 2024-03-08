@@ -24,7 +24,7 @@ services:
       - "8005:8005"
 
     volumes:
-      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - /usr/share/nginx/html:/usr/share/nginx/html
       - /var/www/html:/var/www/html
     networks:
