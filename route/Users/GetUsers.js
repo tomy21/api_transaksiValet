@@ -9,65 +9,58 @@ router.use(cors());
 
 router.get("/getUsers", (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 0;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
     const search = req.query.search || "";
-    const offset = page * limit;
+    const offset = (page - 1) * limit;
 
     const query = `
-        SELECT 
-            U.Id, 
-            U.SetupRoleId, 
-            U.IpAddress,
-            U.UserCode, 
-            U.Name, 
-            U.Gender,
-            U.Birthdate,
-            U.Username, 
-            U.Email, 
-            U.Phone,
-            U.HandPhone, 
-            U.Whatsapp, 
-            U.Photo,
-            U.Password, 
-            U.PasswordExpired,
-            U.IsFirstpassword, 
-            U.FlagAllLocation, 
-            U.MerchantId, 
-            U.CreatedOn,
-            U.CreatedBy, 
-            U.UpdatedOn, 
-            U.UpdatedBy,
-            U.UserStatus,
-            U.ResetPassword,
-            U.ResetPasswordExpired,
-            U.DeleteAccountOTP, 
-            U.DeleteStatus, 
-            U.DeleteReason,
-            U.LastActivity,
-            RL.Name,
-            UL.LocationCode
-        FROM
-            Users U
-        JOIN 
-            UsersLocation UL ON U.id = UL.UserId
-        JOIN 
-            RefLocation RL ON UL.LocationCode = RL.Code
-        WHERE
-            (U.Name LIKE ? OR U.Username LIKE ? OR U.Email LIKE ?)
-        ORDER BY 
-            U.UpdatedOn DESC
-        LIMIT ?, ?`;
+    SELECT 
+        U.Id, 
+        U.SetupRoleId, 
+        U.IpAddress,
+        U.UserCode, 
+        U.Name, 
+        U.Gender,
+        U.Birthdate,
+        U.Username, 
+        U.Email, 
+        U.Phone,
+        U.HandPhone, 
+        U.Whatsapp, 
+        U.Photo,
+        U.Password, 
+        U.PasswordExpired,
+        U.IsFirstpassword, 
+        U.FlagAllLocation, 
+        U.MerchantId, 
+        U.CreatedOn,
+        U.CreatedBy, 
+        U.UpdatedOn, 
+        U.UpdatedBy,
+        U.UserStatus,
+        U.ResetPassword,
+        U.ResetPasswordExpired,
+        U.DeleteAccountOTP, 
+        U.DeleteStatus, 
+        U.DeleteReason,
+        U.LastActivity,
+        SetupRole.Description
+    FROM
+        Users U
+    JOIN
+        SetupRole ON U.SetupRoleId = SetupRole.Id        
+    WHERE
+        (U.Name LIKE ? OR U.Username LIKE ? OR U.Email LIKE ?)
+    ORDER BY 
+        U.UpdatedOn DESC
+    LIMIT ?, ?`;
 
     const queryCount = `
         SELECT 
             COUNT(1) AS totalRows
         FROM
             Users U
-        JOIN 
-            UsersLocation UL ON U.Id = UL.UserId
-        JOIN 
-            RefLocation RL ON UL.LocationCode = RL.Code
         WHERE
             (U.Name LIKE ? OR U.Username LIKE ? OR U.Email LIKE ?)
       `;

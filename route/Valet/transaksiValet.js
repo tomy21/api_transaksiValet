@@ -33,56 +33,105 @@ const upload = multer({ storage: storage });
 router.get("/transactionsValet", (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
+  const search = req.query.search || "";
   const sortBy = req.query.sortBy || "UpdatedOn";
   const sortDirection = req.query.sortDirection || "desc";
 
   const offset = (page - 1) * limit;
+
+  // Query to fetch data
   const query = `
-     SELECT 
-        TransactionParkingValet.Id,
-        TransactionParkingValet.LocationCode,
-        TransactionParkingValet.TrxNo,
-        TransactionParkingValet.TicketNumber,
-        TransactionParkingValet.VehiclePlate,
-        TransactionParkingValet.InTime,
-        TransactionParkingValet.OutTime,
-        TransactionParkingValet.ReceivedOn,
-        TransactionParkingValet.ReceivedBy,
-        TransactionParkingValet.ReqPickupOn,
-        TransactionParkingValet.ConfirmReqPickupOn,
-        TransactionParkingValet.ConfirmReqPickupUserId,
-        TransactionParkingValet.CreatedBy,
-        TransactionParkingValet.ArrivedTimeStart,
-        TransactionParkingValet.ArrivedTimeFinish,
-        TransactionParkingValet.NoKeySlot,
-        TransactionParkingValet.fotoBuktiPayment1,
-        RefLocation.Name,
-        (SELECT COUNT(1) FROM TransactionParkingValet) AS total_count
+    SELECT 
+      TransactionParkingValet.Id,
+      TransactionParkingValet.LocationCode,
+      TransactionParkingValet.TrxNo,
+      TransactionParkingValet.TicketNumber,
+      TransactionParkingValet.VehiclePlate,
+      TransactionParkingValet.InTime,
+      TransactionParkingValet.OutTime,
+      TransactionParkingValet.ReceivedOn,
+      TransactionParkingValet.ReceivedBy,
+      TransactionParkingValet.ReqPickupOn,
+      TransactionParkingValet.ConfirmReqPickupOn,
+      TransactionParkingValet.ConfirmReqPickupUserId,
+      TransactionParkingValet.CreatedBy,
+      TransactionParkingValet.ArrivedTimeStart,
+      TransactionParkingValet.ArrivedTimeFinish,
+      TransactionParkingValet.NoKeySlot,
+      TransactionParkingValet.fotoBuktiPayment1,
+      RefLocation.Name
     FROM 
-        TransactionParkingValet
+      TransactionParkingValet
     JOIN 
-        RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code    
+      RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
+    WHERE
+      (RefLocation.Name LIKE ? OR TransactionParkingValet.LocationCode LIKE ? OR TransactionParkingValet.VehiclePlate LIKE ? OR TransactionParkingValet.TicketNumber LIKE ? OR TransactionParkingValet.TrxNo LIKE ?)      
     ORDER BY 
-        TransactionParkingValet.${sortBy} ${sortDirection}
+      TransactionParkingValet.${sortBy} ${sortDirection}
     LIMIT ?, ?`;
 
-  connection.connection.query(query, [offset, limit], (err, results) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Internal server error");
-    } else {
-      const totalPages = Math.ceil(results[0].total_count / limit);
-      const response = {
-        code: 200,
-        message: "Success Get Transactions",
-        totalPages: totalPages,
-        totalData: results[0].total_count,
-        currentPage: page,
-        data: results,
-      };
-      res.status(200).json(response);
+  // Query to count total data
+  const countQuery = `
+    SELECT 
+      COUNT(1) AS total_count
+    FROM 
+      TransactionParkingValet
+    JOIN 
+      RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
+    WHERE
+      (RefLocation.Name LIKE ? OR TransactionParkingValet.LocationCode LIKE ? OR TransactionParkingValet.VehiclePlate LIKE ? OR TransactionParkingValet.TicketNumber LIKE ? OR TransactionParkingValet.TrxNo LIKE ?)`;
+
+  connection.connection.query(
+    query,
+    [
+      `%${search}%`,
+      `%${search}%`,
+      `%${search}%`,
+      `%${search}%`,
+      `%${search}%`,
+      offset,
+      limit,
+    ],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send("Internal server error");
+        return;
+      }
+
+      // Fetch total count
+      connection.connection.query(
+        countQuery,
+        [
+          `%${search}%`,
+          `%${search}%`,
+          `%${search}%`,
+          `%${search}%`,
+          `%${search}%`,
+        ],
+        (err, countResult) => {
+          if (err) {
+            console.error(err);
+            res.status(500).send("Internal server error");
+            return;
+          }
+
+          const totalCount = countResult[0].total_count;
+          const totalPages = Math.ceil(totalCount / limit);
+
+          const response = {
+            code: 200,
+            message: "Success Get Transactions",
+            totalPages: totalPages,
+            totalData: totalCount,
+            currentPage: page,
+            data: results,
+          };
+          res.status(200).json(response);
+        }
+      );
     }
-  });
+  );
 });
 
 router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {
