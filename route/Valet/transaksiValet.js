@@ -740,7 +740,7 @@ router.post(
       const CreatedOn = dateCurrent.date_time;
       const UpdatedOn = dateCurrent.date_time;
       const CreatedBy = req.body.CreatedBy || null;
-      let VehiclePlate = null;
+      const VehiclePlate = req.body.VehiclePlate;
       const photoPaths = [];
 
       for (let i = 1; i <= 6; i++) {
@@ -752,30 +752,6 @@ router.post(
         }
       }
 
-      if (req.files["foto1"] && req.files["foto1"].length > 0) {
-        const imageData = req.files["foto1"][0].path;
-        // const imagePath = imageData.path; // Mendapatkan path dari gambar yang diunggah
-        const url = "https://api.platerecognizer.com/v1/plate-reader/";
-        const apiKey = "2ee83fb34e74d1bd32772ac11129862e8f8161e1";
-        const formData = new FormData();
-        formData.append("upload", fs.createReadStream(imageData));
-
-        try {
-          const response = await axios.post(url, formData, {
-            headers: {
-              Authorization: `Token ${apiKey}`,
-              ...formData.getHeaders(),
-            },
-          });
-
-          if (response.data.results && response.data.results.length > 0) {
-            // Jika plat nomor terdeteksi, gunakan hasilnya
-            VehiclePlate = response.data.results[0].plate.toUpperCase();
-          }
-        } catch (error) {
-          console.error("Error recognizing plate:", error);
-        }
-      }
       // console.log(VehiclePlate);
       const query = `
       INSERT INTO
