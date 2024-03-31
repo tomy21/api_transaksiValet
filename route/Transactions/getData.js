@@ -72,4 +72,15 @@ router.get("/transaction", async (req, res) => {
   );
 });
 
+router.get("/generateKey", async (req, res) => {
+  const locationCode = req.query.locationCode;
+
+  try {
+    const codeKey = await connection.generateKeyNumber(locationCode);
+    res.status(200).json({ codeKey });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = router;

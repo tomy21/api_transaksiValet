@@ -138,7 +138,6 @@ router.get("/exportDailyData", async (req, res) => {
     let queryParams;
 
     if (!locationCode) {
-      // Jika locationCode tidak diberikan, ambil semua data tanpa klausa WHERE
       query = `
         SELECT
             DATE_FORMAT(TransactionParkingValet.CreatedOn, '%Y-%m-%d %H:%i:%s') AS DateTime,
@@ -168,7 +167,6 @@ router.get("/exportDailyData", async (req, res) => {
       `;
       queryParams = [startDate, endDate];
     } else {
-      // Jika locationCode diberikan, tambahkan klausa WHERE untuk LocationCode
       query = `
         SELECT
             DATE_FORMAT(TransactionParkingValet.CreatedOn, '%Y-%m-%d %H:%i:%s') AS DateTime,
@@ -207,88 +205,58 @@ router.get("/exportDailyData", async (req, res) => {
   }
 });
 
-// router.get("/exportExcelMonthly", async (req, res) => {
-//   try {
-//     const date = req.query.date;
-//     const locationCode = req.query.locationCode;
-//     const query = `
-//           SELECT
-//               DATE_FORMAT(CreatedOn, '%Y-%m-%d %H:%i:%s') AS DateTime,
-//               COUNT(CASE WHEN ParkingType = 2 THEN 1 ELSE NULL END) AS QtyReguler,
-//               COUNT(CASE WHEN ParkingType = 3 THEN 1 ELSE NULL END) AS QtyVVIP,
-//               COUNT(CASE WHEN ParkingType = 1 THEN 1 ELSE NULL END) AS QtyLT,
-//               SUM(CASE WHEN ParkingType = 2 THEN Tariff ELSE 0 END) AS IncomeReguler,
-//               SUM(CASE WHEN ParkingType = 3 THEN Tariff ELSE 0 END) AS IncomeVVIP,
-//               SUM(CASE WHEN ParkingType = 1 THEN Tariff ELSE 0 END) AS IncomeLT,
-//               SUM(Tariff) AS TotalIncome
-//           FROM
-//               TransactionParkingValet
-//           WHERE
-//               DATE(CreatedOn) = ? AND
-//               LocationCode = ?
-//           GROUP BY
-//               DATE_FORMAT(CreatedOn, '%Y-%m-%d');
-//       `;
+router.get("/exportSummaryTransaction", async (req, res) => {
+  try {
+    const month = req.query.month || new Date().getMonth() + 1; // Get current month if not provided
+    const query = `
+    SELECT 
+      DATE_FORMAT(InTime, '%d-%m-%Y') AS date,
+      DATE_FORMAT(InTime, '%H:00') AS hour,
+      SUM(CASE WHEN DATE(InTime) THEN 1 ELSE 0 END) AS InCount,
+      SUM(CASE WHEN DATE(OutTime) = DATE(InTime) THEN 1 ELSE 0 END) AS OutCount,
+      SUM(CASE WHEN DATE(OutTime) != DATE(InTime) THEN 1 ELSE 0 END) AS OnCount
+    FROM 
+        TransactionParkingValet
+    WHERE 
+        MONTH(InTime) = ?
+    GROUP BY 
+        date, hour
+    ORDER BY 
+        date, hour;`;
 
-//     connection.connection.query(
-//       query,
-//       [date, locationCode],
-//       async (err, result) => {
-//         if (err) {
-//           console.error("Error executing query:", err);
-//           res.status(500).send("Failed to fetch summary data");
-//         } else {
-//           const workbook = new exceljs.Workbook();
-//           const worksheet = workbook.addWorksheet(date + "_" + locationCode);
+    connection.connection.query(query, [month], (err, results) => {
+      if (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .json({ statusCode: 500, message: "Internal server error" });
+      }
 
-//           // Tambahkan header
-//           worksheet.addRow([
-//             "Date",
-//             "Qty Reguler",
-//             "Qty VVIP",
-//             "Qty LT",
-//             "Income Reguler",
-//             "Income VVIP",
-//             "Income LT",
-//             "Total Income",
-//           ]);
+      const formattedData = results.map((item) => ({
+        date: item.date,
+        detail: [
+          {
+            hour: item.hour,
+            in: item.InCount,
+            out: item.OutCount,
+            on: item.OnCount,
+          },
+        ],
+      }));
 
-//           // Tambahkan data
-//           result.forEach((row) => {
-//             const data = [
-//               row.DateTime,
-//               row.QtyReguler,
-//               row.QtyVVIP,
-//               row.QtyLT,
-//               row.IncomeReguler,
-//               row.IncomeVVIP,
-//               row.IncomeLT,
-//               row.TotalIncome,
-//             ];
-//             worksheet.addRow(data);
-//           });
-
-//           // Set header agar dapat diunduh sebagai file Excel
-//           res.setHeader(
-//             "Content-Type",
-//             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-//           );
-//           res.setHeader(
-//             "Content-Disposition",
-//             "attachment; filename=data.xlsx"
-//           );
-
-//           // Kembalikan file Excel ke client
-//           await workbook.xlsx.write(res);
-//           res.end();
-//         }
-//       }
-//     );
-//   } catch (e) {
-//     console.error(e);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
+      res.status(200).json({
+        statusCode: 200,
+        message: "Success get data",
+        data: formattedData,
+      });
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    res
+      .status(500)
+      .json({ statusCode: 500, message: "Failed to process request" });
+  }
+});
 
 router.get("/hourlyreport", async (req, res) => {
   try {
@@ -327,11 +295,25 @@ router.get("/dailyreport", async (req, res) => {
     SELECT 
         DATE_FORMAT(InTime, '%H:00') AS Jam,
         SUM(Tariff) AS TotalIncome,
+        COUNT(TrxNo) AS TotalTrx,
+        SUM(CASE WHEN DATE(OutTime) != DATE(InTime) THEN 1 ELSE 0 END) AS TotalON
+    FROM TransactionParkingValet
+    WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
+        AND DATE(InTime) = @selectedDate
+    GROUP BY DATE_FORMAT(InTime, '%H');
+    `;
+
+    const queryOut = `
+    SET @selectedDate = IFNULL(?, CURDATE());
+
+    SELECT 
+        DATE_FORMAT(OutTime, '%H:00') AS Jam,
+        SUM(Tariff) AS TotalIncome,
         COUNT(TrxNo) AS TotalTrx
     FROM TransactionParkingValet
     WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
-    AND DATE(InTime) = @selectedDate
-    GROUP BY DATE_FORMAT(InTime, '%H');
+        AND DATE(OutTime) = @selectedDate
+    GROUP BY DATE_FORMAT(OutTime, '%H');
     `;
 
     const queryCount = `
@@ -347,13 +329,18 @@ router.get("/dailyreport", async (req, res) => {
         COALESCE(SUM(TotalValetTrx), 0) AS TotalValetTrx,
         COALESCE(SUM(TotalValetTrxPrevious), 0) AS TotalValetTrxPrevious,
         COALESCE(AVG(DurationAvg), 0) AS DurationAvg,
-        COALESCE(AVG(DurationAvgPrevious), 0) AS DurationAvgPrevious
+        COALESCE(AVG(DurationAvgPrevious), 0) AS DurationAvgPrevious,
+        COALESCE(SUM(TotalTrxOut), 0) AS TotalTrxOut,
+        COALESCE(SUM(TotalTrxOutPrevious), 0) AS TotalTrxOutPrevious,
+        GREATEST((COALESCE(SUM(TotalTrx), 0) - COALESCE(SUM(TotalTrxOut), 0)), 0) AS TotalON
     FROM (
         SELECT 
             SUM(CASE WHEN DATE(InTime) = @selectedDate THEN Tariff ELSE 0 END) AS TotalIncome,
             SUM(CASE WHEN DATE(InTime) = DATE_SUB(@selectedDate, INTERVAL 1 DAY) THEN Tariff ELSE 0 END) AS TotalIncomePrevious,
             COUNT(CASE WHEN DATE(InTime) = @selectedDate THEN TrxNo END) AS TotalTrx,
             COUNT(CASE WHEN DATE(InTime) = DATE_SUB(@selectedDate, INTERVAL 1 DAY) THEN TrxNo END) AS TotalTrxPrevious,
+            COUNT(CASE WHEN DATE(OutTime) = @selectedDate THEN TrxNo END) AS TotalTrxOut,
+            COUNT(CASE WHEN DATE(OutTime) = DATE_SUB(@selectedDate, INTERVAL 1 DAY) THEN TrxNo END) AS TotalTrxOutPrevious,
             COUNT(CASE WHEN DATE(InTime) = @selectedDate AND ParkingType = '3' THEN TrxNo END) AS TotalVIPTrx,
             COUNT(CASE WHEN DATE(InTime) = DATE_SUB(@selectedDate, INTERVAL 1 DAY) AND ParkingType = '3' THEN TrxNo END) AS TotalVIPTrxPrevious,
             COUNT(CASE WHEN DATE(InTime) = @selectedDate AND ParkingType IN ('1', '2') THEN TrxNo END) AS TotalValetTrx,
@@ -364,6 +351,7 @@ router.get("/dailyreport", async (req, res) => {
         WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
         AND DATE(InTime) IN (@selectedDate, DATE_SUB(@selectedDate, INTERVAL 1 DAY))
     ) AS subquery;
+
     `;
 
     const listLocation = `
@@ -382,7 +370,7 @@ router.get("/dailyreport", async (req, res) => {
     ORDER BY TotalTrx DESC;
     `;
 
-    const queryParams = locationCode === "*" ? [date] : [locationCode, date];
+    const queryParams = locationCode === "*" ? [date] : [date, locationCode];
     connection.connection.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
@@ -404,14 +392,26 @@ router.get("/dailyreport", async (req, res) => {
                     console.error("Error executing query:", err);
                     res.status(500).send("Failed to fetch summary data");
                   } else {
-                    const response = {
-                      code: 200,
-                      message: "Success Get Report",
-                      totalTrx: result,
-                      summary: results,
-                      listArea: listTrx,
-                    };
-                    res.status(200).json(response);
+                    connection.connection.query(
+                      queryOut,
+                      queryParams,
+                      async (err, listOut) => {
+                        if (err) {
+                          console.error("Error executing query:", err);
+                          res.status(500).send("Failed to fetch summary data");
+                        } else {
+                          const response = {
+                            code: 200,
+                            message: "Success Get Report",
+                            totalTrx: result[1],
+                            summary: results[1],
+                            summaryOut: listOut[1],
+                            listArea: listTrx[1],
+                          };
+                          res.status(200).json(response);
+                        }
+                      }
+                    );
                   }
                 }
               );
@@ -430,18 +430,32 @@ router.get("/monthlyreport", async (req, res) => {
   try {
     const locationCode = req.query.locationCode ? req.query.locationCode : "*";
     const month = req.query.month || null;
+    console.log(locationCode);
     const query = `
     SET @selectedMonth = IFNULL(?, MONTH(NOW()));
 
     SELECT 
         DATE_FORMAT(InTime, '%d-%m') AS Hari,
         SUM(Tariff) AS TotalIncome,
-        COUNT(TrxNo) AS TotalTrx
+        COUNT(TrxNo) AS TotalTrx,
+        SUM(CASE WHEN DATE(OutTime) != DATE(InTime) THEN 1 ELSE 0 END) AS TotalON
     FROM TransactionParkingValet
     WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
     AND MONTH(InTime) = @selectedMonth
     GROUP BY DATE(InTime);
     `;
+
+    const queryOut = `
+    SET @selectedMonth = IFNULL(?, MONTH(NOW()));
+
+    SELECT 
+        DATE_FORMAT(OutTime, '%d-%m') AS HariOut,
+        SUM(Tariff) AS TotalIncome,
+        COUNT(TrxNo) AS TotalTrx
+    FROM TransactionParkingValet
+    WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
+    AND MONTH(OutTime) = @selectedMonth
+    GROUP BY DATE(OutTime);`;
 
     const queryCount = `
     SET @selectedMonth = IFNULL(?, MONTH(NOW()));
@@ -456,13 +470,17 @@ router.get("/monthlyreport", async (req, res) => {
         COALESCE(SUM(TotalValetTrx), 0) AS TotalValetTrx,
         COALESCE(SUM(TotalValetTrxPrevious), 0) AS TotalValetTrxPrevious,
         COALESCE(AVG(DurationAvg), 0) AS DurationAvg,
-        COALESCE(AVG(DurationAvgPrevious), 0) AS DurationAvgPrevious
+        COALESCE(AVG(DurationAvgPrevious), 0) AS DurationAvgPrevious,
+        COALESCE(SUM(TotalTrxOut), 0) AS TotalTrxOut,
+        COALESCE(SUM(TotalTrxOutPrevious), 0) AS TotalTrxOutPrevious
     FROM (
         SELECT 
             SUM(CASE WHEN MONTH(InTime) = @selectedMonth THEN Tariff ELSE 0 END) AS TotalIncome,
             SUM(CASE WHEN MONTH(InTime) = @selectedMonth - 1 THEN Tariff ELSE 0 END) AS TotalIncomePrevious,
             COUNT(CASE WHEN MONTH(InTime) = @selectedMonth THEN TrxNo END) AS TotalTrx,
             COUNT(CASE WHEN MONTH(InTime) = @selectedMonth - 1 THEN TrxNo END) AS TotalTrxPrevious,
+            COUNT(CASE WHEN MONTH(OutTime) = @selectedMonth THEN TrxNo END) AS TotalTrxOut,
+            COUNT(CASE WHEN MONTH(OutTime) = @selectedMonth - 1 THEN TrxNo END) AS TotalTrxOutPrevious,
             COUNT(CASE WHEN MONTH(InTime) = @selectedMonth AND ParkingType = '3' THEN TrxNo END) AS TotalVIPTrx,
             COUNT(CASE WHEN MONTH(InTime) = @selectedMonth - 1 AND ParkingType = '3' THEN TrxNo END) AS TotalVIPTrxPrevious,
             COUNT(CASE WHEN MONTH(InTime) = @selectedMonth AND ParkingType IN ('1', '2') THEN TrxNo END) AS TotalValetTrx,
@@ -491,7 +509,7 @@ router.get("/monthlyreport", async (req, res) => {
         ORDER BY TotalTrx DESC;
     `;
 
-    const queryParams = locationCode === "*" ? [month] : [locationCode, month];
+    const queryParams = locationCode === "*" ? [month] : [month, locationCode];
     connection.connection.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
@@ -513,14 +531,26 @@ router.get("/monthlyreport", async (req, res) => {
                     console.error("Error executing query:", err);
                     res.status(500).send("Failed to fetch summary data");
                   } else {
-                    const response = {
-                      code: 200,
-                      message: "Success Get Report",
-                      totalTrx: result,
-                      summary: results,
-                      listArea: listTrx,
-                    };
-                    res.status(200).json(response);
+                    connection.connection.query(
+                      queryOut,
+                      queryParams,
+                      async (err, listOut) => {
+                        if (err) {
+                          console.error("Error executing query:", err);
+                          res.status(500).send("Failed to fetch summary data");
+                        } else {
+                          const response = {
+                            code: 200,
+                            message: "Success Get Report",
+                            totalTrx: result[1],
+                            summary: results[1],
+                            summaryOut: listOut[1],
+                            listArea: listTrx[1],
+                          };
+                          res.status(200).json(response);
+                        }
+                      }
+                    );
                   }
                 }
               );
@@ -539,6 +569,7 @@ router.get("/yearlyreport", async (req, res) => {
   try {
     const locationCode = req.query.locationCode ? req.query.locationCode : "*";
     const year = req.query.year || null;
+    console.log(locationCode);
     const query = `
     SET @selectedYear = IFNULL(?, YEAR(NOW()));
 
@@ -550,6 +581,19 @@ router.get("/yearlyreport", async (req, res) => {
     WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
     AND YEAR(InTime) = @selectedYear
     GROUP BY MONTH(InTime);
+    `;
+
+    const queryOut = `
+    SET @selectedYear = IFNULL(?, YEAR(NOW()));
+
+    SELECT 
+        MONTH(OutTime) AS Bulan,
+        SUM(Tariff) AS TotalIncome,
+        COUNT(TrxNo) AS TotalTrx
+    FROM TransactionParkingValet
+    WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
+    AND YEAR(OutTime) = @selectedYear
+    GROUP BY MONTH(OutTime);
     `;
 
     const queryCount = `
@@ -616,7 +660,9 @@ router.get("/yearlyreport", async (req, res) => {
         ORDER BY Bulan, TotalTrx DESC;
     `;
 
-    const queryParams = locationCode === "*" ? [year] : [locationCode, year];
+    const queryParams = locationCode === "*" ? [year] : [year, locationCode];
+    const queryParams2 =
+      locationCode === "*" ? [year] : [year, locationCode, locationCode];
     connection.connection.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
@@ -624,7 +670,7 @@ router.get("/yearlyreport", async (req, res) => {
       } else {
         connection.connection.query(
           queryCount,
-          queryParams,
+          queryParams2,
           async (err, result) => {
             if (err) {
               console.error("Error executing query:", err);
@@ -638,14 +684,26 @@ router.get("/yearlyreport", async (req, res) => {
                     console.error("Error executing query:", err);
                     res.status(500).send("Failed to fetch summary data");
                   } else {
-                    const response = {
-                      code: 200,
-                      message: "Success Get Report",
-                      totalTrx: result,
-                      summary: results,
-                      listArea: listTrx,
-                    };
-                    res.status(200).json(response);
+                    connection.connection.query(
+                      queryOut,
+                      queryParams,
+                      async (err, listOut) => {
+                        if (err) {
+                          console.error("Error executing query:", err);
+                          res.status(500).send("Failed to fetch summary data");
+                        } else {
+                          const response = {
+                            code: 200,
+                            message: "Success Get Report",
+                            totalTrx: result[1],
+                            summary: results[1],
+                            summaryOut: listOut[1],
+                            listArea: listTrx[1],
+                          };
+                          res.status(200).json(response);
+                        }
+                      }
+                    );
                   }
                 }
               );

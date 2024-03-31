@@ -16,6 +16,7 @@ const loginUsers = require("./route/Users/login.js");
 const trxValet = require("./route/Valet/transaksiValet.js");
 const getUsers = require("./route/Users/GetUsers.js");
 const getReport = require("./route/Valet/report.js");
+const generateCode = require("./route/Transactions/getData.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 5000;
@@ -41,6 +42,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use("/uploads", express.static("uploads"));
 app.use("/api", Locations);
+app.use("/api", generateCode);
 app.use("/api", Issuer);
 app.use("/api", Payment);
 app.use("/api", CloseTicket);

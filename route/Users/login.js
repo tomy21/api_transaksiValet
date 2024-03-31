@@ -81,7 +81,8 @@ router.post("/login", (req, res) => {
         // Buat token JWT
         const token = jwt.sign(
           { id: user.id, username: user.Username },
-          SECRET_KEY
+          SECRET_KEY,
+          { expiresIn: "1h" }
         );
 
         const keyAES = "PARTNER_KEY";

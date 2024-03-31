@@ -31,16 +31,20 @@ const io = new Server(server, {
 const upload = multer({ storage: storage });
 
 router.get("/transactionsValet", (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const search = req.query.search || "";
-  const sortBy = req.query.sortBy || "UpdatedOn";
-  const sortDirection = req.query.sortDirection || "desc";
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const sortBy = req.query.sortBy || "UpdatedOn";
+    const locationCode = req.query.locationCode || "";
+    let startDate = req.query.startDate || null;
+    let endDate = req.query.endDate || null;
+    const sortDirection = req.query.sortDirection || "desc";
 
-  const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit;
 
-  // Query to fetch data
-  const query = `
+    // Query to fetch data
+    const query = `
     SELECT 
       TransactionParkingValet.Id,
       TransactionParkingValet.LocationCode,
@@ -65,13 +69,18 @@ router.get("/transactionsValet", (req, res) => {
     JOIN 
       RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
     WHERE
-      (RefLocation.Name LIKE ? OR TransactionParkingValet.LocationCode LIKE ? OR TransactionParkingValet.VehiclePlate LIKE ? OR TransactionParkingValet.TicketNumber LIKE ? OR TransactionParkingValet.TrxNo LIKE ?)      
+      (RefLocation.Name LIKE ? OR TransactionParkingValet.LocationCode LIKE ? OR TransactionParkingValet.VehiclePlate LIKE ? OR TransactionParkingValet.TicketNumber LIKE ? OR TransactionParkingValet.TrxNo LIKE ?)
+      ${locationCode ? "AND TransactionParkingValet.LocationCode = ?" : ""}
+      ${
+        startDate && endDate
+          ? "AND TransactionParkingValet.InTime >= ? AND TransactionParkingValet.InTime <= ?"
+          : ""
+      }
     ORDER BY 
       TransactionParkingValet.${sortBy} ${sortDirection}
     LIMIT ?, ?`;
 
-  // Query to count total data
-  const countQuery = `
+    const countQuery = `
     SELECT 
       COUNT(1) AS total_count
     FROM 
@@ -79,20 +88,33 @@ router.get("/transactionsValet", (req, res) => {
     JOIN 
       RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
     WHERE
-      (RefLocation.Name LIKE ? OR TransactionParkingValet.LocationCode LIKE ? OR TransactionParkingValet.VehiclePlate LIKE ? OR TransactionParkingValet.TicketNumber LIKE ? OR TransactionParkingValet.TrxNo LIKE ?)`;
+      (RefLocation.Name LIKE ? OR TransactionParkingValet.LocationCode LIKE ? OR TransactionParkingValet.VehiclePlate LIKE ? OR TransactionParkingValet.TicketNumber LIKE ? OR TransactionParkingValet.TrxNo LIKE ?)
+      ${locationCode ? "AND TransactionParkingValet.LocationCode = ?" : ""}
+      ${
+        startDate && endDate
+          ? "AND TransactionParkingValet.InTime >= ? AND TransactionParkingValet.InTime <= ?"
+          : ""
+      }`;
 
-  connection.connection.query(
-    query,
-    [
+    const queryParams = [
       `%${search}%`,
       `%${search}%`,
       `%${search}%`,
       `%${search}%`,
       `%${search}%`,
-      offset,
-      limit,
-    ],
-    (err, results) => {
+    ];
+
+    if (locationCode) {
+      queryParams.push(locationCode);
+    }
+
+    if (startDate && endDate) {
+      queryParams.push(startDate, endDate);
+    }
+
+    queryParams.push(offset, limit);
+
+    connection.connection.query(query, queryParams, (err, results) => {
       if (err) {
         console.error(err);
         res.status(500).send("Internal server error");
@@ -102,13 +124,7 @@ router.get("/transactionsValet", (req, res) => {
       // Fetch total count
       connection.connection.query(
         countQuery,
-        [
-          `%${search}%`,
-          `%${search}%`,
-          `%${search}%`,
-          `%${search}%`,
-          `%${search}%`,
-        ],
+        queryParams.slice(0, -2), // Remove offset and limit from count query parameters
         (err, countResult) => {
           if (err) {
             console.error(err);
@@ -130,8 +146,11 @@ router.get("/transactionsValet", (req, res) => {
           res.status(200).json(response);
         }
       );
-    }
-  );
+    });
+  } catch (err) {
+    console.error("Error:", err);
+    res.status(500).send("Failed to process request");
+  }
 });
 
 router.get("/transactions/in/:codeLocations", verifyToken, (req, res) => {

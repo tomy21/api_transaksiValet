@@ -24,4 +24,29 @@ router.get("/location", async (req, res) => {
   });
 });
 
+router.get("/locationvalet", async (req, res) => {
+  const query = `
+  SELECT DISTINCT
+	  TPV.LocationCode AS Code,
+    RF.Name AS Name
+  FROM
+	  TransactionParkingValet TPV
+  JOIN
+	  RefLocation RF ON RF.Code = TPV.LocationCode;`;
+
+  connection.connection.query(query, (err, results) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      return res.status(500).json({ message: "Get data failed", error: err });
+    }
+
+    const response = {
+      statusCode: 200,
+      message: "success get locations",
+      data: results,
+    };
+    return res.status(200).json(response);
+  });
+});
+
 module.exports = router;
