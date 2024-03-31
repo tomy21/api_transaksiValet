@@ -90,13 +90,13 @@ function generateKeyNumber(locationCode) {
   return new Promise((resolve, reject) => {
     const today = new Date().toISOString().split("T")[0];
 
-    const query = `SELECT NoKeySlot FROM TransactionParkingValet WHERE InTime = '${today}' AND locationCode = '${locationCode}'`;
+    const query = `SELECT NoKeySlot FROM TransactionParkingValet WHERE DATE(InTime) = '${today}' AND LocationCode = '${locationCode}'`;
 
     connection.query(query, (error, results) => {
       if (error) {
         reject(error);
       } else {
-        const usedKeyNumbers = results.map((row) => row.keyNumber);
+        const usedKeyNumbers = results.map((row) => row.NoKeySlot);
         const allKeyNumbers = new Set([...Array(300).keys()].map((i) => i + 1));
 
         // Temukan nomor kunci yang tersedia

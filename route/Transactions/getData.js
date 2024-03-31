@@ -74,10 +74,20 @@ router.get("/transaction", async (req, res) => {
 
 router.get("/generateKey", async (req, res) => {
   const locationCode = req.query.locationCode;
+  const today = new Date().toISOString().split("T")[0];
 
   try {
     const codeKey = await connection.generateKeyNumber(locationCode);
-    res.status(200).json({ codeKey });
+    console.log(today);
+    const response = {
+      statusCode: 200,
+      message: "success",
+      data: {
+        codeKey: codeKey,
+        time: today,
+      },
+    };
+    res.status(200).json(response);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }
