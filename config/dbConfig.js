@@ -96,7 +96,10 @@ function generateKeyNumber(locationCode) {
       if (error) {
         reject(error);
       } else {
-        const usedKeyNumbers = results.map((row) => row.NoKeySlot);
+        const usedKeyNumbers = results
+          .filter((row) => row.OutTime === null) // Filter hanya data yang OutTime-nya null
+          .map((row) => row.NoKeySlot);
+
         const allKeyNumbers = new Set([...Array(300).keys()].map((i) => i + 1));
 
         // Temukan nomor kunci yang tersedia

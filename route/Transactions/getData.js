@@ -78,7 +78,6 @@ router.get("/generateKey", async (req, res) => {
 
   try {
     const codeKey = await connection.generateKeyNumber(locationCode);
-    console.log(today);
     const response = {
       statusCode: 200,
       message: "success",
