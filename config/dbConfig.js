@@ -97,17 +97,19 @@ function generateKeyNumber(locationCode) {
         reject(error);
       } else {
         const usedKeyNumbers = results
-          .filter((row) => row.OutTime !== null) // Filter hanya data dengan OutTime yang tidak null
+          .filter((row) => row.OutTime === null) // Filter transaksi dengan OutTime tidak null (sudah keluar)
           .map((row) => row.NoKeySlot);
 
-        const allKeyNumbers = new Set([...Array(300).keys()].map((i) => i + 1));
+        const allKeyNumbers = Array.from({ length: 300 }, (_, i) => i + 1); // Array dengan nomor kunci 1 hingga 300
 
         // Temukan nomor kunci yang tersedia
-        usedKeyNumbers.forEach((used) => allKeyNumbers.delete(used));
-
+        const availableKeyNumbers = allKeyNumbers.filter(
+          (key) => !usedKeyNumbers.includes(key)
+        );
+        console.log(allKeyNumbers);
         // Jika masih ada nomor kunci yang tersedia, kembalikan nomor kunci terkecil
-        if (allKeyNumbers.size > 0) {
-          resolve(allKeyNumbers.values().next().value);
+        if (availableKeyNumbers.length > 0) {
+          resolve(availableKeyNumbers[0]);
         } else {
           // Jika semua nomor kunci terpakai, kembalikan nomor kunci terakhir + 1
           const lastUsedKeyNumber = Math.max(...usedKeyNumbers);
