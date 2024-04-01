@@ -90,14 +90,14 @@ function generateKeyNumber(locationCode) {
   return new Promise((resolve, reject) => {
     const today = new Date().toISOString().split("T")[0];
 
-    const query = `SELECT NoKeySlot FROM TransactionParkingValet WHERE DATE(InTime) = '${today}' AND LocationCode = '${locationCode}'`;
+    const query = `SELECT NoKeySlot, OutTime FROM TransactionParkingValet WHERE DATE(InTime) = '${today}' AND LocationCode = '${locationCode}'`;
 
     connection.query(query, (error, results) => {
       if (error) {
         reject(error);
       } else {
         const usedKeyNumbers = results
-          .filter((row) => row.OutTime === null) // Filter hanya data yang OutTime-nya null
+          .filter((row) => row.OutTime !== null) // Filter hanya data dengan OutTime yang tidak null
           .map((row) => row.NoKeySlot);
 
         const allKeyNumbers = new Set([...Array(300).keys()].map((i) => i + 1));
