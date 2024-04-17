@@ -4,7 +4,6 @@ WORKDIR /app
 
 COPY package* .
 
-RUN npm cache clean --force
 RUN npm install --silent
 
 COPY . .
