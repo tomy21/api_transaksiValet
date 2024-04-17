@@ -106,7 +106,6 @@ function generateKeyNumber(locationCode) {
         const availableKeyNumbers = allKeyNumbers.filter(
           (key) => !usedKeyNumbers.includes(key)
         );
-        console.log(allKeyNumbers);
         // Jika masih ada nomor kunci yang tersedia, kembalikan nomor kunci terkecil
         if (availableKeyNumbers.length > 0) {
           resolve(availableKeyNumbers[0]);

@@ -33,6 +33,15 @@ router.post("/registerUser", async (req, res) => {
     const updatedBy = "admin";
     const isFirstPassword = 0;
     const merchantId = 0;
+    const typeValet = parseInt(req.body.typeValet);
+    const qrisVVIP = req.body.qrisVVIP;
+    const qrisCasualValet = req.body.qrisCasualValet;
+    const tariffVVIP = req.body.tariffVVIP;
+    const tariffCasualValet = req.body.tariffCasualValet;
+    const NMIDVIP = req.body.NMIDVIP;
+    const NMIDValet = req.body.NMIDValet;
+    const NameRekVIP = req.body.NameRekVIP;
+    const NameRekValet = req.body.NameRekValet;
 
     const nowDate = new Date();
     const expiredPassDate = addYears(nowDate, 1);
@@ -42,7 +51,7 @@ router.post("/registerUser", async (req, res) => {
       "INSERT INTO Users (SetupRoleId, IpAddress, UserCode, Name, Gender, Username, Email, HandPhone, Whatsapp, Password, PasswordExpired, IsFirstpassword, MerchantId , CreatedOn, CreatedBy, UpdatedOn, UpdatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     const insertUserLocationQuery =
-      "INSERT INTO UsersLocation (UserId, LocationCode, CreatedBy, UpdatedOn, UpdatedBy) VALUES (?, ?, ?, ?, ?)";
+      "INSERT INTO UsersLocation (UserId, LocationCode, typeValet, qrisVVIP, qrisCasualValet, tariffVVIP, tariffCasualValet, NMIDVIP, NameRekVIP, NMIDValet, NameRekValet, CreatedBy, UpdatedOn, UpdatedBy) VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?,?, ?, ?, ?)";
 
     connection.connection.query(
       insertUserQuery,
@@ -67,7 +76,11 @@ router.post("/registerUser", async (req, res) => {
       ],
       (err, results) => {
         if (err) {
-          console.error("Error inserting user:", err);
+          if (err.code === "ER_DUP_ENTRY") {
+            return res
+              .status(400)
+              .json({ statusCode: 400, error: "Duplicate entry detected" });
+          }
           return res.status(500).json({ error: "Failed to insert user" });
         }
 
@@ -75,10 +88,24 @@ router.post("/registerUser", async (req, res) => {
 
         connection.connection.query(
           insertUserLocationQuery,
-          [newUserId, locationCode, createdBy, updatedOn, updatedBy],
+          [
+            newUserId,
+            locationCode,
+            typeValet,
+            qrisVVIP,
+            qrisCasualValet,
+            tariffVVIP,
+            tariffCasualValet,
+            NMIDVIP,
+            NameRekVIP,
+            NMIDValet,
+            NameRekValet,
+            createdBy,
+            updatedOn,
+            updatedBy,
+          ],
           (err, result) => {
             if (err) {
-              console.error("Error inserting user location:", err);
               return res
                 .status(500)
                 .json({ error: "Failed to insert user location" });
@@ -111,7 +138,6 @@ router.post("/registerUser", async (req, res) => {
       }
     );
   } catch (error) {
-    console.error("Error registering user:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

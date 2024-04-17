@@ -5,6 +5,7 @@ const crypto = require("crypto-js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
+const cookieParser = require("cookie-parser");
 const connection = require("../../config/dbConfig.js");
 const currentdate = require("../../config/formatCurrentDate.js");
 const dateTimeCurrent = require("../../config/currentDateTime.js");
@@ -13,6 +14,7 @@ const SECRET_KEY = "skyparking12345";
 
 router.use(bodyParser.json());
 router.use(cors());
+router.use(cookieParser());
 const secretKey = "PARTNER_KEY";
 // const secretKey = currentdate + "PARTNER_KEY";
 
@@ -112,10 +114,12 @@ router.post("/login", (req, res) => {
               return res.status(500).send("Error retrieving user data");
             }
 
+            // Set cookie dengan token
+            res.cookie("token", token, { maxAge: 900000, httpOnly: true });
+
             const response = {
               code: 200,
               message: "Success Login",
-              token: token,
               data: encryptedResult,
             };
             res.status(200).json(response);

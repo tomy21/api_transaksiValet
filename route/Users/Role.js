@@ -15,7 +15,6 @@ router.post("/addRole", (req, res) => {
   const sqlQuery =
     "INSERT INTO SetupRole (Description, CreatedOn, CreatedBy, UpdatedOn, UpdatedBy) VALUES (?, ?, ?, ?, ?) ";
 
-  console.log(description);
   connection.connection.query(
     sqlQuery,
     [description, createdOn, updateBy, createdOn, updateBy],

@@ -37,8 +37,8 @@ router.get("/transactionsValet", (req, res) => {
     const search = req.query.search || "";
     const sortBy = req.query.sortBy || "UpdatedOn";
     const locationCode = req.query.locationCode || "";
-    let startDate = req.query.startDate || null;
-    let endDate = req.query.endDate || null;
+    const startDate = req.query.startDate || null;
+    const endDate = req.query.endDate || null;
     const sortDirection = req.query.sortDirection || "desc";
 
     const offset = (page - 1) * limit;
@@ -73,7 +73,7 @@ router.get("/transactionsValet", (req, res) => {
       ${locationCode ? "AND TransactionParkingValet.LocationCode = ?" : ""}
       ${
         startDate && endDate
-          ? "AND TransactionParkingValet.InTime >= ? AND TransactionParkingValet.InTime <= ?"
+          ? "AND DATE(TransactionParkingValet.InTime) BETWEEN ? AND ?"
           : ""
       }
     ORDER BY 
@@ -113,7 +113,6 @@ router.get("/transactionsValet", (req, res) => {
     }
 
     queryParams.push(offset, limit);
-
     connection.connection.query(query, queryParams, (err, results) => {
       if (err) {
         console.error(err);
@@ -456,7 +455,6 @@ router.get("/transactions/detailById/:id", verifyToken, (req, res) => {
 router.get("/transactions/detailData/data", verifyToken, (req, res) => {
   const id = req.query.id;
   const locationCode = req.query.locationCode;
-  console.log("ada");
   const query = `
   SELECT 
     TransactionParkingValet.Id,
@@ -770,8 +768,6 @@ router.post(
           photoPaths.push(null); // Jika foto tidak ada, masukkan null ke dalam array
         }
       }
-
-      // console.log(VehiclePlate);
       const query = `
       INSERT INTO
         TransactionParkingValet
@@ -1031,8 +1027,6 @@ router.post(
           photoPaths.push(null); // Jika foto tidak ada, masukkan null ke dalam array
         }
       }
-
-      // console.log(VehiclePlate);
       const query = `
       INSERT INTO
         TransactionParkingValet
