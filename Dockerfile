@@ -5,6 +5,7 @@ WORKDIR /app
 COPY package* .
 
 RUN npm i --silent
+RUN npm update --silent
 
 COPY . .
 
