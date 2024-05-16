@@ -1,10 +1,9 @@
-FROM node:20-alpine
+FROM node:16-alpine
 
 WORKDIR /app
 
-COPY package* .
+COPY package*.json ./
 
-RUN npx express-generator
 RUN npm install
 
 COPY . .
