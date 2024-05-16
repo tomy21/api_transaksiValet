@@ -1,0 +1,35 @@
+GET http://localhost:3008/api/reportOps
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNTA3MDc4NCwiZXhwIjoxNzE1MDcwNzk5fQ.m-Q9UDvXmTvhMyylVaYd-GXCsasuRqtcXe3jkgVEjUs
+Content-Type: application/json
+
+{
+    "LocationCode":"19LSK",
+    "startDate":"2024-03-01",
+    "endDate":"2024-03-07"
+}
+
+#getdatadailysummary
+###
+GET http://localhost:3008/api/dailyDashboard?date=2024-03-03
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
+Content-Type: application/json
+
+#getdatamonthsummary
+###
+GET http://localhost:3008/api/dataMonthDashboard?month=3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
+Content-Type: application/json
+
+#exportdata
+###
+GET http://localhost:3008/api/exportdata?LocationCode=003SK
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
+Content-Type: application/json
+
+###
+GET http://localhost:3008/api/dailyreport
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
+Content-Type: application/json
+
+###
+GET http://localhost:3008/api/token

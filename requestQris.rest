@@ -1,0 +1,55 @@
+#request token
+GET http://localhost:3008/api/token
+
+
+#Create detail Qris
+###
+POST http://localhost:3008/api/qris
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkxMTcxNSwiZXhwIjoxNzE0OTExNzMwfQ.KkLy5w7I7yxzQkzmldn5nfvLF-NHAWdqxQleIBqeo60
+Content-Type: application/json
+
+{
+    "LocationCode": "19LSK",
+    "TypeValet": "VV",
+    "Name": "SKY VALET LIPPO KEMANG",
+    "QrisCode": "00020101021226670016COM.NOBUBANK.WWW01189360050389000071430214509172463247840303UBE51440014ID.CO.QRIS.WWW0215ID20232980592700303UBE5204752353033605405600005802ID5922SKY VALET LIPPO KEMANG6015JAKARTA SELATAN61051215062070703A0163043A24",
+    "NMID": "ID2023298059270",
+    "Tariff": 60000,
+    "CreatedBy": "admin"
+}
+
+
+#get detail Qris
+###
+GET http://localhost:3008/api/qris/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkwNTk2MSwiZXhwIjoxNzE0OTA1OTc2fQ.h_JtY81zMnqj3M8CWSJJ2dfNxQDs1XxeMK3qyykXoY8
+Content-Type: application/json
+
+#Update detail Qris
+###
+PUT http://localhost:3008/api/qris/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkwNDI3MCwiZXhwIjoxNzE0OTA0Mjg1fQ.sF2KyHj4ePZbEpPSoWyX3fANqIWRNQg2v0Nm_TFPAF4
+Content-Type: application/json
+
+{
+    "LocationCode": "19LSK",
+    "TypeValet": "VV",
+    "Name": "SKY VALET LIPPO KEMANG Update",
+    "QrisCode": "00020101021226670016COM.NOBUBANK.WWW01189360050389000071430214509172463247840303UBE51440014ID.CO.QRIS.WWW0215ID20232980592700303UBE5204752353033605405600005802ID5922SKY VALET LIPPO KEMANG6015JAKARTA SELATAN61051215062070703A0163043A24",
+    "NMID": "ID2023298059270",
+    "Tariff": 60000,
+    "CreatedBy": "admin"
+}
+
+#get detail Qris
+###
+GET  http://localhost:3008/api/getAllLocation
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkwNjI4NCwiZXhwIjoxNzE0OTA2Mjk5fQ.BENZarQt8bJy0byC_1ZGyIw9lrQ0o8ahUkX0kQ7E4fE
+Content-Type: application/json
+
+
+#get detail Qris
+###
+PUT http://localhost:3008/api/qrisDelete/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkwNjI4NCwiZXhwIjoxNzE0OTA2Mjk5fQ.BENZarQt8bJy0byC_1ZGyIw9lrQ0o8ahUkX0kQ7E4fE
+Content-Type: application/json

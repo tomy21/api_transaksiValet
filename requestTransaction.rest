@@ -1,0 +1,55 @@
+#request token
+GET http://localhost:3008/api/token
+
+
+#GetAllTransactions
+###
+GET http://localhost:3008/api/transaction?startDate=&endDate=
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI4NiwiZXhwIjoxNzE0OTY4MzAxfQ.0rsxRV7X9QdVQBB_IuAtdbH1Wkwc6x8PKum6cNMUi0Q
+Content-Type: application/json
+
+#Get Transaction By ID
+###
+GET http://localhost:3008/api/getTransactionByLocation?LocationCode=19LSK
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI4NiwiZXhwIjoxNzE0OTY4MzAxfQ.0rsxRV7X9QdVQBB_IuAtdbH1Wkwc6x8PKum6cNMUi0Q
+Content-Type: application/json
+
+#Get Transaction By ID
+###
+GET http://localhost:3008/api/getTransactionById/483
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTc1Mzk4OCwiZXhwIjoxNzE1NzU0MDAzfQ.FuDXvN-YD_k51TLGouRZjCtpAaUBzG6jW8BzKIRRhdQ
+Content-Type: application/json
+
+#cancel Transaction By ID
+###
+PUT http://localhost:3008/api/cancelTransaction/482
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI4NiwiZXhwIjoxNzE0OTY4MzAxfQ.0rsxRV7X9QdVQBB_IuAtdbH1Wkwc6x8PKum6cNMUi0Q
+Content-Type: application/json
+
+{
+    "userName": "admin"
+}
+
+#GetAllTransactions
+###
+GET http://localhost:3008/api/getKeySlot?LocationCode=19LSK&ParkingType=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI4NiwiZXhwIjoxNzE0OTY4MzAxfQ.0rsxRV7X9QdVQBB_IuAtdbH1Wkwc6x8PKum6cNMUi0Q
+Content-Type: application/json
+
+
+#GetAllTransactions
+###
+POST http://localhost:3008/api/transaction
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI5NiwiZXhwIjoxNzE0OTY4MzExfQ.WVCgEDkD9orP1nGUMN1lunxYb728s--whFJwUw5_1aE
+Content-Type: application/json
+
+{
+    "LocationCode":"19LSK",
+    "TicketNumber":null,
+    "VehiclePlate": "G1023XX",
+    "ParkingValetStatusId":4,
+    "ParkingType":1,
+    "ReceivedBy": 99,
+    "ReceivedUserId": 99,
+    "CreatedBy": "testValet56"
+}

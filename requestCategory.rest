@@ -1,0 +1,49 @@
+#request token
+GET http://localhost:3008/api/token
+
+
+#get all category
+###
+GET http://localhost:3008/api/categoryTicket
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkxNDE3NiwiZXhwIjoxNzE0OTE0MTkxfQ.NGCM-IZHSpaexRo5i9weJjGk13CiILq-1c3C8Y5mAdg
+Content-Type: application/json
+
+
+#get detail category
+###
+GET http://localhost:3008/api/categoryTicket/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkxNDIzMiwiZXhwIjoxNzE0OTE0MjQ3fQ.2AcvqTK6NN-qgKbxCl0TGhothbNqGyv1gpSRQH_Dy_4
+Content-Type: application/json
+
+#addcategory
+###
+POST http://localhost:3008/api/categoryTicket
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkxNDM1MiwiZXhwIjoxNzE0OTE0MzY3fQ.5O-SYlcvLxEvyduV_5nWv6vEntTnacfUFnNFwatuu0k
+Content-Type: application/json
+
+{
+    "Code": "CA",
+    "Name": "Casual",
+    "CreatedBy": "admin"
+}
+
+
+
+
+#Update detail Qris
+###
+PUT http://localhost:3008/api/qris/5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkwNDI3MCwiZXhwIjoxNzE0OTA0Mjg1fQ.sF2KyHj4ePZbEpPSoWyX3fANqIWRNQg2v0Nm_TFPAF4
+Content-Type: application/json
+
+{
+    "Code": "19LSK",
+    "Name": "SKY VALET LIPPO KEMANG Update",
+    "CreatedBy": "admin"
+}
+
+#get detail Qris
+###
+PUT http://localhost:3008/api/qrisDelete/7
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDkwNjI4NCwiZXhwIjoxNzE0OTA2Mjk5fQ.BENZarQt8bJy0byC_1ZGyIw9lrQ0o8ahUkX0kQ7E4fE
+Content-Type: application/json

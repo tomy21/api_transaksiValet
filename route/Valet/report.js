@@ -1,15 +1,11 @@
-const express = require("express");
-const http = require("http");
-const cors = require("cors");
+import express from "express";
 const router = express.Router();
-const verifyToken = require("../../config/auth.js");
-const connection = require("../../config/dbConfig.js");
-const multer = require("multer");
-const dateTimeCurrent = require("../../config/currentDateTime.js");
-const ExcelJS = require("exceljs");
-const fs = require("fs");
+import { VerifyToken } from "../../middleware/VerifyToken.js";
+import db from "../../config/dbConfig.js";
+import ExcelJS from "exceljs";
+import fs from "fs";
 
-router.get("/report", verifyToken, (req, res) => {
+router.get("/report", VerifyToken, (req, res) => {
   const locationCode = req.query.LocationCode;
   const queryHourly = `
     SELECT 
@@ -78,53 +74,41 @@ router.get("/report", verifyToken, (req, res) => {
         UpdatedOn DESC    
     `;
 
-  connection.connection.query(queryHourly, [locationCode], (err, resHourly) => {
+  db.query(queryHourly, [locationCode], (err, resHourly) => {
     if (err) {
       console.error(err);
       res.status(500).send("Internal server error");
     } else {
-      connection.connection.query(
-        queryDayly,
-        [locationCode],
-        (err, resDayly) => {
-          if (err) {
-            console.error(err);
-            res.status(500).send("Internal server error");
-          } else {
-            connection.connection.query(
-              queryMonthly,
-              [locationCode],
-              (err, resMonthly) => {
+      db.query(queryDayly, [locationCode], (err, resDayly) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send("Internal server error");
+        } else {
+          db.query(queryMonthly, [locationCode], (err, resMonthly) => {
+            if (err) {
+              console.error(err);
+              res.status(500).send("Internal server error");
+            } else {
+              db.query(queryYearly, [locationCode], (err, resYearly) => {
                 if (err) {
                   console.error(err);
                   res.status(500).send("Internal server error");
                 } else {
-                  connection.connection.query(
-                    queryYearly,
-                    [locationCode],
-                    (err, resYearly) => {
-                      if (err) {
-                        console.error(err);
-                        res.status(500).send("Internal server error");
-                      } else {
-                        const response = {
-                          code: 200,
-                          message: "Success Get Report",
-                          hourly: resHourly,
-                          dayly: resDayly,
-                          monthly: resMonthly,
-                          yearly: resYearly,
-                        };
-                        res.status(200).json(response);
-                      }
-                    }
-                  );
+                  const response = {
+                    code: 200,
+                    message: "Success Get Report",
+                    hourly: resHourly,
+                    dayly: resDayly,
+                    monthly: resMonthly,
+                    yearly: resYearly,
+                  };
+                  res.status(200).json(response);
                 }
-              }
-            );
-          }
+              });
+            }
+          });
         }
-      );
+      });
     }
   });
 });
@@ -162,68 +146,64 @@ router.get("/apps/exportDaily", async (req, res) => {
       GROUP BY
         DATE_FORMAT(TransactionParkingValet.CreatedOn, '%Y-%m-%d %H:%i:%s')`;
 
-    connection.connection.query(
-      query,
-      [startDate, endDate, locationCode],
-      (err, result) => {
-        if (err) {
-          console.error("Error executing query:", err);
-          res.status(500).json({ error: "Failed to fetch summary data" });
-        } else {
-          const workbook = new ExcelJS.Workbook();
-          const worksheet = workbook.addWorksheet("Data");
+    db.query(query, [startDate, endDate, locationCode], (err, result) => {
+      if (err) {
+        console.error("Error executing query:", err);
+        res.status(500).json({ error: "Failed to fetch summary data" });
+      } else {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Data");
 
-          // Header
-          const headerRow = [
-            "DateTime",
-            "VehiclePlate",
-            "Name",
-            "InTime",
-            "OutTime",
-            "Duration",
-            "QtyReguler",
-            "QtyVVIP",
-            "QtyLT",
-            "IncomeReguler",
-            "IncomeVVIP",
-            "IncomeLT",
-            "TotalIncome",
-          ];
-          worksheet.addRow(headerRow);
+        // Header
+        const headerRow = [
+          "DateTime",
+          "VehiclePlate",
+          "Name",
+          "InTime",
+          "OutTime",
+          "Duration",
+          "QtyReguler",
+          "QtyVVIP",
+          "QtyLT",
+          "IncomeReguler",
+          "IncomeVVIP",
+          "IncomeLT",
+          "TotalIncome",
+        ];
+        worksheet.addRow(headerRow);
 
-          // Data
-          result.forEach((row) => {
-            worksheet.addRow([
-              row.DateTime,
-              row.VehiclePlate,
-              row.Name,
-              row.InTime,
-              row.OutTime,
-              row.Duration,
-              row.QtyReguler,
-              row.QtyVVIP,
-              row.QtyLT,
-              row.IncomeReguler,
-              row.IncomeVVIP,
-              row.IncomeLT,
-              row.TotalIncome,
-            ]);
-          });
+        // Data
+        result.forEach((row) => {
+          worksheet.addRow([
+            row.DateTime,
+            row.VehiclePlate,
+            row.Name,
+            row.InTime,
+            row.OutTime,
+            row.Duration,
+            row.QtyReguler,
+            row.QtyVVIP,
+            row.QtyLT,
+            row.IncomeReguler,
+            row.IncomeVVIP,
+            row.IncomeLT,
+            row.TotalIncome,
+          ]);
+        });
 
-          // Save and download Excel file
-          res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="valet_${startDate}_sd_${endDate}.xlsx"`
-          );
-          res.setHeader(
-            "Content-Type",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          );
+        // Save and download Excel file
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="valet_${startDate}_sd_${endDate}.xlsx"`
+        );
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
 
-          workbook.xlsx.write(res);
-        }
+        workbook.xlsx.write(res);
       }
-    );
+    });
   } catch (err) {
     console.error("Error in exportDaily route:", err);
     res.status(500).json({ error: "Server error" });
@@ -294,7 +274,7 @@ router.get("/exportDailyData", async (req, res) => {
       queryParams = [startDate, endDate, locationCode];
     }
 
-    connection.connection.query(query, queryParams, (err, result) => {
+    db.query(query, queryParams, (err, result) => {
       if (err) {
         console.error("Error executing query:", err);
         res.status(500).json({ error: "Failed to fetch summary data" });
@@ -327,7 +307,7 @@ router.get("/exportSummaryTransactionExcel", async (req, res) => {
     ORDER BY 
       date, hour`;
 
-    connection.connection.query(query, [3], (error, results) => {
+    db.query(query, [3], (error, results) => {
       if (error) throw error;
 
       // Proses data hasil query
@@ -425,7 +405,7 @@ router.get("/exportSummaryTransaction", async (req, res) => {
       DATE_FORMAT(InTime, '%d-%m-%Y') AS date,
       DATE_FORMAT(InTime, '%H:00') AS hour,
       SUM(CASE WHEN DATE(InTime) THEN 1 ELSE 0 END) AS InCount,
-      SUM(CASE WHEN DATE(OutTime) = DATE(InTime) THEN 1 ELSE 0 END) AS OutCount,
+      SUM(CASE WHEN DATE(OutTime) = DATE(InTime) AND HOUR(InTime) = HOUR(OutTime) THEN 1 ELSE 0 END) AS OutCount,
       SUM(CASE WHEN DATE(OutTime) != DATE(InTime) THEN 1 ELSE 0 END) AS OnCount
     FROM 
         TransactionParkingValet
@@ -436,7 +416,7 @@ router.get("/exportSummaryTransaction", async (req, res) => {
     ORDER BY 
         date, hour`;
 
-    connection.connection.query(query, [month], (err, results) => {
+    db.query(query, [month], (err, results) => {
       if (err) {
         console.error(err);
         return res
@@ -498,7 +478,7 @@ router.get("/hourlyreport", async (req, res) => {
     GROUP BY HOUR(InTime);
     `;
     const queryParams = locationCode === "*" ? [] : [locationCode];
-    connection.connection.query(query, queryParams, async (err, results) => {
+    db.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
         res.status(500).send("Failed to fetch summary data");
@@ -566,33 +546,29 @@ router.get("/detailoverday", async (req, res) => {
 
     const queryParams2 = locationCode === "*" ? [date] : [date, locationCode];
 
-    connection.connection.query(query, queryParams, async (err, results) => {
+    db.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
         return res.status(500).send("Failed to fetch data");
       }
 
-      connection.connection.query(
-        countQuery,
-        queryParams2,
-        async (err, countData) => {
-          if (err) {
-            console.error("Error executing query:", err);
-            return res.status(500).send("Failed to fetch data");
-          }
-          const totalCount = countData[1][0].total_count;
-          const totalPages = Math.ceil(totalCount / limit);
-          const response = {
-            code: 200,
-            message: "Success Get Transactions",
-            totalPages: totalPages,
-            totalData: totalCount,
-            currentPage: page,
-            data: results[1],
-          };
-          res.status(200).json(response);
+      db.query(countQuery, queryParams2, async (err, countData) => {
+        if (err) {
+          console.error("Error executing query:", err);
+          return res.status(500).send("Failed to fetch data");
         }
-      );
+        const totalCount = countData[1][0].total_count;
+        const totalPages = Math.ceil(totalCount / limit);
+        const response = {
+          code: 200,
+          message: "Success Get Transactions",
+          totalPages: totalPages,
+          totalData: totalCount,
+          currentPage: page,
+          data: results[1],
+        };
+        res.status(200).json(response);
+      });
     });
   } catch (error) {
     console.error("Error processing request:", error);
@@ -652,33 +628,29 @@ router.get("/detailon", async (req, res) => {
 
     const queryParams2 = locationCode === "*" ? [date] : [date, locationCode];
 
-    connection.connection.query(query, queryParams, async (err, results) => {
+    db.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
         return res.status(500).send("Failed to fetch data");
       }
 
-      connection.connection.query(
-        countQuery,
-        queryParams2,
-        async (err, countData) => {
-          if (err) {
-            console.error("Error executing query:", err);
-            return res.status(500).send("Failed to fetch data");
-          }
-          const totalCount = countData[1][0].total_count;
-          const totalPages = Math.ceil(totalCount / limit);
-          const response = {
-            code: 200,
-            message: "Success Get Transactions",
-            totalPages: totalPages,
-            totalData: totalCount,
-            currentPage: page,
-            data: results[1],
-          };
-          res.status(200).json(response);
+      db.query(countQuery, queryParams2, async (err, countData) => {
+        if (err) {
+          console.error("Error executing query:", err);
+          return res.status(500).send("Failed to fetch data");
         }
-      );
+        const totalCount = countData[1][0].total_count;
+        const totalPages = Math.ceil(totalCount / limit);
+        const response = {
+          code: 200,
+          message: "Success Get Transactions",
+          totalPages: totalPages,
+          totalData: totalCount,
+          currentPage: page,
+          data: results[1],
+        };
+        res.status(200).json(response);
+      });
     });
   } catch (error) {
     console.error("Error processing request:", error);
@@ -690,7 +662,7 @@ router.get("/dailyreport", async (req, res) => {
   try {
     const locationCode = req.query.locationCode ? req.query.locationCode : "*";
     const date = req.query.date || null;
-    const query = `
+    const queryData = `
     SET @selectedDate = IFNULL(?, CURDATE());
 
     SELECT 
@@ -713,7 +685,7 @@ router.get("/dailyreport", async (req, res) => {
         COUNT(TrxNo) AS TotalTrx
     FROM TransactionParkingValet
     WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
-        AND DATE(OutTime) = @selectedDate
+        AND DATE(OutTime) = @selectedDate AND DATE(OutTime) = Date(InTime) AND HOUR(InTime) = HOUR(OutTime)
     GROUP BY DATE_FORMAT(OutTime, '%H');
     `;
 
@@ -775,53 +747,41 @@ router.get("/dailyreport", async (req, res) => {
     `;
 
     const queryParams = locationCode === "*" ? [date] : [date, locationCode];
-    connection.connection.query(query, queryParams, async (err, results) => {
+    db.query(queryData, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
         res.status(500).send("Failed to fetch summary data");
       } else {
-        connection.connection.query(
-          queryCount,
-          queryParams,
-          async (err, result) => {
-            if (err) {
-              console.error("Error executing query:", err);
-              res.status(500).send("Failed to fetch summary data");
-            } else {
-              connection.connection.query(
-                listLocation,
-                queryParams,
-                async (err, listTrx) => {
+        db.query(queryCount, queryParams, async (err, result) => {
+          if (err) {
+            console.error("Error executing query:", err);
+            res.status(500).send("Failed to fetch summary data");
+          } else {
+            db.query(listLocation, queryParams, async (err, listTrx) => {
+              if (err) {
+                console.error("Error executing query:", err);
+                res.status(500).send("Failed to fetch summary data");
+              } else {
+                db.query(queryOut, queryParams, async (err, listOut) => {
                   if (err) {
                     console.error("Error executing query:", err);
                     res.status(500).send("Failed to fetch summary data");
                   } else {
-                    connection.connection.query(
-                      queryOut,
-                      queryParams,
-                      async (err, listOut) => {
-                        if (err) {
-                          console.error("Error executing query:", err);
-                          res.status(500).send("Failed to fetch summary data");
-                        } else {
-                          const response = {
-                            code: 200,
-                            message: "Success Get Report",
-                            totalTrx: result[1],
-                            summary: results[1],
-                            summaryOut: listOut[1],
-                            listArea: listTrx[1],
-                          };
-                          res.status(200).json(response);
-                        }
-                      }
-                    );
+                    const response = {
+                      code: 200,
+                      message: "Success Get Report",
+                      totalTrx: result[1],
+                      summary: results[1],
+                      summaryOut: listOut[1],
+                      listArea: listTrx[1],
+                    };
+                    res.status(200).json(response);
                   }
-                }
-              );
-            }
+                });
+              }
+            });
           }
-        );
+        });
       }
     });
   } catch (err) {
@@ -913,53 +873,41 @@ router.get("/monthlyreport", async (req, res) => {
     `;
 
     const queryParams = locationCode === "*" ? [month] : [month, locationCode];
-    connection.connection.query(query, queryParams, async (err, results) => {
+    db.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
         res.status(500).send("Failed to fetch summary data");
       } else {
-        connection.connection.query(
-          queryCount,
-          queryParams,
-          async (err, result) => {
-            if (err) {
-              console.error("Error executing query:", err);
-              res.status(500).send("Failed to fetch summary data");
-            } else {
-              connection.connection.query(
-                listLocation,
-                queryParams,
-                async (err, listTrx) => {
+        db.query(queryCount, queryParams, async (err, result) => {
+          if (err) {
+            console.error("Error executing query:", err);
+            res.status(500).send("Failed to fetch summary data");
+          } else {
+            db.query(listLocation, queryParams, async (err, listTrx) => {
+              if (err) {
+                console.error("Error executing query:", err);
+                res.status(500).send("Failed to fetch summary data");
+              } else {
+                db.query(queryOut, queryParams, async (err, listOut) => {
                   if (err) {
                     console.error("Error executing query:", err);
                     res.status(500).send("Failed to fetch summary data");
                   } else {
-                    connection.connection.query(
-                      queryOut,
-                      queryParams,
-                      async (err, listOut) => {
-                        if (err) {
-                          console.error("Error executing query:", err);
-                          res.status(500).send("Failed to fetch summary data");
-                        } else {
-                          const response = {
-                            code: 200,
-                            message: "Success Get Report",
-                            totalTrx: result[1],
-                            summary: results[1],
-                            summaryOut: listOut[1],
-                            listArea: listTrx[1],
-                          };
-                          res.status(200).json(response);
-                        }
-                      }
-                    );
+                    const response = {
+                      code: 200,
+                      message: "Success Get Report",
+                      totalTrx: result[1],
+                      summary: results[1],
+                      summaryOut: listOut[1],
+                      listArea: listTrx[1],
+                    };
+                    res.status(200).json(response);
                   }
-                }
-              );
-            }
+                });
+              }
+            });
           }
-        );
+        });
       }
     });
   } catch (err) {
@@ -1065,53 +1013,41 @@ router.get("/yearlyreport", async (req, res) => {
     const queryParams = locationCode === "*" ? [year] : [year, locationCode];
     const queryParams2 =
       locationCode === "*" ? [year] : [year, locationCode, locationCode];
-    connection.connection.query(query, queryParams, async (err, results) => {
+    db.query(query, queryParams, async (err, results) => {
       if (err) {
         console.error("Error executing query:", err);
         res.status(500).send("Failed to fetch summary data");
       } else {
-        connection.connection.query(
-          queryCount,
-          queryParams2,
-          async (err, result) => {
-            if (err) {
-              console.error("Error executing query:", err);
-              res.status(500).send("Failed to fetch summary data");
-            } else {
-              connection.connection.query(
-                listLocation,
-                queryParams,
-                async (err, listTrx) => {
+        db.query(queryCount, queryParams2, async (err, result) => {
+          if (err) {
+            console.error("Error executing query:", err);
+            res.status(500).send("Failed to fetch summary data");
+          } else {
+            db.query(listLocation, queryParams, async (err, listTrx) => {
+              if (err) {
+                console.error("Error executing query:", err);
+                res.status(500).send("Failed to fetch summary data");
+              } else {
+                db.query(queryOut, queryParams, async (err, listOut) => {
                   if (err) {
                     console.error("Error executing query:", err);
                     res.status(500).send("Failed to fetch summary data");
                   } else {
-                    connection.connection.query(
-                      queryOut,
-                      queryParams,
-                      async (err, listOut) => {
-                        if (err) {
-                          console.error("Error executing query:", err);
-                          res.status(500).send("Failed to fetch summary data");
-                        } else {
-                          const response = {
-                            code: 200,
-                            message: "Success Get Report",
-                            totalTrx: result[1],
-                            summary: results[1],
-                            summaryOut: listOut[1],
-                            listArea: listTrx[1],
-                          };
-                          res.status(200).json(response);
-                        }
-                      }
-                    );
+                    const response = {
+                      code: 200,
+                      message: "Success Get Report",
+                      totalTrx: result[1],
+                      summary: results[1],
+                      summaryOut: listOut[1],
+                      listArea: listTrx[1],
+                    };
+                    res.status(200).json(response);
                   }
-                }
-              );
-            }
+                });
+              }
+            });
           }
-        );
+        });
       }
     });
   } catch (err) {
@@ -1120,4 +1056,82 @@ router.get("/yearlyreport", async (req, res) => {
   }
 });
 
-module.exports = router;
+router.get("/reportDuration", async (req, res) => {
+  const location = req.query.locationCode || "*";
+  const month = req.query.month || null;
+
+  const query = `
+  SET @selectedMonth = IFNULL(?, MONTH(NOW()));
+
+  SELECT
+    Tanggal,
+    Range_Time,
+    SUM(CASE WHEN ParkingType = 2 THEN 1 ELSE 0 END) AS VIP,
+    SUM(CASE WHEN ParkingType = 1 THEN 1 ELSE 0 END) AS Valet,
+    SUM(CASE WHEN ParkingType = 3 THEN 1 ELSE 0 END) AS VVIP
+  FROM (
+      SELECT
+          DATE_format(InTime, '%Y-%m-%d') AS Tanggal,
+          CASE
+              WHEN TIMESTAMPDIFF(HOUR, InTime, OutTime) > 24 THEN '>24 Jam'
+              WHEN OutTime IS NULL THEN 'Menginap'
+              ELSE CONCAT(FLOOR(TIMESTAMPDIFF(MINUTE, InTime, OutTime)/60), '-', FLOOR(TIMESTAMPDIFF(MINUTE, InTime, OutTime)/60) +1 ,' Jam')
+          END AS Range_Time,
+          ParkingType
+      FROM
+          TransactionParkingValet
+      WHERE
+          MONTH(InTime) = @selectedMonth
+  ) AS Subquery
+  GROUP BY
+      Tanggal, 
+      Range_Time
+  ORDER BY 
+      Tanggal, 
+      Range_Time
+  `;
+
+  const queryParams = location === "*" ? [month] : [month, location];
+  db.query(query, queryParams, async (err, result) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).send("Failed to fetch summary data");
+    } else {
+      const formattedData = [];
+      let currentDate = null;
+      let currentDetail = null;
+      result[1].forEach((item) => {
+        if (item.Tanggal !== currentDate) {
+          // If new date, push previous data and reset currentDetail
+          if (currentDetail) {
+            formattedData.push(currentDetail);
+          }
+          currentDate = item.Tanggal;
+          currentDetail = {
+            date: item.Tanggal,
+            detail: [],
+          };
+        }
+        currentDetail.detail.push({
+          hour: item.Range_Time,
+          valet: item.Valet,
+          vip: item.VIP,
+          vvip: item.VVIP,
+        });
+      });
+
+      // Push last data after loop ends
+      if (currentDetail) {
+        formattedData.push(currentDetail);
+      }
+
+      res.status(200).json({
+        statusCode: 200,
+        message: "Success get data",
+        data: formattedData,
+      });
+    }
+  });
+});
+
+export default router;

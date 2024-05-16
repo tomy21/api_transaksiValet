@@ -1,0 +1,49 @@
+GET http://localhost:3008/api/getUsers
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTc0MjE1NiwiZXhwIjoxNzE1NzQyMTcxfQ.K92yr54YFXijWLUM9eWZsj9yUj9XxM3ExMU-tOASaLo
+
+###
+POST http://localhost:3008/api/login
+Content-Type: application/json
+
+{
+    "data":"U2FsdGVkX1+I/xlyIYVi3V9/tGU/qzT+mf9DvtMG1eoZPCvzFdKSk4h6WgmYYt0HO9/USuuMjr/yWu4EFDAqwA=="
+}
+
+###
+GET http://localhost:3008/api/token
+###
+GET http://localhost:3008/api/logout
+
+
+# request location
+###
+GET http://localhost:3008/api/getAllLocation
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDc1OTE0NiwiZXhwIjoxNzE0NzU5MTYxfQ.4yQZGJf_EKRU79YuApY6BgSa7QAG6ZDBysZ75llcXrA
+
+
+# request Issuer
+###
+GET http://localhost:3008/api/getAllIssuer
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNTA3MDc5OSwiZXhwIjoxNzE1MDcwODE0fQ.SuhTdSq6CFjht0w1oYhk9FkSqACPB_BttKgFC0u3cG0
+
+#register users
+###
+POST http://localhost:3008/api/register
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNTA3MDgxNCwiZXhwIjoxNzE1MDcwODI5fQ.HPSm6Qu2SLdPWFMm7GiFIiA3nLp_R5_On5EjLHfKcLc
+Content-Type: application/json
+
+{
+    "SetupRoleId": 13,
+    "IpAddress": "192.168.43.201",
+    "Name": "Test Valet 6",
+    "Gender": "M",
+    "Username": "testValet56",
+    "Email": "testvalet601@new.com",
+    "Phone": "0123",
+    "MerchantId": 0,
+    "IsFirstpassword":0,
+    "LocationCode": ["19LSK", "00ASK"]
+}
+
+
+

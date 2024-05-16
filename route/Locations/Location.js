@@ -1,52 +1,8 @@
-const express = require("express");
-const cors = require("cors");
-const connection = require("../../config/dbConfig.js");
+import express from "express";
+import { getLocationAll } from "../../controller/Location.js";
+// import { VerifyToken } from "../../middleware/VerifyToken.js";
 const router = express.Router();
 
-// Menerapkan CORS di level router
-router.use(cors());
+router.get("/getAllLocation", getLocationAll);
 
-router.get("/location", async (req, res) => {
-  const query = "SELECT RefLocation.Code, RefLocation.Name FROM RefLocation";
-
-  connection.connection.query(query, (err, results) => {
-    if (err) {
-      console.error("Error executing query:", err);
-      return res.status(500).json({ message: "Get data failed", error: err });
-    }
-
-    const response = {
-      statusCode: 200,
-      message: "success get locations",
-      data: results,
-    };
-    return res.status(200).json(response);
-  });
-});
-
-router.get("/locationvalet", async (req, res) => {
-  const query = `
-  SELECT DISTINCT
-	  TPV.LocationCode AS Code,
-    RF.Name AS Name
-  FROM
-	  TransactionParkingValet TPV
-  JOIN
-	  RefLocation RF ON RF.Code = TPV.LocationCode;`;
-
-  connection.connection.query(query, (err, results) => {
-    if (err) {
-      console.error("Error executing query:", err);
-      return res.status(500).json({ message: "Get data failed", error: err });
-    }
-
-    const response = {
-      statusCode: 200,
-      message: "success get locations",
-      data: results,
-    };
-    return res.status(200).json(response);
-  });
-});
-
-module.exports = router;
+export default router;

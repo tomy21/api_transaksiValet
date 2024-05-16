@@ -1,12 +1,11 @@
-const response = (statusCode, data, message, res, pagination) => {
+const response = (res, statusCode, data, message) => {
   res.status(statusCode).json({
     payload: {
       statusCode: statusCode,
       message: message,
       data: data,
     },
-    pagination: pagination,
   });
 };
 
-module.exports = response;
+export default response;
