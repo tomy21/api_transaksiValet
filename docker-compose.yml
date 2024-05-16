@@ -28,8 +28,8 @@ services:
   #   networks:
   #     - backend_network
 
-volumes:
-  node_modules:
+# volumes:
+#   node_modules:
 
 networks:
   backend_network:
