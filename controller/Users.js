@@ -159,8 +159,9 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
+      domain: "dashboardvaletv2-2zhp1ivub-tomy21s-projects.vercel.app",
       sameSite: "None",
-      // secure:true ini digunakan jika menggunakan  https
+      secure: true,
     });
 
     res.json({ accessToken });
