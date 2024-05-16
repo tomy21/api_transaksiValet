@@ -16,8 +16,8 @@ import path from "path";
 const app = express();
 app.use(
   cors({
-    credentials: false,
-    origin: "*",
+    credentials: true,
+    origin: "http://localhost:3000",
   })
 );
 
