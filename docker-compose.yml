@@ -3,7 +3,8 @@ version: '3'
 services:
   app:
     container_name: 'server_transaksi'
-    build: .
+    build: 
+      dockerfile: ./Dockerfile
     volumes:
       - .:/app
       - node_modules:/app/node_modules
@@ -11,7 +12,7 @@ services:
       - PORT=3008
     ports:
       - "8090:3008"
-    command: npm install cookie-parser && npm start
+    # command: npm install cookie-parser && npm start
     networks:
       - backend_network
 
