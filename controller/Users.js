@@ -91,7 +91,6 @@ export const login = async (req, res) => {
   const decryptedResult = crypto.AES.decrypt(encryptedData, secretKey).toString(
     crypto.enc.Utf8
   );
-  console.log(encryptedData);
   const decryptedObject = JSON.parse(decryptedResult);
   const emailUser = decryptedObject.email;
   const password = decryptedObject.password;
