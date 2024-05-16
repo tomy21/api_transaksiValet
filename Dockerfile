@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY package* .
 
+RUN npx express-generator -y
 RUN npm install
 
 COPY . .
