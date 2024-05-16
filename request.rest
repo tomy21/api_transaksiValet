@@ -17,7 +17,7 @@ GET http://localhost:3008/api/logout
 
 # request location
 ###
-GET http://147.139.135.195:3000/api/getAllLocation
+GET http://147.139.135.195:8090/api/getAllLocation
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDc1OTE0NiwiZXhwIjoxNzE0NzU5MTYxfQ.4yQZGJf_EKRU79YuApY6BgSa7QAG6ZDBysZ75llcXrA
 
 
