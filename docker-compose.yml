@@ -11,7 +11,7 @@ services:
       - PORT=3001
     ports:
       - "8090:3001"
-    command: npm start
+    command: [npm update, npm start]
     networks:
       - backend_network
 
@@ -28,8 +28,8 @@ services:
   #   networks:
   #     - backend_network
 
-# volumes:
-#   node_modules:
+volumes:
+  node_modules:
 
 networks:
   backend_network:
