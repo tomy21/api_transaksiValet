@@ -159,7 +159,7 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      domain: "dashboardvaletv2-2zhp1ivub-tomy21s-projects.vercel.app",
+      domain: "testtomy.online",
       sameSite: "None",
       secure: true,
     });

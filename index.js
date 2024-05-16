@@ -20,6 +20,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://dashboardvaletv2-2zhp1ivub-tomy21s-projects.vercel.app",
+      "https://testtomy.online/",
     ],
   })
 );
