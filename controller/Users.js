@@ -161,7 +161,7 @@ export const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
       domain: "testtomy.online",
       sameSite: "None",
-      secure: true,
+      secure: false,
     });
 
     res.json({ accessToken });
