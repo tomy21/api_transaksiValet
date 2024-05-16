@@ -1,2 +1,7 @@
 /node_modules
 .env
+getReport.rest
+request.rest
+requestCategory.rest
+requestQris.rest
+requestTransaction.rest
