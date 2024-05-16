@@ -11,7 +11,7 @@ services:
       - PORT=3008
     ports:
       - "8090:3008"
-    command: bash -c "npm install cookie-parser && npm start"
+    command: "npm install cookie-parser && npm start"
     networks:
       - backend_network
 
