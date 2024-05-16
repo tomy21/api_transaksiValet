@@ -1,19 +1,25 @@
 version: '3.3'
 
 services:
-  app:
-    container_name: 'server_transaksi'
-    build: .
-    volumes:
-      - .:/app
-      - node_modules:/app/node_modules
-    environment:
-      - PORT=3008
-    ports:
-      - "8090:3008"
-    command: npm start
-    networks:
-      - backend_network
+  dockerfile: Dockerfile
+  node-app:
+  build:
+  context: .
+  ports:
+    - "3000:3000"
+  # app:
+  #   container_name: 'server_transaksi'
+  #   build: .
+  #   volumes:
+  #     - .:/app
+  #     - node_modules:/app/node_modules
+  #   environment:
+  #     - PORT=3008
+  #   ports:
+  #     - "8090:3008"
+  #   command: npm start
+  #   networks:
+  #     - backend_network
 
   # nginx:
   #   image: nginx
@@ -28,9 +34,9 @@ services:
   #   networks:
   #     - backend_network
 
-volumes:
-  node_modules:
+# volumes:
+#   node_modules:
 
-networks:
-  backend_network:
-    driver: bridge
+# networks:
+#   backend_network:
+#     driver: bridge
