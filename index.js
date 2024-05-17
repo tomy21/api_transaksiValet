@@ -17,10 +17,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: [
-      "http://localhost:3000",
-      "https://dashboardvaletv2-2zhp1ivub-tomy21s-projects.vercel.app",
-    ],
+    origin: ["http://localhost:3000", "http://147.139.135.195:8091"],
   })
 );
 
