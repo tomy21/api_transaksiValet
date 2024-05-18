@@ -34,6 +34,7 @@ export const dataDailyDashboard = async (req, res) => {
   const month = (dateObject.getMonth() + 1).toString().padStart(2, "0");
   const day = dateObject.getDate().toString().padStart(2, "0");
   const formattedDate = `${year}-${month}-${day}`;
+
   try {
     const sequelize = db;
 
@@ -42,7 +43,6 @@ export const dataDailyDashboard = async (req, res) => {
     }
 
     const whereClause = LocationCode ? { LocationCode: LocationCode } : {};
-    console.log(whereClause);
 
     const data = await TransactionValet.findAll({
       attributes: [
@@ -96,100 +96,42 @@ export const dataDailyDashboard = async (req, res) => {
 
     const locationCondition = LocationCode
       ? `LocationCode = :LocationCode`
-      : `LocationCode IS NOT NULL`;
+      : `1=1`;
 
-    const dateCurrent = formattedDate
-      ? `InTime = :formattedDate`
-      : `SET @selectedDate = IFNULL(:formattedDate, CURDATE())`;
+    const inQuery = `
+    SELECT
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ${locationCondition} ) AS totalTrxIn,
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ${locationCondition} ) AS previousIn,
 
-    const summary = await TransactionValet.findOne({
-      attributes: [
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) >= DATE(:formattedDate) AND ParkingType = 1 AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "Valet",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) >= DATE(:formattedDate) AND ParkingType = 2 AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "VIP",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) >= DATE(:formattedDate) AND ParkingType = 3 AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "VVIP",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) >= DATE(:formattedDate) AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "totalTrxIn",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND OutTime IS NOT NULL AND DATE(CreatedOn) >= DATE(:formattedDate) AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "totalTrxOut",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT SUM(Tariff) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) >= DATE(:formattedDate) AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "totalTariff",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) >= DATE(:formattedDate) AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY) AND OutTime IS NULL)`
-          ),
-          "totalON",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) >= DATE(:formattedDate) AND DATE(CreatedOn) < DATE_ADD(DATE(:formattedDate), INTERVAL 1 DAY) AND OutTime > InTime)`
-          ),
-          "totalOverDay",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT SUM(Tariff) AS TotalTariff FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(CreatedOn) = DATE_SUB(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "previousTariff",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(InTime) = DATE_SUB(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "previousIn",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND DATE(OutTime) = DATE_SUB(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "previousOut",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND ParkingType = 1 AND DATE(CreatedOn) = DATE_SUB(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "previousValet",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND ParkingType = 2 AND DATE(CreatedOn) = DATE_SUB(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "previousVIP",
-        ],
-        [
-          sequelize.literal(
-            `(SELECT COUNT(1) FROM TransactionParkingValet WHERE LocationCode = ${locationCondition} AND ParkingType = 3 AND DATE(CreatedOn) = DATE_SUB(DATE(:formattedDate), INTERVAL 1 DAY))`
-          ),
-          "previousVVIP",
-        ],
-      ],
-      replacements: { LocationCode, formattedDate },
+      (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ${locationCondition} ) AS totalTariff,
+      (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ${locationCondition} ) AS previousTariff,
+
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(OutTime) = :formattedDate AND DATE(OutTime) IS NOT NULL AND ${locationCondition} ) AS totalTrxOut,
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(OutTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND DATE(OutTime) IS NOT NULL AND ${locationCondition} ) AS previousOut,
+      
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 1 AND ${locationCondition} ) AS Valet,
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ParkingType = 1 AND ${locationCondition} ) AS previousValet,
+      
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 2  AND ${locationCondition} ) AS VIP,
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ParkingType = 2 AND ${locationCondition} ) AS previousVIP,
+      
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 3 AND ${locationCondition} ) AS VVIP,
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ParkingType = 3 AND ${locationCondition} ) AS previousVVIP,
+
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND DATE(InTime) > DATE(OutTime) AND ${locationCondition} ) AS totalOverDay,
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND DATE(InTime) > DATE(OutTime) AND ${locationCondition} ) AS previousOverDay,
+
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND DATE(OutTime) IS NULL AND ${locationCondition} ) AS totalON,
+      (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND DATE(OutTime) IS NULL AND ${locationCondition} ) AS previousON,
+
+      (SELECT AVG(TIMESTAMPDIFF(MINUTE, InTime, OutTime)) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND OutTime IS NOT NULL AND ${locationCondition} ) AS DurationAvg,
+
+      (SELECT AVG(TIMESTAMPDIFF(MINUTE, InTime, OutTime)) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND DATE(OutTime) IS NOT NULL AND ${locationCondition} ) AS previousDurationAvg;
+    `;
+
+    const summary = await sequelize.query(inQuery, {
+      type: QueryTypes.SELECT,
+      replacements: { formattedDate, LocationCode },
     });
 
     const sqlQuery = `
@@ -228,53 +170,43 @@ export const dataDailyDashboard = async (req, res) => {
       replacements: { formattedDate },
     });
 
+    const calculatePercentage = (current, previous) => {
+      if (previous === 0) return 0; // Menghindari pembagian dengan nol
+      return ((current - previous) / previous) * 100;
+    };
+
+    const duration =
+      summary[0].DurationAvg === null ? 0 : parseFloat(summary[0].DurationAvg);
+    const prevDuration =
+      summary[0].previousDurationAvg === null
+        ? 0
+        : parseFloat(summary[0].previousDurationAvg);
+
     const response = {
       summary: summary,
       detail: data,
-      average: {
-        tariff:
-          ((summary.dataValues.totalTariff -
-            summary.dataValues.previousTariff) /
-            summary.dataValues.previousTariff) *
-          1,
-        trxIn:
-          ((summary.dataValues.totalTrxIn - summary.dataValues.previousIn) /
-            summary.dataValues.previousIn) *
-          1,
-        trxOut:
-          ((summary.dataValues.totalTrxOut - summary.dataValues.previousOut) /
-            summary.dataValues.previousOut) *
-          1
-            ? ((summary.dataValues.totalTrxOut -
-                summary.dataValues.previousOut) /
-                summary.dataValues.previousOut) *
-              1
-            : 0,
-        valet:
-          ((summary.dataValues.Valet - summary.dataValues.previousValet) /
-            summary.dataValues.previousValet) *
-          1
-            ? ((summary.dataValues.Valet - summary.dataValues.previousValet) /
-                summary.dataValues.previousValet) *
-              1
-            : 0,
-        vip:
-          ((summary.dataValues.VIP - summary.dataValues.previousVIP) /
-            summary.dataValues.previousVIP) *
-          1
-            ? ((summary.dataValues.VIP - summary.dataValues.previousVIP) /
-                summary.dataValues.previousVIP) *
-              1
-            : 0,
-        vvip:
-          ((summary.dataValues.VVIP - summary.dataValues.previousVVIP) /
-            summary.dataValues.previousVVIP) *
-            1 ===
-          null
-            ? 0
-            : ((summary.dataValues.VVIP - summary.dataValues.previousVVIP) /
-                summary.dataValues.previousVVIP) *
-              1,
+      comparison: {
+        tariff: calculatePercentage(
+          summary[0].totalTariff,
+          summary[0].previousTariff
+        ),
+        trxIn: calculatePercentage(
+          summary[0].totalTrxIn,
+          summary[0].previousIn
+        ),
+        trxOut: calculatePercentage(
+          summary[0].totalTrxOut,
+          summary[0].previousOut
+        ),
+        valet: calculatePercentage(summary[0].Valet, summary[0].previousValet),
+        vip: calculatePercentage(summary[0].VIP, summary[0].previousVIP),
+        vvip: calculatePercentage(summary[0].VVIP, summary[0].previousVVIP),
+        totalON: calculatePercentage(summary[0].totalON, summary[0].previousON),
+        totalOverDay: calculatePercentage(
+          summary[0].totalOverDay,
+          summary[0].previousOverDay
+        ),
+        duration: calculatePercentage(duration, prevDuration),
       },
       listLocation: result,
       listOfficer: resultOfficer,
@@ -287,50 +219,186 @@ export const dataDailyDashboard = async (req, res) => {
 
 export const dataMonthDashboard = async (req, res) => {
   const LocationCode = req.query.locationCode || null;
-  const date = req.query.month || new Date();
+  const month = req.query.month || new Date().getMonth() + 1; // Default ke bulan saat ini jika tidak ada parameter
+  const year = req.query.year || new Date().getFullYear(); // Default ke tahun saat ini jika tidak ada parameter
 
-  const dateObject = new Date(date.toString());
-  const year = dateObject.getFullYear();
-  const month = (dateObject.getMonth() + 1).toString().padStart(2, "0");
-  const day = dateObject.getDate().toString().padStart(2, "0");
-  const formattedDate = `${year}-${month}-${day}`;
+  const formattedMonth = `${year}-${month.toString().padStart(2, "0")}`;
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 1);
+
   try {
     const sequelize = db;
-    const { LocationCode, month } = req.query; // Pastikan untuk mengambil LocationCode dan month dari query params
 
-    const sqlListOfficer = `
-        SELECT 
-            DATE_FORMAT(InTime, '%d-%m') AS Hari,
-            SUM(Tariff) AS TotalIncome,
-            COUNT(TrxNo) AS TotalTrx,
-            SUM(CASE WHEN DATE(OutTime) != DATE(InTime) THEN 1 ELSE 0 END) AS TotalON
-        FROM TransactionParkingValet
+    const whereClause = LocationCode ? { LocationCode: LocationCode } : {};
+
+    const data = await TransactionValet.findAll({
+      attributes: [
+        [
+          sequelize.fn("DATE_FORMAT", sequelize.col("InTime"), "%Y-%m-%d"),
+          "Date",
+        ],
+        [sequelize.fn("COUNT", sequelize.col("TrxNo")), "TotalTrx"],
+        [sequelize.fn("SUM", sequelize.col("Tariff")), "TotalTariff"],
+        [
+          sequelize.literal(
+            "SUM(CASE WHEN OutTime IS NOT NULL THEN 1 ELSE 0 END)"
+          ),
+          "TotalOut",
+        ],
+        [
+          sequelize.literal(
+            "SUM(CASE WHEN InTime IS NOT NULL THEN 1 ELSE 0 END)"
+          ),
+          "TotalIn",
+        ],
+        [
+          sequelize.literal("SUM(CASE WHEN OutTime IS NULL THEN 1 ELSE 0 END)"),
+          "TotalON",
+        ],
+        [
+          sequelize.literal(
+            "SUM(CASE WHEN OutTime IS NOT NULL AND DATE(InTime) != DATE(OutTime) THEN 1 ELSE 0 END)"
+          ),
+          "TotalTrxPrevious",
+        ],
+      ],
+      where: {
+        ...whereClause,
+        InTime: {
+          [Op.between]: [startDate, endDate], // sesuaikan dengan rentang waktu bulanan yang sesuai
+        },
+      },
+      group: [sequelize.fn("DATE_FORMAT", sequelize.col("InTime"), "%Y-%m-%d")], // grup berdasarkan tanggal
+    });
+
+    if (data.length === 0) {
+      return res.status(404).send("No data found for the given month");
+    }
+
+    const locationCondition = LocationCode
+      ? `LocationCode = :LocationCode`
+      : `1=1`;
+
+    const inQuery = `
+      SELECT
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND ${locationCondition} ) AS totalTrxIn,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND ${locationCondition} ) AS previousIn,
+
+        (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND ${locationCondition} ) AS totalTariff,
+        (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND ${locationCondition} ) AS previousTariff,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(OutTime) = :month AND YEAR(OutTime) = :year AND ${locationCondition} AND DATE(OutTime) IS NOT NULL ) AS totalTrxOut,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(OutTime) = :previousMonth AND YEAR(OutTime) = :previousYear AND ${locationCondition} AND DATE(OutTime) IS NOT NULL ) AS previousOut,
         
-        AND MONTH(InTime) = :month
-        GROUP BY DATE(InTime);
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND ParkingType = 1 AND ${locationCondition} ) AS Valet,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND ParkingType = 1 AND ${locationCondition} ) AS previousValet,
+        
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND ParkingType = 2 AND ${locationCondition} ) AS VIP,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND ParkingType = 2 AND ${locationCondition} ) AS previousVIP,
+        
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND ParkingType = 3 AND ${locationCondition} ) AS VVIP,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND ParkingType = 3 AND ${locationCondition} ) AS previousVVIP,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND DATE(InTime) > DATE(OutTime) AND ${locationCondition} ) AS totalOverDay,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND DATE(InTime) > DATE(OutTime) AND ${locationCondition} ) AS previousOverDay,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND DATE(OutTime) IS NULL AND ${locationCondition} ) AS totalON,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND DATE(OutTime) IS NULL AND ${locationCondition} ) AS previousON,
+
+        (SELECT AVG(TIMESTAMPDIFF(MINUTE, InTime, OutTime)) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND OutTime IS NOT NULL AND ${locationCondition} ) AS DurationAvg,
+        (SELECT AVG(TIMESTAMPDIFF(MINUTE, InTime, OutTime)) FROM skybillingdb.TransactionParkingValet WHERE MONTH(InTime) = :previousMonth AND YEAR(InTime) = :previousYear AND DATE(OutTime) IS NOT NULL AND ${locationCondition} ) AS previousDurationAvg;
     `;
 
-    const replacements = {
-      month: parseInt(month, 10),
+    const previousMonth = month === 1 ? 12 : month - 1;
+    const previousYear = month === 1 ? year - 1 : year;
+
+    const summary = await sequelize.query(inQuery, {
+      type: QueryTypes.SELECT,
+      replacements: { month, year, previousMonth, previousYear, LocationCode },
+    });
+
+    const sqlQuery = `
+      SELECT 
+          COUNT(TrxNo) AS TotalTrx,
+          SUM(Tariff) AS TotalTariff,
+          RefLocation.Name
+      FROM skybillingdb.TransactionParkingValet
+      JOIN skybillingdb.RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
+      WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND ${locationCondition}
+      GROUP BY RefLocation.Name
+      ORDER BY TotalTrx DESC;
+    `;
+
+    const result = await sequelize.query(sqlQuery, {
+      type: QueryTypes.SELECT,
+      replacements: { month, year, LocationCode },
+    });
+
+    const sqlListOfficer = `
+      SELECT 
+          COUNT(TrxNo) AS TotalTrx,
+          SUM(Tariff) AS TotalTariff,
+          Users.Name,
+          RefLocation.ShortName
+      FROM skybillingdb.TransactionParkingValet
+      JOIN skybillingdb.Users ON TransactionParkingValet.ReceivedUserId = Users.Id
+      JOIN skybillingdb.RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
+      WHERE MONTH(InTime) = :month AND YEAR(InTime) = :year AND ${locationCondition}
+      GROUP BY Users.Name
+      ORDER BY TotalTrx DESC;
+    `;
+
+    const resultOfficer = await sequelize.query(sqlListOfficer, {
+      type: QueryTypes.SELECT,
+      replacements: { month, year, LocationCode },
+    });
+
+    const calculatePercentage = (current, previous) => {
+      if (previous === 0) return 0; // Menghindari pembagian dengan nol
+      return ((current - previous) / previous) * 100;
     };
 
-    // if (LocationCode !== "*") {
-    //   replacements.locationCode = LocationCode;
-    // }
-
-    const summary = await sequelize.query(sqlListOfficer, {
-      type: QueryTypes.SELECT,
-      replacements: replacements,
-    });
+    const duration =
+      summary[0].DurationAvg === null ? 0 : parseFloat(summary[0].DurationAvg);
+    const prevDuration =
+      summary[0].previousDurationAvg === null
+        ? 0
+        : parseFloat(summary[0].previousDurationAvg);
 
     const response = {
       summary: summary,
+      detail: data,
+      comparison: {
+        tariff: calculatePercentage(
+          summary[0].totalTariff,
+          summary[0].previousTariff
+        ),
+        trxIn: calculatePercentage(
+          summary[0].totalTrxIn,
+          summary[0].previousIn
+        ),
+        trxOut: calculatePercentage(
+          summary[0].totalTrxOut,
+          summary[0].previousOut
+        ),
+        valet: calculatePercentage(summary[0].Valet, summary[0].previousValet),
+        vip: calculatePercentage(summary[0].VIP, summary[0].previousVIP),
+        vvip: calculatePercentage(summary[0].VVIP, summary[0].previousVVIP),
+        totalON: calculatePercentage(summary[0].totalON, summary[0].previousON),
+        totalOverDay: calculatePercentage(
+          summary[0].totalOverDay,
+          summary[0].previousOverDay
+        ),
+        duration: calculatePercentage(duration, prevDuration),
+      },
+      listLocation: result,
+      listOfficer: resultOfficer,
     };
 
     res.status(200).json({ response });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.log(error);
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -549,5 +617,185 @@ export const exportExcel = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const dataYearlyDashboard = async (req, res) => {
+  const LocationCode = req.query.locationCode || null;
+  const year = req.query.year || new Date().getFullYear();
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+
+  try {
+    const sequelize = db;
+
+    const whereClause = LocationCode ? { LocationCode: LocationCode } : {};
+
+    const data = await TransactionValet.findAll({
+      attributes: [
+        [sequelize.fn("DATE_FORMAT", sequelize.col("InTime"), "%Y-%m"), "Year"],
+        [sequelize.fn("COUNT", sequelize.col("TrxNo")), "TotalTrx"],
+        [sequelize.fn("SUM", sequelize.col("Tariff")), "TotalTariff"],
+        [
+          sequelize.literal(
+            "SUM(CASE WHEN OutTime IS NOT NULL THEN 1 ELSE 0 END)"
+          ),
+          "TotalOut",
+        ],
+        [
+          sequelize.literal(
+            "SUM(CASE WHEN InTime IS NOT NULL THEN 1 ELSE 0 END)"
+          ),
+          "TotalIn",
+        ],
+        [
+          sequelize.literal("SUM(CASE WHEN OutTime IS NULL THEN 1 ELSE 0 END)"),
+          "TotalON",
+        ],
+        [
+          sequelize.literal(
+            "SUM(CASE WHEN OutTime IS NOT NULL AND DATE(InTime) != DATE(OutTime) THEN 1 ELSE 0 END)"
+          ),
+          "TotalTrxPrevious",
+        ],
+      ],
+      where: {
+        ...whereClause,
+        InTime: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+      group: [sequelize.fn("DATE_FORMAT", sequelize.col("InTime"), "%Y-%m")],
+    });
+
+    if (data.length === 0) {
+      return res.status(404).send("No data found for the given year");
+    }
+
+    const locationCondition = LocationCode
+      ? `LocationCode = :LocationCode`
+      : `1=1`;
+
+    const inQuery = `
+      SELECT
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND ${locationCondition} ) AS totalTrxIn,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND ${locationCondition} ) AS previousIn,
+
+        (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND ${locationCondition} ) AS totalTariff,
+        (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND ${locationCondition} ) AS previousTariff,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(OutTime) = :year AND ${locationCondition} AND DATE(OutTime) IS NOT NULL ) AS totalTrxOut,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(OutTime) = :previousYear AND ${locationCondition} AND DATE(OutTime) IS NOT NULL ) AS previousOut,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND ParkingType = 1 AND ${locationCondition} ) AS Valet,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND ParkingType = 1 AND ${locationCondition} ) AS previousValet,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND ParkingType = 2 AND ${locationCondition} ) AS VIP,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND ParkingType = 2 AND ${locationCondition} ) AS previousVIP,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND ParkingType = 3 AND ${locationCondition} ) AS VVIP,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND ParkingType = 3 AND ${locationCondition} ) AS previousVVIP,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND DATE(InTime) > DATE(OutTime) AND ${locationCondition} ) AS totalOverDay,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND DATE(InTime) > DATE(OutTime) AND ${locationCondition} ) AS previousOverDay,
+
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND DATE(OutTime) IS NULL AND ${locationCondition} ) AS totalON,
+        (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND DATE(OutTime) IS NULL AND ${locationCondition} ) AS previousON,
+
+        (SELECT AVG(TIMESTAMPDIFF(MINUTE, InTime, OutTime)) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :year AND OutTime IS NOT NULL AND ${locationCondition} ) AS DurationAvg,
+        (SELECT AVG(TIMESTAMPDIFF(MINUTE, InTime, OutTime)) FROM skybillingdb.TransactionParkingValet WHERE YEAR(InTime) = :previousYear AND DATE(OutTime) IS NOT NULL AND ${locationCondition} ) AS previousDurationAvg;
+    `;
+
+    const previousYear = year - 1;
+
+    const summary = await sequelize.query(inQuery, {
+      type: QueryTypes.SELECT,
+      replacements: { year, previousYear, LocationCode },
+    });
+
+    // console.log("Summary found:", summary);
+
+    const sqlQuery = `
+      SELECT 
+          COUNT(TrxNo) AS TotalTrx,
+          SUM(Tariff) AS TotalTariff,
+          RefLocation.Name
+      FROM skybillingdb.TransactionParkingValet
+      JOIN skybillingdb.RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
+      WHERE YEAR(InTime) = :year AND ${locationCondition}
+      GROUP BY RefLocation.Name
+      ORDER BY TotalTrx DESC;
+    `;
+
+    const result = await sequelize.query(sqlQuery, {
+      type: QueryTypes.SELECT,
+      replacements: { year, LocationCode },
+    });
+
+    const sqlListOfficer = `
+      SELECT
+          COUNT(TrxNo) AS TotalTrx,
+          SUM(Tariff) AS TotalTariff,
+          Users.Name,
+          RefLocation.ShortName
+      FROM skybillingdb.TransactionParkingValet
+      JOIN skybillingdb.Users ON TransactionParkingValet.ReceivedUserId = Users.Id
+      JOIN skybillingdb.RefLocation ON TransactionParkingValet.LocationCode = RefLocation.Code
+      WHERE YEAR(InTime) = :year AND ${locationCondition}
+      GROUP BY Users.Name
+      ORDER BY TotalTrx DESC;
+    `;
+
+    const resultOfficer = await sequelize.query(sqlListOfficer, {
+      type: QueryTypes.SELECT,
+      replacements: { year, LocationCode },
+    });
+
+    const calculatePercentage = (current, previous) => {
+      if (previous === 0) return 0; // Menghindari pembagian dengan nol
+      return ((current - previous) / previous) * 100;
+    };
+
+    const duration =
+      summary[0].DurationAvg === null ? 0 : parseFloat(summary[0].DurationAvg);
+    const prevDuration =
+      summary[0].previousDurationAvg === null
+        ? 0
+        : parseFloat(summary[0].previousDurationAvg);
+
+    const response = {
+      summary: summary,
+      detail: data,
+      comparison: {
+        tariff: calculatePercentage(
+          summary[0].totalTariff,
+          summary[0].previousTariff
+        ),
+        trxIn: calculatePercentage(
+          summary[0].totalTrxIn,
+          summary[0].previousIn
+        ),
+        trxOut: calculatePercentage(
+          summary[0].totalTrxOut,
+          summary[0].previousOut
+        ),
+        valet: calculatePercentage(summary[0].Valet, summary[0].previousValet),
+        vip: calculatePercentage(summary[0].VIP, summary[0].previousVIP),
+        vvip: calculatePercentage(summary[0].VVIP, summary[0].previousVVIP),
+        totalON: calculatePercentage(summary[0].totalON, summary[0].previousON),
+        totalOverDay: calculatePercentage(
+          summary[0].totalOverDay,
+          summary[0].previousOverDay
+        ),
+        duration: calculatePercentage(duration, prevDuration),
+      },
+      listLocation: result,
+      listOfficer: resultOfficer,
+    };
+
+    res.status(200).json({ response });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
   }
 };

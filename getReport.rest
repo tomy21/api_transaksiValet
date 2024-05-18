@@ -10,13 +10,19 @@ Content-Type: application/json
 
 #getdatadailysummary
 ###
-GET http://localhost:3008/api/dailyDashboard?date=2024-03-03
+GET http://localhost:3008/api/dailyDashboard?date=2024-03-04
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
 Content-Type: application/json
 
 #getdatamonthsummary
 ###
-GET http://localhost:3008/api/dataMonthDashboard?month=3
+GET http://localhost:3008/api/dataMonthDashboard?month=04
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
+Content-Type: application/json
+
+
+###
+GET http://localhost:3008/api/dataYearlyDashboard?year=2024
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
 Content-Type: application/json
 

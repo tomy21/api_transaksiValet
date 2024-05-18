@@ -718,10 +718,15 @@ router.get("/dailyreport", async (req, res) => {
             COUNT(CASE WHEN DATE(InTime) = @selectedDate AND ParkingType = '3' THEN TrxNo END) AS TotalVIPTrx,
             COUNT(CASE WHEN DATE(InTime) = DATE_SUB(@selectedDate, INTERVAL 1 DAY) AND ParkingType = '3' THEN TrxNo END) AS TotalVIPTrxPrevious,
             COUNT(CASE WHEN DATE(InTime) = @selectedDate AND ParkingType IN ('1', '2') THEN TrxNo END) AS TotalValetTrx,
+
             COUNT(CASE WHEN DATE(InTime) = DATE_SUB(@selectedDate, INTERVAL 1 DAY) AND ParkingType IN ('1', '2') THEN TrxNo END) AS TotalValetTrxPrevious,
+
             AVG(CASE WHEN DATE(InTime) = @selectedDate THEN TIMESTAMPDIFF(SECOND, InTime, OutTime) END) AS DurationAvg,
+
             AVG(CASE WHEN DATE(InTime) = DATE_SUB(@selectedDate, INTERVAL 1 DAY) THEN TIMESTAMPDIFF(SECOND, InTime, OutTime) END) AS DurationAvgPrevious,
+
             COUNT(CASE WHEN DATE(InTime) = @selectedDate AND DATE(OutTime) > DATE(InTime) AND DATE(InTime) IS NOT NULL THEN TrxNo END ) AS TotalOut_H1,
+            
             COUNT(CASE WHEN DATE(InTime) = @selectedDate AND DATE(OutTime) IS NULL THEN TrxNo END ) AS TotalOn
         FROM TransactionParkingValet
         WHERE ${locationCode === "*" ? "1" : "LocationCode = ? "}
