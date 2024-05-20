@@ -11,7 +11,7 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.get("/getAllOverNight", getDataOverNight);
+router.get("/getAllOverNight", VerifyToken, getDataOverNight);
 router.post(
   "/upload/dataOverNight",
   VerifyToken,

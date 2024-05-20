@@ -3,6 +3,7 @@ import { TransactionOverNightOficcers } from "../models/TransactionOverNightOfic
 import XLSX from "xlsx";
 import { Location } from "../models/RefLocation.js";
 import { Op } from "sequelize";
+import db from "../config/dbConfig.js";
 
 export const getDataOverNight = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -56,11 +57,24 @@ export const getDataOverNight = async (req, res) => {
       ...queries,
     });
 
+    const query = `
+    SELECT
+        COUNT(1) AS TotalCount,
+        SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END) AS InareaCount,
+        SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END) AS NovihicleCount,
+        SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END) AS OutCount
+    FROM TransactionOverNights
+    WHERE DATE(InTime) = CURDATE();
+    `;
+
+    const summary = await db.query(query, { type: db.QueryTypes.SELECT });
+    console.log(summary);
     if (result) {
       const response = {
         success: true,
         totalPages: Math.ceil(result?.count / limit),
         totalItems: result?.count,
+        summary: summary,
         data: result?.rows,
       };
       res.status(201).json(response);

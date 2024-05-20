@@ -1,5 +1,9 @@
 #getdatadailysummary
 ###
-GET http://localhost:3008/api/getAllOverNight?limit=10&location=&page=0&keyword=
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
+GET http://localhost:3008/api/getAllOverNight
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNjE4NzY3NCwiZXhwIjoxNzE2MTg3Njg5fQ.3hGTx9vRztexYYdTmx8GrpLvkg89y9-mtDZfFJHwV1Q
 Content-Type: application/json
+
+
+###
+GET http://localhost:3008/api/token
