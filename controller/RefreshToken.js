@@ -1,6 +1,8 @@
 import { UsersToken } from "../models/UsersToken.js";
 import { Users } from "../models/Users.js";
 import jwt from "jsonwebtoken";
+import { UsersLocations } from "../models/UsersLocation.js";
+import { Location } from "../models/RefLocation.js";
 
 export const refreshToken = async (req, res) => {
   try {
@@ -16,6 +18,18 @@ export const refreshToken = async (req, res) => {
         Id: user[0].UserId,
       },
     });
+
+    const LocationData = await UsersLocations.findAll({
+      where: {
+        UserId: user[0].UserId,
+      },
+      include: [
+        {
+          model: Location,
+          attributes: ["Name"],
+        },
+      ],
+    });
     if (!user[0]) return res.sendStatus(403);
     jwt.verify(
       refreshToken,
@@ -25,8 +39,10 @@ export const refreshToken = async (req, res) => {
         const userId = user[0].UserId;
         const name = users[0].Name;
         const email = users[0].Email;
+        const locationCode = LocationData[0].LocationCode;
+        const locationName = LocationData[0].RefLocation.Name;
         const accessToken = jwt.sign(
-          { userId, name, email },
+          { userId, name, email, locationCode, locationName },
           process.env.ACCESS_TOKEN_SECRET,
           {
             expiresIn: "15s",

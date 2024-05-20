@@ -9,6 +9,7 @@ import QrisRoute from "./route/Qris/Qris.js";
 import TicketCategory from "./route/CategoryTicket/TicketCategory.js";
 import Transactions from "./route/Transactions/Transactions.js";
 import ReportOprational from "./route/Report/ReportOprational.js";
+import OverNight from "./route/OverNight/transaction.js";
 import path from "path";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
@@ -32,6 +33,7 @@ app.use("/api", QrisRoute);
 app.use("/api", TicketCategory);
 app.use("/api", Transactions);
 app.use("/api", ReportOprational);
+app.use("/api", OverNight);
 
 const PORT = 3008;
 app.listen(PORT, () => {

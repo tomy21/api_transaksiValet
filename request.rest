@@ -29,17 +29,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuY
 #register users
 ###
 POST http://localhost:3008/api/register
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNTA3MDgxNCwiZXhwIjoxNzE1MDcwODI5fQ.HPSm6Qu2SLdPWFMm7GiFIiA3nLp_R5_On5EjLHfKcLc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNjA1NjAzNywiZXhwIjoxNzE2MDU2MDUyfQ.w6-sjbmNmhOGyfN4Tj0nbiMWBzcFlIKkBgpDRNc_G_M
 Content-Type: application/json
 
 {
     "SetupRoleId": 13,
     "IpAddress": "192.168.43.201",
-    "Name": "Test Valet 6",
-    "Gender": "M",
-    "Username": "testValet56",
-    "Email": "testvalet601@new.com",
-    "Phone": "0123",
+    "Name": "Finance",
+    "Gender": "F",
+    "Username": "Finance_SKY",
+    "Email": "finance@testing.com",
+    "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
     "LocationCode": ["19LSK", "00ASK"]

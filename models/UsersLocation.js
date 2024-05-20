@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "../config/dbConfig.js";
+import { Location } from "./RefLocation.js";
 
 export const UsersLocations = db.define(
   "UsersLocation",
@@ -74,3 +75,7 @@ export const UsersLocations = db.define(
     tableName: "UsersLocation",
   }
 );
+
+UsersLocations.belongsTo(Location, {
+  foreignKey: "LocationCode",
+});
