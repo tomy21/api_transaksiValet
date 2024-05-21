@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import cors from "cors";
+import { createProxyMiddleware } from "http-proxy-middleware";
 import UsersRoute from "./route/Users/Users.js";
 import LocationRoute from "./route/Locations/Location.js";
 import IssuerRoute from "./route/Issuer/Issuer.js";
@@ -15,6 +16,16 @@ import path from "path";
 // import connect from "./config/dbConfig";
 
 const app = express();
+
+app.use(
+  "/api",
+  createProxyMiddleware({
+    target: "http://147.139.135.195:8090",
+    changeOrigin: true,
+    secure: false,
+  })
+);
+
 app.use(
   cors({
     credentials: true,
@@ -39,7 +50,7 @@ app.use("/api", Transactions);
 app.use("/api", ReportOprational);
 app.use("/api", OverNight);
 
-const PORT = 3008;
+const PORT = 3008 || 8091;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
