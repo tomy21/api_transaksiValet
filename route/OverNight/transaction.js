@@ -4,6 +4,7 @@ import {
   getDataOverNight,
   importDataExcel,
   validationData,
+  getDataOverNightPetugas,
 } from "../../controller/TransactionOverNight.js";
 import { VerifyToken } from "../../middleware/VerifyToken.js";
 const router = express.Router();
@@ -12,6 +13,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.get("/getAllOverNight", VerifyToken, getDataOverNight);
+router.get("/getAllOverNightApps", getDataOverNightPetugas);
 router.post(
   "/upload/dataOverNight",
   VerifyToken,

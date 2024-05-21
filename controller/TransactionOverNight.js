@@ -186,3 +186,95 @@ export const validationData = async (req, res) => {
     res.status(500).json({ message: "Terjadi kesalahan saat menyimpan data" });
   }
 };
+
+export const getDataOverNightPetugas = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const orderBy = req.query.orderBy || "ModifiedOn";
+  const sortBy = req.query.sortBy || "DESC";
+  const keyword = req.query.keyword || "";
+  const locationCode = req.query.location || "";
+
+  const today = new Date();
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  const endOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + 1
+  );
+  try {
+    const queries = {
+      where: locationCode ? { LocationCode: locationCode } : {},
+      offset: (page - 1) * limit,
+      limit,
+      include: [
+        {
+          model: Location,
+          attributes: ["Name"],
+        },
+      ],
+    };
+
+    if (keyword) {
+      queries.where = {
+        [Op.or]: [
+          { TransactionNo: { [Op.like]: `%${keyword}%` } },
+          { ReferenceNo: { [Op.like]: `%${keyword}%` } },
+          { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
+          { Status: { [Op.like]: `%${keyword}%` } },
+          { InTime: { [Op.like]: `%${keyword}%` } },
+          // Tambahkan kolom lainnya jika diperlukan
+        ],
+      };
+    }
+
+    if (startOfToday && endOfToday) {
+      queries.where = {
+        ...queries.where,
+        ModifiedOn: {
+          [Op.between]: [startOfToday, endOfToday],
+        },
+      };
+    }
+
+    if (orderBy) {
+      queries.order = [[orderBy, sortBy]];
+    }
+
+    const result = await TransactionOverNights.findAndCountAll({
+      ...queries,
+    });
+
+    const query = `
+    SELECT
+        COUNT(VehiclePlateNo) AS TotalCount,
+        SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END) AS InareaCount,
+        SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END) AS NovihicleCount,
+        SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END) AS OutCount
+    FROM TransactionOverNights
+    WHERE DATE(ModifiedOn) = CURDATE();
+    `;
+
+    const summary = await db.query(query, { type: db.QueryTypes.SELECT });
+    console.log(summary);
+    if (result) {
+      const response = {
+        success: true,
+        totalPages: Math.ceil(result?.count / limit),
+        totalItems: result?.count,
+        summary: summary,
+        data: result?.rows,
+      };
+      res.status(201).json(response);
+    } else {
+      res.status(400).json({ success: false, message: "Get data failed" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, message: "Get data failed" });
+  }
+};

@@ -2,7 +2,7 @@ GET http://localhost:3008/api/getUsers
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTc0MjE1NiwiZXhwIjoxNzE1NzQyMTcxfQ.K92yr54YFXijWLUM9eWZsj9yUj9XxM3ExMU-tOASaLo
 
 ###
-POST https://localhost:3008/api/login
+POST http://147.139.135.195:8090/api/login
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3008/api/token
+GET http://147.139.135.195:8090/api/token
 ###
 GET http://localhost:3008/api/logout
 
