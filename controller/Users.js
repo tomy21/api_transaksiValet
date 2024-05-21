@@ -159,9 +159,9 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      domain: "dev-valet.skyparking.online/",
+      // domain: "dev-valet.skyparking.online/",
       // sameSite: "None",
-      secure: true,
+      // secure: true,
     });
 
     res.json({ accessToken });

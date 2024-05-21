@@ -40,7 +40,7 @@ app.use("/api", Transactions);
 app.use("/api", ReportOprational);
 app.use("/api", OverNight);
 
-const PORT = 3008 || 8091;
+const PORT = 3008;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
