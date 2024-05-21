@@ -18,7 +18,11 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:3000", "http://147.139.135.195:8091"],
+    origin: [
+      "http://localhost:3000",
+      "http://147.139.135.195:8091",
+      "https://dev-valet.skyparking.online",
+    ],
   })
 );
 
