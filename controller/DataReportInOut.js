@@ -548,14 +548,22 @@ export const exportExcel = async (req, res) => {
     const endDate = req.query.endDate || null;
 
     const query = {
-      where: [locationCode ? { LocationCode: locationCode } : {}],
+      where: {},
     };
 
+    if (locationCode) {
+      query.where.LocationCode = locationCode;
+    }
+
     if (startDate && endDate) {
+      const startDateUTC = new Date(startDate).toISOString();
+      const endDatePlusOneDay = new Date(endDate);
+      endDatePlusOneDay.setDate(endDatePlusOneDay.getDate() + 1);
+
       query.where = {
         ...query.where,
         InTime: {
-          [Op.between]: [startDate, endDate],
+          [Op.between]: [startDateUTC, endDatePlusOneDay.toISOString()],
         },
       };
     }

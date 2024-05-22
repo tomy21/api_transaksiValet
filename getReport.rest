@@ -33,7 +33,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuY
 Content-Type: application/json
 
 ###
-GET http://localhost:3008/api/dailyreport
+GET http://localhost:3008/api/exportdata
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
 Content-Type: application/json
 
