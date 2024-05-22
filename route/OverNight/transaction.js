@@ -5,19 +5,31 @@ import {
   importDataExcel,
   validationData,
   getDataOverNightPetugas,
+  exportDataOverNight,
 } from "../../controller/TransactionOverNight.js";
 import { VerifyToken } from "../../middleware/VerifyToken.js";
 const router = express.Router();
 
-const storage = multer.memoryStorage();
+const storageExcel = multer.memoryStorage();
+const uploadExcel = multer({ storage: storageExcel });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
 const upload = multer({ storage: storage });
 
 router.get("/getAllOverNight", VerifyToken, getDataOverNight);
 router.get("/getAllOverNightApps", getDataOverNightPetugas);
+router.get("/exportDataOn", exportDataOverNight);
 router.post(
   "/upload/dataOverNight",
-  VerifyToken,
-  upload.single("file"),
+  // VerifyToken,
+  uploadExcel.single("file"),
   importDataExcel
 );
 router.post(

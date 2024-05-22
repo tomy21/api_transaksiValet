@@ -37,6 +37,9 @@ export const TransactionOverNights = db.define(
     PhotoImage: {
       type: DataTypes.BLOB,
     },
+    PathPhotoImage: {
+      type: DataTypes.STRING(255),
+    },
     Remarks: {
       type: DataTypes.STRING(1000),
     },
