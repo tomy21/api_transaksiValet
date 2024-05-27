@@ -32,7 +32,7 @@ export const TransactionOverNights = db.define(
       type: DataTypes.STRING(255),
     },
     OutTime: {
-      type: DataTypes.STRING(255),
+      type: DataTypes.DATE,
     },
     PhotoImage: {
       type: DataTypes.BLOB,

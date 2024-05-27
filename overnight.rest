@@ -10,6 +10,17 @@ GET https://dev-valetapi.skyparking.online/api/getAllOverNightApps?location=003S
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNjE4NzY3NCwiZXhwIjoxNzE2MTg3Njg5fQ.3hGTx9vRztexYYdTmx8GrpLvkg89y9-mtDZfFJHwV1Q
 Content-Type: application/json
 
+#getDataByLocation
+###
+GET http://localhost:3008/api/getDatabyLocation?location=003SK
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImxvY2F0aW9uQ29kZSI6IjAwM1NLIiwibG9jYXRpb25OYW1lIjoiU0tZIFBMVUlUIFZJTExBR0UiLCJpYXQiOjE3MTY4Mjk4MDYsImV4cCI6MTcxNjgyOTgyMX0.tg8LpqiQFrMWsLUYI-lX4I4heuCOR_xZM8_-5vAk6Qw
+Content-Type: application/json
+#getdatadailysummary
+###
+GET https://dev-valetapi.skyparking.online/api/getAllOverNightApps?location=003SK
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNjE4NzY3NCwiZXhwIjoxNzE2MTg3Njg5fQ.3hGTx9vRztexYYdTmx8GrpLvkg89y9-mtDZfFJHwV1Q
+Content-Type: application/json
+
 
 ###
-GET http://147.139.135.195:8090/api/token
+GET http://localhost:3008/api/token

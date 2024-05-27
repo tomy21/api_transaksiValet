@@ -119,16 +119,20 @@ export const importDataExcel = async (req, res) => {
 
       const existingRecord = await TransactionOverNights.findOne({
         where: {
-          [Op.and]: {
-            VehiclePlateNo: vehiclePlateNo,
-            LocationCode: locationCode,
-          },
+          [Op.and]: [
+            { VehiclePlateNo: vehiclePlateNo },
+            { LocationCode: locationCode },
+            { ModifiedBy: null },
+            {
+              [Op.or]: [{ Status: "No vehicle" }, { Status: "In Area" }],
+            },
+          ],
         },
       });
 
       if (existingRecord) {
         await existingRecord.update({
-          Status: "In Transaction",
+          Status: "No vehicle",
           TransactionNo: row["Ticket Number"],
         });
       } else {
@@ -211,6 +215,88 @@ export const validationData = async (req, res) => {
   } catch (error) {
     console.error("Error menyimpan data:", error);
     res.status(500).json({ message: "Terjadi kesalahan saat menyimpan data" });
+  }
+};
+
+export const getDataOverNightLocation = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const orderBy = req.query.orderBy || "ModifiedOn";
+  const sortBy = req.query.sortBy || "DESC";
+  const keyword = req.query.keyword || "";
+  const locationCode = req.query.location || "";
+  const startDate = req.query.startDate || "";
+  const endDate = req.query.endDate || "";
+
+  try {
+    const queries = {
+      where: locationCode ? { LocationCode: locationCode } : {},
+      offset: (page - 1) * limit,
+      limit,
+      include: [
+        {
+          model: Location,
+          attributes: ["Name"],
+        },
+      ],
+    };
+
+    if (keyword) {
+      queries.where = {
+        [Op.or]: [
+          { TransactionNo: { [Op.like]: `%${keyword}%` } },
+          { ReferenceNo: { [Op.like]: `%${keyword}%` } },
+          { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
+          { Status: { [Op.like]: `%${keyword}%` } },
+          { InTime: { [Op.like]: `%${keyword}%` } },
+          // Tambahkan kolom lainnya jika diperlukan
+        ],
+      };
+    }
+
+    if (startDate && endDate) {
+      queries.where = {
+        ...queries.where,
+        ModifiedOn: {
+          [Op.between]: [startDate, endDate],
+        },
+      };
+    }
+
+    if (orderBy) {
+      queries.order = [[orderBy, sortBy]];
+    }
+
+    const result = await TransactionOverNights.findAndCountAll({
+      ...queries,
+    });
+
+    const query = `
+    SELECT
+        COUNT(VehiclePlateNo) AS TotalCount,
+        SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END) AS InareaCount,
+        SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END) AS NovihicleCount,
+        SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END) AS OutCount
+    FROM TransactionOverNights
+    WHERE DATE(ModifiedOn) = CURDATE();
+    `;
+
+    const summary = await db.query(query, { type: db.QueryTypes.SELECT });
+    if (result) {
+      const response = {
+        success: true,
+        totalPages: Math.ceil(result?.count / limit),
+        totalItems: result?.count,
+        summary: summary,
+        data: result?.rows,
+      };
+      res.status(201).json(response);
+    } else {
+      res.status(400).json({ success: false, message: "Get data failed" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ success: false, message: "Get data failed" });
   }
 };
 
@@ -378,5 +464,29 @@ export const exportDataOverNight = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const updateOutAndRemaks = async (req, res) => {
+  const { outTime, remaks, idTransaction, officer } = req.body;
+
+  try {
+    const existingRecord = await TransactionOverNights.findOne({
+      where: { Id: idTransaction },
+    });
+
+    if (existingRecord) {
+      await existingRecord.update({
+        Status: "Out",
+        ModifiedBy: officer,
+        Remaks: remaks,
+        OutTime: outTime,
+      });
+      res.status(200).json({ message: "Record updated successfully" });
+    } else {
+      res.status(404).json({ message: "Record not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred", error });
   }
 };

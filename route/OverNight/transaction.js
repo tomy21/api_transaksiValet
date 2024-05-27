@@ -6,6 +6,8 @@ import {
   validationData,
   getDataOverNightPetugas,
   exportDataOverNight,
+  getDataOverNightLocation,
+  updateOutAndRemaks,
 } from "../../controller/TransactionOverNight.js";
 import { VerifyToken } from "../../middleware/VerifyToken.js";
 const router = express.Router();
@@ -23,9 +25,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get("/getAllOverNight", getDataOverNight);
-router.get("/getAllOverNightApps", getDataOverNightPetugas);
-router.get("/exportDataOn", exportDataOverNight);
+router.get("/getAllOverNight", VerifyToken, getDataOverNight);
+router.get("/getAllOverNightApps", VerifyToken, getDataOverNightPetugas);
+router.get("/exportDataOn", VerifyToken, exportDataOverNight);
+router.get("/getDatabyLocation", VerifyToken, getDataOverNightLocation);
+router.put("/updateOutAndRemaks", VerifyToken, updateOutAndRemaks);
+
 router.post(
   "/upload/dataOverNight",
   // VerifyToken,

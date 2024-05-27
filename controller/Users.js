@@ -91,7 +91,6 @@ export const login = async (req, res) => {
   const decryptedResult = crypto.AES.decrypt(encryptedData, secretKey).toString(
     crypto.enc.Utf8
   );
-  console.log(encryptedData);
   const decryptedObject = JSON.parse(decryptedResult);
   const emailUser = decryptedObject.email;
   const password = decryptedObject.password;
@@ -159,9 +158,9 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      domain: ".skyparking.online",
-      sameSite: "None",
-      secure: true,
+      // domain: ".skyparking.online",
+      // sameSite: "None",
+      // secure: true,
     });
 
     res.json({ accessToken });
