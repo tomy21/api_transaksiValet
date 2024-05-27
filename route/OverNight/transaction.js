@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-router.get("/getAllOverNight", VerifyToken, getDataOverNight);
+router.get("/getAllOverNight", getDataOverNight);
 router.get("/getAllOverNightApps", getDataOverNightPetugas);
 router.get("/exportDataOn", exportDataOverNight);
 router.post(

@@ -103,11 +103,10 @@ export const importDataExcel = async (req, res) => {
     // console.log(worksheet);
 
     const excelDateToJSDate = (serial) => {
-      const excelEpoch = new Date(Date.UTC(1900, 0, 1)); // Excel epoch starts at 1 Jan 1900
-      const days = Math.floor(serial - 1);
-      const msPerDay = 24 * 60 * 60 * 1000;
-      const msTime = (serial - days - 1) * msPerDay;
-      const date = new Date(excelEpoch.getTime() + days * msPerDay + msTime);
+      const excelEpoch = new Date(Date.UTC(1899, 11, 30)); // Adjusted for Excel's epoch bug
+      const date = new Date(
+        excelEpoch.getTime() + serial * 24 * 60 * 60 * 1000
+      );
       return date;
     };
 
@@ -115,16 +114,33 @@ export const importDataExcel = async (req, res) => {
     for (const row of worksheet) {
       const inTimeJSDate = excelDateToJSDate(row.InTime);
       const vehiclePlateNo = row["License Plate"]
-        ? row["License Plate"].trim().toUpperCase()
+        ? row["License Plate"].replace(/\s+/g, "").toUpperCase()
         : "-";
-      const insertData = {
-        TransactionNo: row["Ticket Number"],
-        LocationCode: locationCode,
-        VehiclePlateNo: vehiclePlateNo,
-        InTime: inTimeJSDate,
-        Status: "No vehicle",
-      };
-      await TransactionOverNights.create(insertData);
+
+      const existingRecord = await TransactionOverNights.findOne({
+        where: {
+          [Op.and]: {
+            VehiclePlateNo: vehiclePlateNo,
+            LocationCode: locationCode,
+          },
+        },
+      });
+
+      if (existingRecord) {
+        await existingRecord.update({
+          Status: "At Transaction",
+          TransactionNo: row["Ticket Number"],
+        });
+      } else {
+        const insertData = {
+          TransactionNo: row["Ticket Number"],
+          LocationCode: locationCode,
+          VehiclePlateNo: vehiclePlateNo,
+          InTime: inTimeJSDate,
+          Status: "No vehicle",
+        };
+        await TransactionOverNights.create(insertData);
+      }
     }
     const response = {
       code: 200,
@@ -179,12 +195,12 @@ export const validationData = async (req, res) => {
         ModifiedBy: officer,
         PhotoImage: file.buffer,
         PathPhotoImage: "/uploads/" + file.filename,
-        Status: "No vehicle",
+        Status: "At Transaction",
       });
 
       await TransactionOverNightOficcers.create({
         LocationCode: locationCode,
-        Status: "No vehicle",
+        Status: "At Transaction",
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
         PathPhotoImage: "/uploads/" + file.filename,
@@ -207,6 +223,14 @@ export const getDataOverNightPetugas = async (req, res) => {
   const locationCode = req.query.location || "";
   const startDate = req.query.startDate || "";
   const endDate = req.query.endDate || "";
+  const formatDate = (date) => date.toISOString().split("T")[0];
+
+  const currentDate = new Date();
+  const formattedCurrentDate = formatDate(currentDate);
+  const startOfDay = new Date(formattedCurrentDate);
+  const endOfDay = new Date(startOfDay);
+  endOfDay.setDate(endOfDay.getDate() + 1);
+
   try {
     const queries = {
       where: locationCode ? { LocationCode: locationCode } : {},
@@ -237,7 +261,7 @@ export const getDataOverNightPetugas = async (req, res) => {
       queries.where = {
         ...queries.where,
         ModifiedOn: {
-          [Op.between]: [startDate, endDate],
+          [Op.between]: [startOfDay, endOfDay],
         },
       };
     }
