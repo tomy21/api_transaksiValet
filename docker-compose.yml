@@ -2,16 +2,16 @@ version: '3'
 
 services:
   app:
-    container_name: 'dashboard_on'
+    container_name: 'server_transaksi'
     build: 
       dockerfile: ./Dockerfile
     volumes:
       - .:/app
       - node_modules:/app/node_modules
     environment:
-      - PORT=4001
+      - PORT=3008
     ports:
-      - "8092:4001"
+      - "8090:3008"
     # command: npm install cookie-parser && npm start
     networks:
       - backend_network
