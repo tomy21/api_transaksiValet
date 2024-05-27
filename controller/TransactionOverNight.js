@@ -285,7 +285,6 @@ export const getDataOverNightPetugas = async (req, res) => {
     `;
 
     const summary = await db.query(query, { type: db.QueryTypes.SELECT });
-    console.log(summary);
     if (result) {
       const response = {
         success: true,
