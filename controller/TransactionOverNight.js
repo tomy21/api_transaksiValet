@@ -195,12 +195,12 @@ export const validationData = async (req, res) => {
         ModifiedBy: officer,
         PhotoImage: file.buffer,
         PathPhotoImage: "/uploads/" + file.filename,
-        Status: "At Transaction",
+        Status: "In Area",
       });
 
       await TransactionOverNightOficcers.create({
         LocationCode: locationCode,
-        Status: "At Transaction",
+        Status: "In Area",
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
         PathPhotoImage: "/uploads/" + file.filename,
