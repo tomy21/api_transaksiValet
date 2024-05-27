@@ -128,7 +128,7 @@ export const importDataExcel = async (req, res) => {
 
       if (existingRecord) {
         await existingRecord.update({
-          Status: "At Transaction",
+          Status: "In Transaction",
           TransactionNo: row["Ticket Number"],
         });
       } else {
