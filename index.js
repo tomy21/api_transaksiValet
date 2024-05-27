@@ -23,6 +23,7 @@ app.use(
       "http://localhost:3000",
       "http://147.139.135.195:8091",
       "https://dev-valet.skyparking.online",
+      "https://dev-on.skyparking.online",
     ],
   })
 );
