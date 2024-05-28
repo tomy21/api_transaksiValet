@@ -307,8 +307,9 @@ export const getDataOverNightPetugas = async (req, res) => {
   const sortBy = req.query.sortBy || "DESC";
   const keyword = req.query.keyword || "";
   const locationCode = req.query.location || "";
-  const startDate = req.query.startDate || "";
-  const endDate = req.query.endDate || "";
+  const startDate =
+    req.query.startDate || new Date().toISOString().split("T")[0];
+  const endDate = req.query.endDate || new Date().toISOString().split("T")[0];
   const formatDate = (date) => date.toISOString().split("T")[0];
 
   const currentDate = new Date();
