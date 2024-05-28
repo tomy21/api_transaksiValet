@@ -63,4 +63,5 @@ export const TransactionOverNights = db.define(
 
 TransactionOverNights.belongsTo(Location, {
   foreignKey: "LocationCode",
+  targetKey: "Code",
 });
