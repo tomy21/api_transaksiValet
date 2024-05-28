@@ -78,4 +78,5 @@ export const UsersLocations = db.define(
 
 UsersLocations.belongsTo(Location, {
   foreignKey: "LocationCode",
+  targetKey: "Code",
 });

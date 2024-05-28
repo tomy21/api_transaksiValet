@@ -136,4 +136,5 @@ export const TransactionValet = db.define(
 
 TransactionValet.belongsTo(Location, {
   foreignKey: "LocationCode",
+  targetKey: "Code",
 });
