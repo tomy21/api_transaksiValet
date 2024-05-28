@@ -29,20 +29,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuY
 #register users
 ###
 POST http://localhost:3008/api/register
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNjM3MDQ3NiwiZXhwIjoxNzE2MzcwNDkxfQ.p1tWR_YXL-oN_mg5iFPx6GdmIPvEbOSKrtPWNifDAiU
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNjg4OTc5NSwiZXhwIjoxNzE2ODg5ODEwfQ.aSKrtTl5_I86g9OOJPCwEzVOVMmDW_57j0JwCJSsFog
 Content-Type: application/json
 
 {
     "SetupRoleId": 13,
     "IpAddress": "192.168.43.201",
-    "Name": "Region 1 Test",
+    "Name": "Eki R1",
     "Gender": "M",
-    "Username": "Reg_01_test",
-    "Email": "region1@testing.com",
+    "Username": "eki_R1",
+    "Email": "eki@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
-    "LocationCode": ["003SK"]
+    "LocationCode": ["009SK"]
 }
 
 

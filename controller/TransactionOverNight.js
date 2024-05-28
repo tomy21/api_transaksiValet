@@ -368,7 +368,8 @@ export const getDataOverNightPetugas = async (req, res) => {
         SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END) AS NovihicleCount,
         SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END) AS OutCount
     FROM TransactionOverNights
-    WHERE DATE(ModifiedOn) = CURDATE();
+    WHERE DATE(ModifiedOn) = CURDATE()
+    ${locationCode ? `AND LocationCode = '${locationCode}'` : ""};
     `;
 
     const summary = await db.query(query, { type: db.QueryTypes.SELECT });
