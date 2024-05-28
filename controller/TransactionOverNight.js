@@ -363,10 +363,10 @@ export const getDataOverNightPetugas = async (req, res) => {
 
     const query = `
     SELECT
-        COUNT(VehiclePlateNo) AS TotalCount,
-        SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END) AS InareaCount,
-        SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END) AS NovihicleCount,
-        SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END) AS OutCount
+        COALESCE(COUNT(VehiclePlateNo), 0) AS TotalCount,
+        COALESCE(SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END), 0) AS InareaCount,
+        COALESCE(SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END), 0) AS NovihicleCount,
+        COALESCE(SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END), 0) AS OutCount
     FROM TransactionOverNights
     WHERE DATE(ModifiedOn) = CURDATE()
     ${locationCode ? `AND LocationCode = '${locationCode}'` : ""};
