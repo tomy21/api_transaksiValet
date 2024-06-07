@@ -436,7 +436,7 @@ export const exportDataOverNight = async (req, res) => {
       ];
 
       result.forEach((value, index) => {
-        worksheet.addRow({
+        const row = worksheet.addRow({
           No: index + 1,
           InTime: value.InTime,
           TransactionNo: value.TransactionNo,
@@ -448,6 +448,20 @@ export const exportDataOverNight = async (req, res) => {
           ModifiedOn: value.ModifiedOn,
           PathPhotoImage: value.PathPhotoImage ? value.PathPhotoImage : "",
         });
+
+        if (value.PathPhotoImage) {
+          const imagePath = path.join(__dirname, value.PathPhotoImage);
+          if (fs.existsSync(imagePath)) {
+            const imageId = workbook.addImage({
+              filename: imagePath,
+              extension: "jpeg",
+            });
+            worksheet.addImage(imageId, {
+              tl: { col: 8, row: row.number - 1 },
+              ext: { width: 100, height: 100 },
+            });
+          }
+        }
       });
 
       const fileName =
