@@ -9,6 +9,9 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 export const getDataOverNight = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -395,8 +398,6 @@ export const getDataOverNightPetugas = async (req, res) => {
 };
 
 export const exportDataOverNight = async (req, res) => {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
   try {
     const sequelize = db;
     const locationCode = req.query.LocationCode || null;
@@ -459,7 +460,7 @@ export const exportDataOverNight = async (req, res) => {
           if (fs.existsSync(imagePath)) {
             const imageId = workbook.addImage({
               filename: imagePath,
-              extension: "jpeg",
+              extension: "jpg",
             });
             worksheet.addImage(imageId, {
               tl: { col: 8, row: row.number - 1 },
