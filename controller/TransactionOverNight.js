@@ -425,13 +425,14 @@ export const exportDataOverNight = async (req, res) => {
 
       worksheet.columns = [
         { header: "No", key: "No", width: 5 },
-        { header: "Date In", width: 20, key: "InTime" },
-        { header: "Transaction No", width: 20, key: "TransactionNo" },
-        { header: "Location Name", width: 15, key: "LocationCode" },
-        { header: "Vehicle Plate", width: 15, key: "VehiclePlateNo" },
+        { header: "Jam Masuk", width: 20, key: "InTime" },
+        { header: "No Transaksi", width: 20, key: "TransactionNo" },
+        { header: "Lokasi", width: 15, key: "LocationCode" },
+        { header: "Plat Nomor", width: 15, key: "VehiclePlateNo" },
         { header: "Status", width: 10, key: "Status" },
-        { header: "Officer", width: 15, key: "ModifiedBy" },
-        { header: "Last Update", width: 15, key: "ModifiedOn" },
+        { header: "Petugas", width: 15, key: "ModifiedBy" },
+        { header: "Tanggal Update", width: 15, key: "ModifiedOn" },
+        { header: "Gambar", width: 30, key: "PathPhotoImage" },
       ];
 
       result.forEach((value, index) => {
@@ -445,6 +446,7 @@ export const exportDataOverNight = async (req, res) => {
           Officer: value.Officer,
           ModifiedBy: value.ModifiedBy,
           ModifiedOn: value.ModifiedOn,
+          PathPhotoImage: value.PathPhotoImage ? value.PathPhotoImage : "",
         });
       });
 

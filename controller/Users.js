@@ -34,7 +34,7 @@ export const register = async (req, res) => {
     IsFirstpassword,
     FlagAllLocation,
     MerchantId,
-    LocationCode,
+    LocationCode, // array of location codes
     CreatedBy,
   } = req.body;
   const password = "sky123";
@@ -54,35 +54,44 @@ export const register = async (req, res) => {
 
     const lastId = lastUsers ? lastUsers.Id : 0;
     const userCode = await generateUserCode(lastId);
+    // const newUser = await Users.create({
+    //   SetupRoleId: SetupRoleId,
+    //   IpAddress: IpAddress,
+    //   Name: Name,
+    //   UserCode: userCode,
+    //   Gender: Gender,
+    //   Birthdate: Birthdate,
+    //   Username: Username,
+    //   Email: Email,
+    //   Password: hashPassword,
+    //   Phone: Phone,
+    //   HandPhone: HandPhone,
+    //   Whatsapp: Whatsapp,
+    //   Photo: Photo,
+    //   PasswordExpired: oneYearLater,
+    //   IsFirstpassword: IsFirstpassword,
+    //   FlagAllLocation: FlagAllLocation,
+    //   MerchantId: MerchantId,
+    //   CreatedBy: CreatedBy,
+    // });
 
-    const newUserId = await Users.create({
-      SetupRoleId: SetupRoleId,
-      IpAddress: IpAddress,
-      Name: Name,
-      UserCode: userCode,
-      Gender: Gender,
-      Birthdate: Birthdate,
-      Username: Username,
-      Email: Email,
-      Password: hashPassword,
-      Phone: Phone,
-      HandPhone: HandPhone,
-      Whatsapp: Whatsapp,
-      Photo: Photo,
-      PasswordExpired: oneYearLater,
-      IsFirstpassword: IsFirstpassword,
-      FlagAllLocation: FlagAllLocation,
-      MerchantId: MerchantId,
-    });
+    // console.log(newUser.Id);
+    if (!Array.isArray(LocationCode)) {
+      return res.status(400).json({ msg: "LocationCode harus berupa array" });
+    }
+
     const data = LocationCode.map((location) => ({
-      UserId: newUserId.Id,
+      UserId: 102,
       LocationCode: location,
-      CreatedBy: newUserId.CreatedBy,
+      CreatedBy: CreatedBy, // use the CreatedBy from req.body
     }));
+
     await UsersLocations.bulkCreate(data);
-    await res.json({ msg: "register berhasil" });
+
+    res.json({ msg: "Register berhasil" });
   } catch (error) {
     console.log(error);
+    res.status(500).json({ msg: "Terjadi kesalahan" });
   }
 };
 
@@ -158,9 +167,9 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000,
-      domain: ".skyparking.online",
-      sameSite: "None",
-      secure: true,
+      // domain: ".skyparking.online",
+      // sameSite: "None",
+      // secure: true,
     });
 
     res.json({ accessToken });

@@ -28,7 +28,7 @@ const upload = multer({ storage: storage });
 router.get("/getAllOverNight", VerifyToken, getDataOverNight);
 router.get("/getAllOverNightApps", getDataOverNightPetugas);
 router.get("/exportDataOn", VerifyToken, exportDataOverNight);
-router.get("/getDatabyLocation", VerifyToken, getDataOverNightLocation);
+router.get("/getDatabyLocation", getDataOverNightLocation);
 router.put("/updateOutAndRemaks", VerifyToken, updateOutAndRemaks);
 
 router.post(

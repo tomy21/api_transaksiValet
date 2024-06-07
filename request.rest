@@ -1,5 +1,5 @@
 GET http://localhost:3008/api/getUsers
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTc0MjE1NiwiZXhwIjoxNzE1NzQyMTcxfQ.K92yr54YFXijWLUM9eWZsj9yUj9XxM3ExMU-tOASaLo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNzA0MTIwNywiZXhwIjoxNzE3MDQxMjIyfQ.mykYvJq8APz0NjOCO-NG57Dq2pGOrXOa9cztD-NKdhA
 
 ###
 POST http://localhost:3008/api/login
@@ -33,12 +33,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuY
 Content-Type: application/json
 
 {
-    "SetupRoleId": 13,
+    "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Eki R1",
+    "Name": "Petugas Elvee 01",
     "Gender": "M",
-    "Username": "eki_R1",
-    "Email": "eki@testing.com",
+    "Username": "testingMultipleUsers",
+    "Email": "testingR001@skyparking.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
