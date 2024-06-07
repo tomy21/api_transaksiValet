@@ -7,6 +7,7 @@ import db from "../config/dbConfig.js";
 import ExcelJs from "exceljs";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
 export const getDataOverNight = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -394,6 +395,8 @@ export const getDataOverNightPetugas = async (req, res) => {
 };
 
 export const exportDataOverNight = async (req, res) => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
   try {
     const sequelize = db;
     const locationCode = req.query.LocationCode || null;
