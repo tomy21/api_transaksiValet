@@ -404,8 +404,12 @@ export const exportDataOverNight = async (req, res) => {
     const startDate = req.query.startDate || null;
     const endDate = req.query.endDate || null;
 
+    console.log(
+      `Received query params - LocationCode: ${locationCode}, StartDate: ${startDate}, EndDate: ${endDate}`
+    );
+
     const query = {
-      where: [locationCode ? { LocationCode: locationCode } : {}],
+      where: {},
       include: [
         {
           model: Location,
@@ -414,18 +418,25 @@ export const exportDataOverNight = async (req, res) => {
       ],
     };
 
+    if (locationCode) {
+      query.where.LocationCode = locationCode;
+    }
+
     if (startDate && endDate) {
-      query.where = {
-        ...query.where,
-        InTime: {
-          [Op.between]: [startDate, endDate],
-        },
+      query.where.ModifiedOn = {
+        [Op.between]: [startDate, endDate],
       };
     }
 
-    const result = await TransactionOverNights.findAll({ ...query });
+    // Log the constructed query
+    console.log("Constructed query:", JSON.stringify(query, null, 2));
 
-    if (result) {
+    const result = await TransactionOverNights.findAll(query);
+
+    // Log the result count
+    console.log(`Fetched ${result.length} records`);
+
+    if (result && result.length > 0) {
       const workbook = new ExcelJs.Workbook();
       const worksheet = workbook.addWorksheet("TransactionValet");
 
@@ -435,10 +446,10 @@ export const exportDataOverNight = async (req, res) => {
         { header: "No Transaksi", width: 20, key: "TransactionNo" },
         { header: "Lokasi", width: 15, key: "LocationCode" },
         { header: "Plat Nomor", width: 15, key: "VehiclePlateNo" },
+        { header: "Gambar", width: 30, key: "PathPhotoImage" },
         { header: "Status", width: 10, key: "Status" },
         { header: "Petugas", width: 15, key: "ModifiedBy" },
         { header: "Tanggal Update", width: 15, key: "ModifiedOn" },
-        { header: "Gambar", width: 30, key: "PathPhotoImage" },
       ];
 
       result.forEach((value, index) => {
@@ -446,22 +457,28 @@ export const exportDataOverNight = async (req, res) => {
           No: index + 1,
           InTime: value.InTime,
           TransactionNo: value.TransactionNo,
-          LocationCode: value.LocationCode ? value.RefLocation.Name : "-",
+          LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
           VehiclePlateNo: value.VehiclePlateNo ? value.VehiclePlateNo : "-",
+          PathPhotoImage: value.PathPhotoImage ? value.PathPhotoImage : "-",
           Status: value.Status,
-          Officer: value.Officer,
           ModifiedBy: value.ModifiedBy,
           ModifiedOn: value.ModifiedOn,
-          PathPhotoImage: value.PathPhotoImage ? value.PathPhotoImage : "",
         });
 
+        // Add image if exists
         if (value.PathPhotoImage) {
           const imagePath = path.join(__dirname, value.PathPhotoImage);
+          console.log(imagePath);
           if (fs.existsSync(imagePath)) {
             const imageId = workbook.addImage({
               filename: imagePath,
-              extension: "jpg",
+              extension: path.extname(imagePath).substring(1),
             });
+
+            // Determine the cell position
+            const cell = `I${row.number + 1}`;
+
+            // Add image to worksheet
             worksheet.addImage(imageId, {
               tl: { col: 8, row: row.number - 1 },
               ext: { width: 100, height: 100 },
@@ -474,6 +491,7 @@ export const exportDataOverNight = async (req, res) => {
         locationCode && startDate && endDate
           ? `${locationCode}_${startDate}_sd_${endDate}.xlsx`
           : `${locationCode}_alldate.xlsx`;
+      console.log(`Generated filename: ${fileName}`);
 
       res.setHeader(
         "Content-Type",
@@ -487,7 +505,8 @@ export const exportDataOverNight = async (req, res) => {
       res.status(400).json({ success: false, message: "Get data failed" });
     }
   } catch (error) {
-    console.log(error);
+    console.log("Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
