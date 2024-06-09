@@ -26,7 +26,6 @@ export const getLocationUsers = async (req, res) => {
       ],
     });
 
-    console.log(userLocations.dataValues);
     const locations = userLocations.map(
       (userLocation) => userLocation.RefLocation
     );
