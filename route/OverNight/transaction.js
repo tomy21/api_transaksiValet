@@ -1,4 +1,5 @@
 import express from "express";
+import moment from "moment/moment.js";
 import multer from "multer";
 import {
   getDataOverNight,
@@ -19,8 +20,11 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
   },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
+  filename: (req, file, cb) => {
+    const timestamp = moment().format("YYYYMMDDHHmmssSSS");
+    const extension = file.originalname.split(".").pop();
+    const newFilename = `${timestamp}.${extension}`;
+    cb(null, newFilename);
   },
 });
 const upload = multer({ storage: storage });
