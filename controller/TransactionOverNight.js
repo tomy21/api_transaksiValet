@@ -230,13 +230,16 @@ export const getDataOverNightLocation = async (req, res) => {
   const orderBy = req.query.orderBy || "ModifiedOn";
   const sortBy = req.query.sortBy || "DESC";
   const keyword = req.query.keyword || "";
-  const locationCode = req.query.location || "";
+  const locationCodes = req.query.location ? req.query.location.split(",") : [];
   const startDate = req.query.startDate || "";
   const endDate = req.query.endDate || "";
 
   try {
     const queries = {
-      where: locationCode ? { LocationCode: locationCode } : {},
+      where:
+        locationCodes.length > 0
+          ? { LocationCode: { [Op.in]: locationCodes } }
+          : {},
       offset: (page - 1) * limit,
       limit,
       include: [
@@ -249,13 +252,17 @@ export const getDataOverNightLocation = async (req, res) => {
 
     if (keyword) {
       queries.where = {
-        [Op.or]: [
-          { TransactionNo: { [Op.like]: `%${keyword}%` } },
-          { ReferenceNo: { [Op.like]: `%${keyword}%` } },
-          { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
-          { Status: { [Op.like]: `%${keyword}%` } },
-          { InTime: { [Op.like]: `%${keyword}%` } },
-          // Tambahkan kolom lainnya jika diperlukan
+        [Op.and]: [
+          ...queries.where,
+          {
+            [Op.or]: [
+              { TransactionNo: { [Op.like]: `%${keyword}%` } },
+              { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
+              { Status: { [Op.like]: `%${keyword}%` } },
+              { InTime: { [Op.like]: `%${keyword}%` } },
+              // Tambahkan kolom lainnya jika diperlukan
+            ],
+          },
         ],
       };
     }
@@ -404,10 +411,6 @@ export const exportDataOverNight = async (req, res) => {
     const startDate = req.query.startDate || null;
     const endDate = req.query.endDate || null;
 
-    console.log(
-      `Received query params - LocationCode: ${locationCode}, StartDate: ${startDate}, EndDate: ${endDate}`
-    );
-
     const query = {
       where: {},
       include: [
@@ -428,13 +431,7 @@ export const exportDataOverNight = async (req, res) => {
       };
     }
 
-    // Log the constructed query
-    console.log("Constructed query:", JSON.stringify(query, null, 2));
-
     const result = await TransactionOverNights.findAll(query);
-
-    // Log the result count
-    console.log(`Fetched ${result.length} records`);
 
     if (result && result.length > 0) {
       const workbook = new ExcelJs.Workbook();
@@ -452,6 +449,12 @@ export const exportDataOverNight = async (req, res) => {
         { header: "Tanggal Update", width: 15, key: "ModifiedOn" },
       ];
 
+      worksheet.eachRow((row) => {
+        row.eachCell((cell) => {
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+        });
+      });
+
       result.forEach((value, index) => {
         const row = worksheet.addRow({
           No: index + 1,
@@ -459,39 +462,47 @@ export const exportDataOverNight = async (req, res) => {
           TransactionNo: value.TransactionNo,
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
           VehiclePlateNo: value.VehiclePlateNo ? value.VehiclePlateNo : "-",
-          PathPhotoImage: value.PathPhotoImage ? value.PathPhotoImage : "-",
+          PathPhotoImage: "-",
           Status: value.Status,
           ModifiedBy: value.ModifiedBy,
           ModifiedOn: value.ModifiedOn,
         });
 
-        // Add image if exists
         if (value.PathPhotoImage) {
-          const imagePath = path.join(__dirname, value.PathPhotoImage);
-          console.log(imagePath);
+          const imagePath = path.join(
+            process.cwd(),
+            "uploads",
+            path.basename(value.PathPhotoImage)
+          );
+
           if (fs.existsSync(imagePath)) {
             const imageId = workbook.addImage({
               filename: imagePath,
-              extension: path.extname(imagePath).substring(1),
+              extension: "jpg",
             });
 
-            // Determine the cell position
-            const cell = `I${row.number + 1}`;
-
-            // Add image to worksheet
             worksheet.addImage(imageId, {
-              tl: { col: 8, row: row.number - 1 },
+              tl: { col: 5, row: row.number - 1 },
               ext: { width: 100, height: 100 },
             });
+
+            row.getCell("PathPhotoImage").value = "";
           }
+        } else {
+          row.getCell("PathPhotoImage").value = "Gambar tidak tersedia";
         }
+
+        worksheet.getRow(row.number).height = 80;
+
+        row.eachCell((cell) => {
+          cell.alignment = { vertical: "middle", horizontal: "center" };
+        });
       });
 
       const fileName =
         locationCode && startDate && endDate
-          ? `${locationCode}_${startDate}_sd_${endDate}.xlsx`
-          : `${locationCode}_alldate.xlsx`;
-      console.log(`Generated filename: ${fileName}`);
+          ? `${startDate}_sd_${endDate}.xlsx`
+          : `alldate.xlsx`;
 
       res.setHeader(
         "Content-Type",

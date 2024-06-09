@@ -39,8 +39,8 @@ export const refreshToken = async (req, res) => {
         const userId = user[0].UserId;
         const name = users[0].Name;
         const email = users[0].Email;
-        const locationCode = LocationData[0].LocationCode;
-        const locationName = LocationData[0].RefLocation.Name;
+        const locationCode = LocationData.map((ld) => ld.LocationCode);
+        const locationName = LocationData.map((ld) => ld.RefLocation.Name);
         const accessToken = jwt.sign(
           { userId, name, email, locationCode, locationName },
           process.env.ACCESS_TOKEN_SECRET,

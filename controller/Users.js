@@ -54,34 +54,34 @@ export const register = async (req, res) => {
 
     const lastId = lastUsers ? lastUsers.Id : 0;
     const userCode = await generateUserCode(lastId);
-    // const newUser = await Users.create({
-    //   SetupRoleId: SetupRoleId,
-    //   IpAddress: IpAddress,
-    //   Name: Name,
-    //   UserCode: userCode,
-    //   Gender: Gender,
-    //   Birthdate: Birthdate,
-    //   Username: Username,
-    //   Email: Email,
-    //   Password: hashPassword,
-    //   Phone: Phone,
-    //   HandPhone: HandPhone,
-    //   Whatsapp: Whatsapp,
-    //   Photo: Photo,
-    //   PasswordExpired: oneYearLater,
-    //   IsFirstpassword: IsFirstpassword,
-    //   FlagAllLocation: FlagAllLocation,
-    //   MerchantId: MerchantId,
-    //   CreatedBy: CreatedBy,
-    // });
+    const newUser = await Users.create({
+      SetupRoleId: SetupRoleId,
+      IpAddress: IpAddress,
+      Name: Name,
+      UserCode: userCode,
+      Gender: Gender,
+      Birthdate: Birthdate,
+      Username: Username,
+      Email: Email,
+      Password: hashPassword,
+      Phone: Phone,
+      HandPhone: HandPhone,
+      Whatsapp: Whatsapp,
+      Photo: Photo,
+      PasswordExpired: oneYearLater,
+      IsFirstpassword: IsFirstpassword,
+      FlagAllLocation: FlagAllLocation,
+      MerchantId: MerchantId,
+      CreatedBy: CreatedBy,
+    });
 
-    // console.log(newUser.Id);
+    console.log(newUser.Id);
     if (!Array.isArray(LocationCode)) {
       return res.status(400).json({ msg: "LocationCode harus berupa array" });
     }
 
     const data = LocationCode.map((location) => ({
-      UserId: 102,
+      UserId: newUser.Id,
       LocationCode: location,
       CreatedBy: CreatedBy, // use the CreatedBy from req.body
     }));
@@ -109,6 +109,12 @@ export const login = async (req, res) => {
         Email: emailUser,
       },
     });
+    const userLocation = await UsersLocations.findAll({
+      where: {
+        UserId: user[0].Id,
+      },
+    });
+
     const match = await bcrypt.compare(password, user[0].Password);
     if (!match) return res.status(400).json({ msg: "Password tidak valid" });
     const userId = user[0].Id;

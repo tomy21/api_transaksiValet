@@ -13,6 +13,8 @@ Content-Type: application/json
 GET http://localhost:3008/api/token
 ###
 GET http://localhost:3008/api/logout
+###
+GET http://localhost:3008/api/getByLocation?userId=102
 
 
 # request location
@@ -35,14 +37,14 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Petugas Elvee 01",
+    "Name": "Dede elv R1",
     "Gender": "M",
-    "Username": "testingMultipleUsers",
-    "Email": "testingR001@skyparking.com",
+    "Username": "DedeElvR1",
+    "Email": "dedeElvR1@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
-    "LocationCode": ["009SK"]
+    "LocationCode": ["ELVSK"]
 }
 
 
