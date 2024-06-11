@@ -411,10 +411,6 @@ export const getDataOverNightPetugas = async (req, res) => {
 };
 
 export const exportDataOverNight = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const orderBy = req.query.orderBy || "ModifiedOn";
-  const sortBy = req.query.sortBy || "DESC";
   const locationCodes = req.query.location ? req.query.location.split(",") : [];
   const startDate = req.query.startDate || "";
   const endDate = req.query.endDate || "";
@@ -425,8 +421,6 @@ export const exportDataOverNight = async (req, res) => {
         locationCodes.length > 0
           ? { LocationCode: { [Op.in]: locationCodes } }
           : {},
-      offset: (page - 1) * limit,
-      limit,
       include: [
         {
           model: Location,
@@ -442,10 +436,6 @@ export const exportDataOverNight = async (req, res) => {
           [Op.between]: [startDate, endDate],
         },
       };
-    }
-
-    if (orderBy) {
-      queries.order = [[orderBy, sortBy]];
     }
 
     const result = await TransactionOverNightOficcers.findAndCountAll({
