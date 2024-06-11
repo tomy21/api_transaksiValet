@@ -405,14 +405,22 @@ export const getDataOverNightPetugas = async (req, res) => {
 };
 
 export const exportDataOverNight = async (req, res) => {
-  try {
-    const sequelize = db;
-    const locationCode = req.query.LocationCode || null;
-    const startDate = req.query.startDate || null;
-    const endDate = req.query.endDate || null;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const orderBy = req.query.orderBy || "ModifiedOn";
+  const sortBy = req.query.sortBy || "DESC";
+  const locationCodes = req.query.location ? req.query.location.split(",") : [];
+  const startDate = req.query.startDate || "";
+  const endDate = req.query.endDate || "";
 
-    const query = {
-      where: {},
+  try {
+    const queries = {
+      where:
+        locationCodes.length > 0
+          ? { LocationCode: { [Op.in]: locationCodes } }
+          : {},
+      offset: (page - 1) * limit,
+      limit,
       include: [
         {
           model: Location,
@@ -421,21 +429,26 @@ export const exportDataOverNight = async (req, res) => {
       ],
     };
 
-    if (locationCode) {
-      query.where.LocationCode = locationCode;
-    }
-
     if (startDate && endDate) {
-      query.where.ModifiedOn = {
-        [Op.between]: [startDate, endDate],
+      queries.where = {
+        ...queries.where,
+        ModifiedOn: {
+          [Op.between]: [startDate, endDate],
+        },
       };
     }
 
-    const result = await TransactionOverNights.findAll(query);
+    if (orderBy) {
+      queries.order = [[orderBy, sortBy]];
+    }
 
-    if (result && result.length > 0) {
+    const result = await TransactionOverNights.findAndCountAll({
+      ...queries,
+    });
+    console.log(result.rows);
+    if (result) {
       const workbook = new ExcelJs.Workbook();
-      const worksheet = workbook.addWorksheet("TransactionValet");
+      const worksheet = workbook.addWorksheet("Transaction OverNight");
 
       worksheet.columns = [
         { header: "No", key: "No", width: 5 },
@@ -455,7 +468,7 @@ export const exportDataOverNight = async (req, res) => {
         });
       });
 
-      result.forEach((value, index) => {
+      result.rows.forEach((value, index) => {
         const row = worksheet.addRow({
           No: index + 1,
           InTime: value.InTime,
@@ -500,7 +513,7 @@ export const exportDataOverNight = async (req, res) => {
       });
 
       const fileName =
-        locationCode && startDate && endDate
+        locationCodes && startDate && endDate
           ? `${startDate}_sd_${endDate}.xlsx`
           : `alldate.xlsx`;
 
