@@ -176,6 +176,11 @@ export const validationData = async (req, res) => {
       return res.status(400).json({ message: "Gambar harus diunggah" });
     }
 
+    const timestamp = moment().format("YYYYMMDDHHmmssSSS");
+    const extension = file.originalname.split(".").pop();
+    const newFilename = `${locationCode}_${timestamp}.${extension}`;
+    const filePath = "/uploads/" + newFilename;
+
     const existingRecord = await TransactionOverNights.findOne({
       where: { vehiclePlateNo: plateNo },
     });
@@ -184,8 +189,9 @@ export const validationData = async (req, res) => {
       await existingRecord.update({
         Status: "In Area",
         ModifiedBy: officer,
-        PhotoImage: file.buffer,
-        PathPhotoImage: "/uploads/" + file.originalname,
+        // PhotoImage: file.buffer,
+        PathPhotoImage: filePath,
+        Status: "In Area",
       });
 
       await TransactionOverNightOficcers.create({
@@ -193,8 +199,8 @@ export const validationData = async (req, res) => {
         Status: "In Area",
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
-        PhotoImage: file.buffer,
-        PathPhotoImage: "/uploads/" + file.filename,
+        // PhotoImage: file.buffer,
+        PathPhotoImage: filePath,
       });
 
       res.status(200).send("Data berhasil diperbarui!");
@@ -203,8 +209,8 @@ export const validationData = async (req, res) => {
         LocationCode: locationCode,
         VehiclePlateNo: plateNo,
         ModifiedBy: officer,
-        PhotoImage: file.buffer,
-        PathPhotoImage: "/uploads/" + file.filename,
+        // PhotoImage: file.buffer,
+        PathPhotoImage: filePath,
         Status: "In Area",
       });
 
@@ -213,7 +219,7 @@ export const validationData = async (req, res) => {
         Status: "In Area",
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
-        PathPhotoImage: "/uploads/" + file.filename,
+        PathPhotoImage: filePath,
         PhotoImage: file.buffer,
       });
       res.status(200).send("Data berhasil disimpan!");
@@ -442,7 +448,7 @@ export const exportDataOverNight = async (req, res) => {
       queries.order = [[orderBy, sortBy]];
     }
 
-    const result = await TransactionOverNights.findAndCountAll({
+    const result = await TransactionOverNightOficcers.findAndCountAll({
       ...queries,
     });
     console.log(result.rows);
