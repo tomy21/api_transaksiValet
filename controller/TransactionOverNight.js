@@ -2,7 +2,7 @@ import { TransactionOverNights } from "../models/TransactionOverNights.js";
 import { TransactionOverNightOficcers } from "../models/TransactionOverNightOficcers.js";
 import XLSX from "xlsx";
 import { Location } from "../models/RefLocation.js";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import db from "../config/dbConfig.js";
 import ExcelJs from "exceljs";
 import fs from "fs";
@@ -239,11 +239,42 @@ export const getDataOverNightLocation = async (req, res) => {
   const endDate = req.query.endDate || "";
 
   try {
+    // Buat objek where secara dinamis
+    const where = {};
+
+    // Kondisi lokasi
+    if (locationCodes.length > 0) {
+      where.LocationCode = { [Op.in]: locationCodes };
+    }
+
+    // Kondisi kata kunci
+    if (keyword) {
+      where[Op.and] = [
+        ...Object.keys(where).map((key) => ({ [key]: where[key] })), // Menyalin kondisi where yang ada
+        {
+          [Op.or]: [
+            { TransactionNo: { [Op.like]: `%${keyword}%` } },
+            { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
+            { Status: { [Op.like]: `%${keyword}%` } },
+            { InTime: { [Op.like]: `%${keyword}%` } },
+            // Tambahkan kolom lainnya jika diperlukan
+          ],
+        },
+      ];
+    }
+    // Kondisi tanggal
+    if (startDate && endDate) {
+      const startDateTime = new Date(startDate);
+      const endDateTime = new Date(endDate);
+      endDateTime.setHours(23, 59, 59, 999); // Set end time to end of the day
+
+      where.ModifiedOn = {
+        [Op.between]: [startDateTime, endDateTime],
+      };
+    }
+    // Buat objek queries untuk findAndCountAll
     const queries = {
-      where:
-        locationCodes.length > 0
-          ? { LocationCode: { [Op.in]: locationCodes } }
-          : {},
+      where,
       offset: (page - 1) * limit,
       limit,
       include: [
@@ -252,60 +283,50 @@ export const getDataOverNightLocation = async (req, res) => {
           attributes: ["Name"],
         },
       ],
+      order: [[orderBy, sortBy]],
     };
 
-    if (keyword) {
-      queries.where = {
-        [Op.and]: [
-          ...queries.where,
-          {
-            [Op.or]: [
-              { TransactionNo: { [Op.like]: `%${keyword}%` } },
-              { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
-              { Status: { [Op.like]: `%${keyword}%` } },
-              { InTime: { [Op.like]: `%${keyword}%` } },
-              // Tambahkan kolom lainnya jika diperlukan
-            ],
-          },
+    const result = await TransactionOverNights.findAndCountAll(queries);
+
+    const summaryWhere = where;
+
+    const summary = await TransactionOverNights.findAll({
+      attributes: [
+        [Sequelize.fn("COUNT", Sequelize.col("VehiclePlateNo")), "TotalCount"],
+        [
+          Sequelize.fn(
+            "SUM",
+            Sequelize.literal("CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END")
+          ),
+          "InareaCount",
         ],
-      };
-    }
-
-    if (startDate && endDate) {
-      queries.where = {
-        ...queries.where,
-        ModifiedOn: {
-          [Op.between]: [startDate, endDate],
-        },
-      };
-    }
-
-    if (orderBy) {
-      queries.order = [[orderBy, sortBy]];
-    }
-
-    const result = await TransactionOverNights.findAndCountAll({
-      ...queries,
+        [
+          Sequelize.fn(
+            "SUM",
+            Sequelize.literal(
+              "CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END"
+            )
+          ),
+          "NovihicleCount",
+        ],
+        [
+          Sequelize.fn(
+            "SUM",
+            Sequelize.literal("CASE WHEN Status = 'Out' THEN 1 ELSE 0 END")
+          ),
+          "OutCount",
+        ],
+      ],
+      where: summaryWhere,
     });
 
-    const query = `
-    SELECT
-        COUNT(VehiclePlateNo) AS TotalCount,
-        SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END) AS InareaCount,
-        SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END) AS NovihicleCount,
-        SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END) AS OutCount
-    FROM TransactionOverNights
-    WHERE DATE(ModifiedOn) = CURDATE();
-    `;
-
-    const summary = await db.query(query, { type: db.QueryTypes.SELECT });
     if (result) {
       const response = {
         success: true,
-        totalPages: Math.ceil(result?.count / limit),
-        totalItems: result?.count,
+        totalPages: Math.ceil(result.count / limit),
+        totalItems: result.count,
         summary: summary,
-        data: result?.rows,
+        data: result.rows,
       };
       res.status(201).json(response);
     } else {

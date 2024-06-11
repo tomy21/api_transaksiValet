@@ -6,7 +6,7 @@ Content-Type: application/json
 
 #getdatadailysummary
 ###
-GET http://localhost:3008/api/getAllOverNightApps?location=08SKY
+GET http://localhost:3008/api/getDatabyLocation?location=08SKY&startDate=2024-06-11&endDate=2024-06-11
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNjE4NzY3NCwiZXhwIjoxNzE2MTg3Njg5fQ.3hGTx9vRztexYYdTmx8GrpLvkg89y9-mtDZfFJHwV1Q
 Content-Type: application/json
 
