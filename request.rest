@@ -25,7 +25,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuY
 
 # request Issuer
 ###
-GET http://localhost:3008/api/getAllIssuer
+GET http://localhost:3008/api/getAllOverNightApps?location=08SKY
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNTA3MDc5OSwiZXhwIjoxNzE1MDcwODE0fQ.SuhTdSq6CFjht0w1oYhk9FkSqACPB_BttKgFC0u3cG0
 
 #register users

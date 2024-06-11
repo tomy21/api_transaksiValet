@@ -325,7 +325,6 @@ export const getDataOverNightPetugas = async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
   const orderBy = req.query.orderBy || "ModifiedOn";
   const sortBy = req.query.sortBy || "DESC";
-  const keyword = req.query.keyword || "";
   const locationCode = req.query.location || "";
   const startDate =
     req.query.startDate || new Date().toISOString().split("T")[0];
@@ -351,19 +350,6 @@ export const getDataOverNightPetugas = async (req, res) => {
       ],
     };
 
-    if (keyword) {
-      queries.where = {
-        [Op.or]: [
-          { TransactionNo: { [Op.like]: `%${keyword}%` } },
-          { ReferenceNo: { [Op.like]: `%${keyword}%` } },
-          { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
-          { Status: { [Op.like]: `%${keyword}%` } },
-          { InTime: { [Op.like]: `%${keyword}%` } },
-          // Tambahkan kolom lainnya jika diperlukan
-        ],
-      };
-    }
-
     if (startDate && endDate) {
       queries.where = {
         ...queries.where,
@@ -377,7 +363,7 @@ export const getDataOverNightPetugas = async (req, res) => {
       queries.order = [[orderBy, sortBy]];
     }
 
-    const result = await TransactionOverNights.findAndCountAll({
+    const result = await TransactionOverNightOficcers.findAndCountAll({
       ...queries,
     });
 
