@@ -177,10 +177,7 @@ export const validationData = async (req, res) => {
       return res.status(400).json({ message: "Gambar harus diunggah" });
     }
 
-    const timestamp = moment().format("YYYYMMDDHHmmssSSS");
-    const extension = file.originalname.split(".").pop();
-    const newFilename = `${locationCode}_${timestamp}.${extension}`;
-    const filePath = "/uploads/" + newFilename;
+    const filePath = "/uploads/" + file.filename;
 
     const existingRecord = await TransactionOverNights.findOne({
       where: { vehiclePlateNo: plateNo },

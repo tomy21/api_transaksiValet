@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const timestamp = moment().format("YYYYMMDDHHmmssSSS");
     const extension = file.originalname.split(".").pop();
-    const newFilename = `${timestamp}.${extension}`;
+    const newFilename = `${req.body.locationCode}_${timestamp}.${extension}`;
     cb(null, newFilename);
   },
 });
