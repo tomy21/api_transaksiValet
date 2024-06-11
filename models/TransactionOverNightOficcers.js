@@ -42,3 +42,8 @@ export const TransactionOverNightOficcers = db.define(
     tableName: "TransactionOverNightOficcers",
   }
 );
+
+TransactionOverNightOficcers.belongsTo(Location, {
+  foreignKey: "LocationCode",
+  targetKey: "Code",
+});
