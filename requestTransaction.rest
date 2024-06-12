@@ -39,7 +39,7 @@ Content-Type: application/json
 
 #GetAllTransactions
 ###
-POST http://localhost:3008/api/transaction
+GET http://localhost:3008/api/transaction
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI5NiwiZXhwIjoxNzE0OTY4MzExfQ.WVCgEDkD9orP1nGUMN1lunxYb728s--whFJwUw5_1aE
 Content-Type: application/json
 

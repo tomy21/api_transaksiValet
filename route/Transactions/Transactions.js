@@ -11,7 +11,7 @@ import {
 import { VerifyToken } from "../../middleware/VerifyToken.js";
 const router = express.Router();
 
-router.get("/transaction", VerifyToken, getTransaction);
+router.get("/transaction", getTransaction);
 router.get("/getKeySlot", VerifyToken, getNumberKyeSlot);
 router.get("/getTransactionByLocation", VerifyToken, getTransactionByLocation);
 router.get("/getTransactionById/:id", VerifyToken, getTransactionById);

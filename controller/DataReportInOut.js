@@ -109,12 +109,15 @@ export const dataDailyDashboard = async (req, res) => {
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(OutTime) = :formattedDate AND DATE(OutTime) IS NOT NULL AND ${locationCondition} ) AS totalTrxOut,
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(OutTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND DATE(OutTime) IS NOT NULL AND ${locationCondition} ) AS previousOut,
       
+      (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 1 AND ${locationCondition} ) AS TotalTariffValet,
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 1 AND ${locationCondition} ) AS Valet,
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ParkingType = 1 AND ${locationCondition} ) AS previousValet,
       
+      (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 2  AND ${locationCondition} ) AS TotalTariffVIP,
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 2  AND ${locationCondition} ) AS VIP,
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ParkingType = 2 AND ${locationCondition} ) AS previousVIP,
       
+      (SELECT SUM(Tariff) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 3 AND ${locationCondition} ) AS TotalTariffVVIP,
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = :formattedDate AND ParkingType = 3 AND ${locationCondition} ) AS VVIP,
       (SELECT COUNT(TrxNo) FROM skybillingdb.TransactionParkingValet WHERE DATE(InTime) = DATE_SUB(:formattedDate, INTERVAL 1 DAY) AND ParkingType = 3 AND ${locationCondition} ) AS previousVVIP,
 

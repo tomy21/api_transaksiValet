@@ -3,10 +3,11 @@ import { RefLastTransaction } from "../models/RefLastTransaction.js";
 import { TicketCategory } from "../models/RefTicketCategory.js";
 import { Qris } from "../models/RefQris.js";
 import { Location } from "../models/RefLocation.js";
-import { Op } from "sequelize";
+import { Op, where, QueryTypes } from "sequelize";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import db from "../config/dbConfig.js";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -28,57 +29,61 @@ export const getTransaction = async (req, res) => {
   const locationCode = req.query.location || "";
   const startDate = req.query.startDate || "";
   const endDate = req.query.endDate || "";
+
   try {
-    const queries = {
-      where: locationCode ? { LocationCode: locationCode } : {},
-      offset: (page - 1) * limit,
-      limit,
-    };
+    const whereConditions = locationCode ? { LocationCode: locationCode } : {};
 
     if (keyword) {
-      queries.where = {
-        [Op.or]: [
-          { LocationCode: { [Op.like]: `%${keyword}%` } },
-          { TrxNo: { [Op.like]: `%${keyword}%` } },
-          { TicketNumber: { [Op.like]: `%${keyword}%` } },
-          { VehiclePlate: { [Op.like]: `%${keyword}%` } },
-          { ReferenceNo: { [Op.like]: `%${keyword}%` } },
-          // Tambahkan kolom lainnya jika diperlukan
-        ],
-      };
+      whereConditions[Op.or] = [
+        { LocationCode: { [Op.like]: `%${keyword}%` } },
+        { TrxNo: { [Op.like]: `%${keyword}%` } },
+        { TicketNumber: { [Op.like]: `%${keyword}%` } },
+        { VehiclePlate: { [Op.like]: `%${keyword}%` } },
+        { ReferenceNo: { [Op.like]: `%${keyword}%` } },
+        // Add more columns if needed
+      ];
     }
 
     if (startDate && endDate) {
-      queries.where = {
-        ...queries.where,
-        UpdatedOn: {
-          [Op.between]: [startDate, endDate],
-        },
+      whereConditions.UpdatedOn = {
+        [Op.between]: [startDate, endDate],
       };
     }
 
-    if (orderBy) {
-      queries.order = [[orderBy, sortBy]];
-    }
+    const queries = {
+      where: whereConditions,
+      offset: (page - 1) * limit,
+      limit,
+      order: [[orderBy, sortBy]],
+    };
 
-    const result = await TransactionValet.findAndCountAll({
-      ...queries,
-    });
+    const result = await TransactionValet.findAndCountAll(queries);
+
+    const totalTrx = await TransactionValet.count(queries);
+    const totalTariff = await TransactionValet.sum("Tariff", queries);
 
     if (result) {
       const response = {
         success: true,
-        totalPages: Math.ceil(result?.count / limit),
-        totalItems: result?.count,
-        data: result?.rows,
+        summary: {
+          totalTrx: totalTrx,
+          totalTarif: totalTariff,
+        },
+        totalPages: Math.ceil(result.count / limit),
+        totalItems: result.count,
+        data: result.rows,
       };
       res.status(201).json(response);
     } else {
       res.status(400).json({ success: false, message: "Get data failed" });
     }
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ success: false, message: "Get data failed" });
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Get data failed",
+      error: error.message,
+    });
   }
 };
 
