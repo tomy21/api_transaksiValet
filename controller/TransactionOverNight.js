@@ -196,7 +196,7 @@ export const validationData = async (req, res) => {
         LocationCode: locationCode,
         Status: "In Area",
         ModifiedBy: officer,
-        VehiclePlateNo: platerecognizer,
+        VehiclePlateNo: plateNo,
         // PhotoImage: file.buffer,
         PathPhotoImage: filePath,
       });
@@ -217,7 +217,7 @@ export const validationData = async (req, res) => {
         LocationCode: locationCode,
         Status: "In Area",
         ModifiedBy: officer,
-        VehiclePlateNo: platerecognizer,
+        VehiclePlateNo: plateNo,
         PathPhotoImage: filePath,
         PhotoImage: file.buffer,
       });
