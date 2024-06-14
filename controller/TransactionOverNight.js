@@ -235,12 +235,15 @@ export const getDataOverNightLocation = async (req, res) => {
   const sortBy = req.query.sortBy || "DESC";
   const keyword = req.query.keyword || "";
   const locationCodes = req.query.location ? req.query.location.split(",") : [];
-  const startDate = req.query.startDate || "";
-  const endDate = req.query.endDate || "";
+  const date = req.query.date || "";
 
   try {
     // Buat objek where secara dinamis
     const where = {};
+
+    if (!date) {
+      return res.status(400).send("Date parameter is required");
+    }
 
     // Kondisi lokasi
     if (locationCodes.length > 0) {
@@ -262,16 +265,15 @@ export const getDataOverNightLocation = async (req, res) => {
         },
       ];
     }
-    // Kondisi tanggal
-    if (startDate && endDate) {
-      const startDateTime = new Date(startDate);
-      const endDateTime = new Date(endDate);
-      endDateTime.setHours(23, 59, 59, 999); // Set end time to end of the day
 
+    // Kondisi tanggal
+    if (date) {
       where.ModifiedOn = {
-        [Op.between]: [startDateTime, endDateTime],
+        [Op.gte]: Sequelize.literal(`DATE('${date}')`),
+        [Op.lt]: Sequelize.literal(`DATE_ADD(DATE('${date}'), INTERVAL 1 DAY)`),
       };
     }
+
     // Buat objek queries untuk findAndCountAll
     const queries = {
       where,
@@ -417,15 +419,29 @@ export const getDataOverNightPetugas = async (req, res) => {
 
 export const exportDataOverNight = async (req, res) => {
   const locationCodes = req.query.location ? req.query.location.split(",") : [];
-  const startDate = req.query.startDate || "";
-  const endDate = req.query.endDate || "";
+  const date = req.query.date || "";
 
   try {
+    const whereClause = {};
+
+    // Kondisi lokasi
+    if (locationCodes.length > 0) {
+      whereClause.LocationCode = { [Op.in]: locationCodes };
+    }
+
+    // Kondisi tanggal
+    if (date) {
+      const formattedDate = moment(date).format("YYYY-MM-DD");
+      whereClause.ModifiedOn = {
+        [Op.gte]: Sequelize.literal(`DATE('${formattedDate}')`),
+        [Op.lt]: Sequelize.literal(
+          `DATE_ADD(DATE('${formattedDate}'), INTERVAL 1 DAY)`
+        ),
+      };
+    }
+
     const queries = {
-      where:
-        locationCodes.length > 0
-          ? { LocationCode: { [Op.in]: locationCodes } }
-          : {},
+      where: whereClause,
       include: [
         {
           model: Location,
@@ -434,19 +450,10 @@ export const exportDataOverNight = async (req, res) => {
       ],
     };
 
-    if (startDate && endDate) {
-      queries.where = {
-        ...queries.where,
-        ModifiedOn: {
-          [Op.between]: [startDate, endDate],
-        },
-      };
-    }
-
-    const result = await TransactionOverNightOficcers.findAndCountAll({
+    const result = await TransactionOverNights.findAndCountAll({
       ...queries,
     });
-    console.log(result.rows);
+
     if (result) {
       const workbook = new ExcelJs.Workbook();
       const worksheet = workbook.addWorksheet("Transaction OverNight");
@@ -460,7 +467,7 @@ export const exportDataOverNight = async (req, res) => {
         { header: "Gambar", width: 30, key: "PathPhotoImage" },
         { header: "Status", width: 10, key: "Status" },
         { header: "Petugas", width: 15, key: "ModifiedBy" },
-        { header: "Tanggal Update", width: 15, key: "ModifiedOn" },
+        { header: "Tanggal Update", width: 20, key: "ModifiedOn" },
       ];
 
       worksheet.eachRow((row) => {
@@ -472,14 +479,16 @@ export const exportDataOverNight = async (req, res) => {
       result.rows.forEach((value, index) => {
         const row = worksheet.addRow({
           No: index + 1,
-          InTime: value.InTime,
+          InTime: value.InTime
+            ? moment(value.InTime).format("YYYY-MM-DD HH:mm:ss")
+            : "-",
           TransactionNo: value.TransactionNo,
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
           VehiclePlateNo: value.VehiclePlateNo ? value.VehiclePlateNo : "-",
           PathPhotoImage: "-",
           Status: value.Status,
           ModifiedBy: value.ModifiedBy,
-          ModifiedOn: value.ModifiedOn,
+          ModifiedOn: moment(value.ModifiedOn).format("YYYY-MM-DD HH:mm:ss"),
         });
 
         if (value.PathPhotoImage) {
@@ -513,10 +522,7 @@ export const exportDataOverNight = async (req, res) => {
         });
       });
 
-      const fileName =
-        locationCodes && startDate && endDate
-          ? `${startDate}_sd_${endDate}.xlsx`
-          : `alldate.xlsx`;
+      const fileName = locationCodes && date ? `${date}.xlsx` : `alldate.xlsx`;
 
       res.setHeader(
         "Content-Type",

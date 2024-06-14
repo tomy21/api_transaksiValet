@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get("/transaction", getTransaction);
 router.get("/getKeySlot", VerifyToken, getNumberKyeSlot);
-router.get("/getTransactionByLocation", VerifyToken, getTransactionByLocation);
+router.get("/getTransactionByLocation", getTransactionByLocation);
 router.get("/getTransactionById/:id", VerifyToken, getTransactionById);
 router.put("/updatePayment/:id", VerifyToken, updatePayment);
 router.put("/cancelTransaction/:id", VerifyToken, cancelTransaction);

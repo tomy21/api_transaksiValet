@@ -10,7 +10,7 @@ Content-Type: application/json
 
 #Get Transaction By ID
 ###
-GET http://localhost:3008/api/getTransactionByLocation?LocationCode=19LSK
+GET http://localhost:3008/api/getTransactionByLocation?location=08SKY
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI4NiwiZXhwIjoxNzE0OTY4MzAxfQ.0rsxRV7X9QdVQBB_IuAtdbH1Wkwc6x8PKum6cNMUi0Q
 Content-Type: application/json
 
