@@ -166,7 +166,7 @@ export const importDataExcel = async (req, res) => {
 
 export const validationData = async (req, res) => {
   try {
-    const { locationCode, plateNo, officer } = req.body;
+    const { locationCode, plateNo, platerecognizer, officer } = req.body;
     const file = req.file;
 
     if (!locationCode || !plateNo || !officer) {
@@ -196,7 +196,7 @@ export const validationData = async (req, res) => {
         LocationCode: locationCode,
         Status: "In Area",
         ModifiedBy: officer,
-        VehiclePlateNo: plateNo,
+        VehiclePlateNo: platerecognizer,
         // PhotoImage: file.buffer,
         PathPhotoImage: filePath,
       });
@@ -206,6 +206,7 @@ export const validationData = async (req, res) => {
       TransactionOverNights.create({
         LocationCode: locationCode,
         VehiclePlateNo: plateNo,
+        Plateregognizer: platerecognizer,
         ModifiedBy: officer,
         // PhotoImage: file.buffer,
         PathPhotoImage: filePath,
@@ -216,7 +217,7 @@ export const validationData = async (req, res) => {
         LocationCode: locationCode,
         Status: "In Area",
         ModifiedBy: officer,
-        VehiclePlateNo: plateNo,
+        VehiclePlateNo: platerecognizer,
         PathPhotoImage: filePath,
         PhotoImage: file.buffer,
       });
