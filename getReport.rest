@@ -10,7 +10,7 @@ Content-Type: application/json
 
 #getdatadailysummary
 ###
-GET http://localhost:3008/api/dailyDashboard?date=2024-03-07
+GET https://dev-valetapi.skyparking.online/api/dailyDashboard?date=2024-03-07
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNTcxNjQ4OCwiZXhwIjoxNzE1NzE2NTAzfQ.MuGf96RefOe39pR5TzL_XKamWAr40-DRsQhdgINhmdM
 Content-Type: application/json
 

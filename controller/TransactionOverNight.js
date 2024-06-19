@@ -167,7 +167,8 @@ export const importDataExcel = async (req, res) => {
 
 export const validationData = async (req, res) => {
   try {
-    const { locationCode, plateNo, platerecognizer, officer } = req.body;
+    const { locationCode, plateNo, platerecognizer, officer, typeVehicle } =
+      req.body;
     const file = req.file;
 
     if (!locationCode || !plateNo || !officer) {
@@ -189,6 +190,7 @@ export const validationData = async (req, res) => {
         Status: "In Area",
         ModifiedBy: officer,
         // PhotoImage: file.buffer,
+        TypeVehicle: typeVehicle,
         PathPhotoImage: filePath,
         Status: "In Area",
       });
@@ -198,6 +200,7 @@ export const validationData = async (req, res) => {
         Status: "In Area",
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
+        TypeVehicle: typeVehicle,
         // PhotoImage: file.buffer,
         PathPhotoImage: filePath,
       });
@@ -209,6 +212,7 @@ export const validationData = async (req, res) => {
         VehiclePlateNo: plateNo,
         Plateregognizer: platerecognizer,
         ModifiedBy: officer,
+        TypeVehicle: typeVehicle,
         // PhotoImage: file.buffer,
         PathPhotoImage: filePath,
         Status: "In Area",
@@ -220,6 +224,7 @@ export const validationData = async (req, res) => {
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
         PathPhotoImage: filePath,
+        TypeVehicle: typeVehicle,
         PhotoImage: file.buffer,
       });
       res.status(200).send("Data berhasil disimpan!");
