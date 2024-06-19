@@ -527,10 +527,10 @@ export const exportDataOverNight = async (req, res) => {
 
           if (fs.existsSync(imagePath)) {
             // Optionally, resize the image to ensure it has the correct dimensions
-            const resizedImagePath = "resized_" + path.basename(imagePath);
-            await sharp(imagePath)
-              .resize({ width: 100, height: 100, fit: "inside" }) // maintain aspect ratio
-              .toFile(resizedImagePath);
+            // const resizedImagePath = "resized_" + path.basename(imagePath);
+            // await sharp(imagePath)
+            //   .resize({ width: 100, height: 100, fit: "inside" }) // maintain aspect ratio
+            //   .toFile(resizedImagePath);
 
             // Add the image to the workbook
             const imageId = workbook.addImage({
