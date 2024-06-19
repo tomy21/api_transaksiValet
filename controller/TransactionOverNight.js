@@ -485,6 +485,7 @@ export const exportDataOverNight = async (req, res) => {
         { header: "Lokasi", width: 15, key: "LocationCode" },
         { header: "Plat Nomor", width: 15, key: "VehiclePlateNo" },
         { header: "Gambar", width: 30, key: "PathPhotoImage" },
+        { header: "Type Kendaraan", width: 30, key: "TypeVehicle" },
         { header: "Status", width: 10, key: "Status" },
         { header: "Petugas", width: 15, key: "ModifiedBy" },
         { header: "Tanggal Update", width: 20, key: "ModifiedOn" },
@@ -509,6 +510,7 @@ export const exportDataOverNight = async (req, res) => {
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
           VehiclePlateNo: value.VehiclePlateNo ? value.VehiclePlateNo : "-",
           PathPhotoImage: "-",
+          TypeVehicle: value.TypeVehicle ? value.TypeVehicle : "-",
           Status: value.Status,
           ModifiedBy: value.ModifiedBy,
           ModifiedOn: moment
