@@ -22,6 +22,9 @@ export const TransactionOverNights = db.define(
     VehiclePlateNo: {
       type: DataTypes.STRING(25),
     },
+    TypeVehicle: {
+      type: DataTypes.STRING(25),
+    },
     Plateregognizer: {
       type: DataTypes.STRING(25),
     },
@@ -56,6 +59,9 @@ export const TransactionOverNights = db.define(
       type: DataTypes.DATE,
       field: "ModifiedOn",
       defaultValue: DataTypes.NOW,
+    },
+    UploadedAt: {
+      type: DataTypes.DATE,
     },
     CreatedAt: {
       type: DataTypes.DATE,

@@ -37,6 +37,11 @@ export const TransactionOverNightOficcers = db.define(
     ModifiedOn: {
       type: DataTypes.DATE,
     },
+    CreatedAt: {
+      type: DataTypes.DATE,
+      field: "CreatedAt",
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     timestamps: false,
