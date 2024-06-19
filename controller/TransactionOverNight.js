@@ -500,7 +500,10 @@ export const exportDataOverNight = async (req, res) => {
         const row = worksheet.addRow({
           No: index + 1,
           InTime: value.InTime
-            ? moment.utc(value.InTime).local().format("YYYY-MM-DD HH:mm:ss")
+            ? moment
+                .utc(value.InTime)
+                .utcOffset("+07:00")
+                .format("YYYY-MM-DD HH:mm:ss")
             : "-",
           TransactionNo: value.TransactionNo,
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
@@ -510,7 +513,7 @@ export const exportDataOverNight = async (req, res) => {
           ModifiedBy: value.ModifiedBy,
           ModifiedOn: moment
             .utc(value.ModifiedOn)
-            .local()
+            .utcOffset("+07:00")
             .format("YYYY-MM-DD HH:mm:ss"),
         });
 
