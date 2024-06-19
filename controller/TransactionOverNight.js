@@ -481,7 +481,7 @@ export const exportDataOverNight = async (req, res) => {
         const row = worksheet.addRow({
           No: index + 1,
           InTime: value.InTime
-            ? moment(value.InTime).format("YYYY-MM-DD HH:mm:ss")
+            ? moment.utc(value.InTime).local.format("YYYY-MM-DD HH:mm:ss")
             : "-",
           TransactionNo: value.TransactionNo,
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
@@ -507,7 +507,7 @@ export const exportDataOverNight = async (req, res) => {
 
             worksheet.addImage(imageId, {
               tl: { col: 5, row: row.number - 1 },
-              ext: { width: 100, height: 100 },
+              ext: { width: 100, height: 200 },
             });
 
             row.getCell("PathPhotoImage").value = "";
