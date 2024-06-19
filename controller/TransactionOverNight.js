@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import moment from "moment/moment.js";
+import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -477,11 +478,11 @@ export const exportDataOverNight = async (req, res) => {
         });
       });
 
-      result.rows.forEach((value, index) => {
+      for (const [index, value] of result.rows.entries()) {
         const row = worksheet.addRow({
           No: index + 1,
           InTime: value.InTime
-            ? moment.utc(value.InTime).local.format("YYYY-MM-DD HH:mm:ss")
+            ? moment.utc(value.InTime).local().format("YYYY-MM-DD HH:mm:ss")
             : "-",
           TransactionNo: value.TransactionNo,
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
@@ -489,7 +490,10 @@ export const exportDataOverNight = async (req, res) => {
           PathPhotoImage: "-",
           Status: value.Status,
           ModifiedBy: value.ModifiedBy,
-          ModifiedOn: moment(value.ModifiedOn).format("YYYY-MM-DD HH:mm:ss"),
+          ModifiedOn: moment
+            .utc(value.ModifiedOn)
+            .local()
+            .format("YYYY-MM-DD HH:mm:ss"),
         });
 
         if (value.PathPhotoImage) {
@@ -500,16 +504,25 @@ export const exportDataOverNight = async (req, res) => {
           );
 
           if (fs.existsSync(imagePath)) {
+            // Optionally, resize the image to ensure it has the correct dimensions
+            const resizedImagePath = "resized_" + path.basename(imagePath);
+            await sharp(imagePath)
+              .resize({ width: 100, height: 100, fit: "inside" }) // maintain aspect ratio
+              .toFile(resizedImagePath);
+
+            // Add the image to the workbook
             const imageId = workbook.addImage({
-              filename: imagePath,
+              filename: resizedImagePath,
               extension: "jpg",
             });
 
+            // Define the position and size of the image in the worksheet
             worksheet.addImage(imageId, {
-              tl: { col: 5, row: row.number - 1 },
-              ext: { width: 100, height: 200 },
+              tl: { col: 5, row: row.number - 1 }, // top-left position
+              ext: { width: 100, height: 100 }, // size of the image
             });
 
+            // Clear the cell value if needed
             row.getCell("PathPhotoImage").value = "";
           }
         } else {
@@ -521,7 +534,7 @@ export const exportDataOverNight = async (req, res) => {
         row.eachCell((cell) => {
           cell.alignment = { vertical: "middle", horizontal: "center" };
         });
-      });
+      }
 
       const fileName = locationCodes && date ? `${date}.xlsx` : `alldate.xlsx`;
 
