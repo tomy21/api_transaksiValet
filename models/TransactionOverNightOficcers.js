@@ -16,6 +16,9 @@ export const TransactionOverNightOficcers = db.define(
     VehiclePlateNo: {
       type: DataTypes.STRING(25),
     },
+    TypeVehicle: {
+      type: DataTypes.STRING(25),
+    },
     Status: {
       type: DataTypes.STRING(10),
     },
