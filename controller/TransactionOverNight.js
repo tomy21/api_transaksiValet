@@ -170,7 +170,6 @@ export const validationData = async (req, res) => {
     const { locationCode, plateNo, platerecognizer, officer, typeVehicle } =
       req.body;
     const file = req.file;
-    console.log(req.body);
     if (!locationCode || !plateNo || !officer) {
       return res.status(400).json({ message: "Semua field harus diisi" });
     }
