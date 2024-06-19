@@ -400,18 +400,31 @@ export const getDataOverNightPetugas = async (req, res) => {
         COALESCE(SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END), 0) AS InareaCount,
         COALESCE(SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END), 0) AS NovihicleCount,
         COALESCE(SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END), 0) AS OutCount
-    FROM TransactionOverNights
+    FROM TransactionOverNightOficcers
+    WHERE DATE(ModifiedOn) = CURDATE()
+    ${locationCode ? `AND LocationCode = '${locationCode}'` : ""};
+    `;
+
+    const queryType = `
+    SELECT
+        COALESCE(SUM(CASE WHEN TypeVehicle = 'MOTOR' THEN 1 ELSE 0 END), 0) AS Motor,
+        COALESCE(SUM(CASE WHEN TypeVehicle = 'MOBIL' THEN 1 ELSE 0 END), 0) AS Mobil
+    FROM TransactionOverNightOficcers
     WHERE DATE(ModifiedOn) = CURDATE()
     ${locationCode ? `AND LocationCode = '${locationCode}'` : ""};
     `;
 
     const summary = await db.query(query, { type: db.QueryTypes.SELECT });
+    const summaryType = await db.query(queryType, {
+      type: db.QueryTypes.SELECT,
+    });
     if (result) {
       const response = {
         success: true,
         totalPages: Math.ceil(result?.count / limit),
         totalItems: result?.count,
         summary: summary,
+        summaryType: summaryType,
         data: result?.rows,
       };
       res.status(201).json(response);
