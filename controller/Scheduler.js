@@ -5,13 +5,24 @@ import { TransactionOverNights } from "../models/TransactionOverNights.js";
 
 // Fungsi untuk memperbarui `outTime`
 export const updateOutTime = async () => {
-  const yesterdayStart = moment().subtract(1, "days").startOf("day").toDate();
-  const yesterdayEnd = moment().subtract(1, "days").endOf("day").toDate();
+  const yesterdayStart = moment()
+    .utc(new Date())
+    .subtract(1, "days")
+    .startOf("day")
+    .toDate();
+  const yesterdayEnd = moment()
+    .utc(yesterdayStart)
+    .subtract(1, "days")
+    .endOf("day")
+    .toDate();
 
   try {
     await TransactionOverNights.update(
       {
-        OutTime: new Date(),
+        OutTime: moment
+          .utc(new Date())
+          .utcOffset("+07:00")
+          .format("YYYY-MM-DD HH:mm:ss"),
         Status: "Out",
         Remaks: "Update By System",
       },
