@@ -5,21 +5,25 @@ import { TransactionOverNights } from "../models/TransactionOverNights.js";
 
 // Fungsi untuk memperbarui `outTime`
 export const updateOutTime = async () => {
-  const todayStart = moment().startOf("day").toDate();
+  const yesterdayStart = moment().subtract(1, "days").startOf("day").toDate();
+  const yesterdayEnd = moment().subtract(1, "days").endOf("day").toDate();
 
   try {
-    const dataupdate = await TransactionOverNights.update(
-      { OutTime: new Date(), Status: "Out", Remaks: "Update By System" },
+    await TransactionOverNights.update(
+      {
+        OutTime: new Date(),
+        Status: "Out",
+        Remaks: "Update By System",
+      },
       {
         where: {
           ModifiedOn: {
-            [Op.lt]: todayStart, // Kurang dari awal hari ini
+            [Op.between]: [yesterdayStart, yesterdayEnd], // Rentang kemarin
           },
           OutTime: null,
         },
       }
     );
-    console.log(dataupdate);
     console.log("OutTime updated successfully.");
   } catch (error) {
     console.error("Error updating outTime:", error);
