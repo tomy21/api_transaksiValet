@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:latest
 
 ENV DB_HOST=8.215.44.147
 ENV DB_USER=root
