@@ -526,25 +526,42 @@ export const exportDataOverNight = async (req, res) => {
           );
 
           if (fs.existsSync(imagePath)) {
-            // Optionally, resize the image to ensure it has the correct dimensions
-            // const resizedImagePath = "resized_" + path.basename(imagePath);
-            // await sharp(imagePath)
-            //   .resize({ width: 100, height: 100, fit: "inside" }) // maintain aspect ratio
-            //   .toFile(resizedImagePath);
+            // Tentukan path untuk folder yang baru
+            const resizedFolderPath = path.join(
+              process.cwd(),
+              "uploads",
+              "resized"
+            );
 
-            // Add the image to the workbook
+            // Buat folder jika belum ada
+            if (!fs.existsSync(resizedFolderPath)) {
+              fs.mkdirSync(resizedFolderPath, { recursive: true });
+            }
+
+            // Tentukan path untuk gambar yang telah di-resize
+            const resizedImagePath = path.join(
+              resizedFolderPath,
+              "resized_" + path.basename(imagePath)
+            );
+
+            // Resize gambar
+            await sharp(imagePath)
+              .resize({ width: 100, height: 100, fit: "inside" }) // mempertahankan rasio aspek
+              .toFile(resizedImagePath);
+
+            // Tambahkan gambar ke workbook
             const imageId = workbook.addImage({
               filename: resizedImagePath,
               extension: "jpg",
             });
 
-            // Define the position and size of the image in the worksheet
+            // Tentukan posisi dan ukuran gambar di worksheet
             worksheet.addImage(imageId, {
-              tl: { col: 5, row: row.number - 1 }, // top-left position
-              ext: { width: 100, height: 100 }, // size of the image
+              tl: { col: 5, row: row.number - 1 }, // posisi kiri atas
+              ext: { width: 100, height: 100 }, // ukuran gambar
             });
 
-            // Clear the cell value if needed
+            // Hapus nilai sel jika diperlukan
             row.getCell("PathPhotoImage").value = "";
           }
         } else {
