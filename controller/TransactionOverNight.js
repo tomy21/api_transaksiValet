@@ -9,7 +9,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import moment from "moment/moment.js";
-import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -526,32 +525,9 @@ export const exportDataOverNight = async (req, res) => {
           );
 
           if (fs.existsSync(imagePath)) {
-            // Tentukan path untuk folder yang baru
-            const resizedFolderPath = path.join(
-              process.cwd(),
-              "uploads",
-              "resized"
-            );
-
-            // Buat folder jika belum ada
-            if (!fs.existsSync(resizedFolderPath)) {
-              fs.mkdirSync(resizedFolderPath, { recursive: true });
-            }
-
-            // Tentukan path untuk gambar yang telah di-resize
-            const resizedImagePath = path.join(
-              resizedFolderPath,
-              "resized_" + path.basename(imagePath)
-            );
-
-            // Resize gambar
-            await sharp(imagePath)
-              .resize({ width: 100, height: 100, fit: "inside" }) // mempertahankan rasio aspek
-              .toFile(resizedImagePath);
-
             // Tambahkan gambar ke workbook
             const imageId = workbook.addImage({
-              filename: resizedImagePath,
+              filename: imagePath,
               extension: "jpg",
             });
 
