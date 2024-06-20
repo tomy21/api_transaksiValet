@@ -511,13 +511,6 @@ export const exportDataOverNight = async (req, res) => {
       for (const [index, value] of result.rows.entries()) {
         const row = worksheet.addRow({
           No: index + 1,
-          InTime: value.InTime
-            ? moment
-                .utc(value.InTime)
-                .utcOffset("+07:00")
-                .format("YYYY-MM-DD HH:mm:ss")
-            : "-",
-          TransactionNo: value.TransactionNo,
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
           VehiclePlateNo: value.VehiclePlateNo ? value.VehiclePlateNo : "-",
           PathPhotoImage: "-",
