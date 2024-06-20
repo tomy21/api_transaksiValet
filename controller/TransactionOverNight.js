@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import moment from "moment/moment.js";
+import cron from "node-cron";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -180,7 +181,11 @@ export const validationData = async (req, res) => {
     const filePath = "/uploads/" + file.filename;
 
     const existingRecord = await TransactionOverNights.findOne({
-      where: { VehiclePlateNo: plateNo, LocationCode: locationCode },
+      where: {
+        VehiclePlateNo: plateNo,
+        LocationCode: locationCode,
+        OutTime: null,
+      },
     });
 
     if (existingRecord) {
@@ -190,7 +195,7 @@ export const validationData = async (req, res) => {
         // PhotoImage: file.buffer,
         TypeVehicle: typeVehicle,
         PathPhotoImage: filePath,
-        Status: "In Area",
+        UploadedAt: new Date(),
       });
 
       await TransactionOverNightOficcers.create({
@@ -236,8 +241,8 @@ export const validationData = async (req, res) => {
 export const getDataOverNightLocation = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const orderBy = req.query.orderBy || "ModifiedOn";
-  const sortBy = req.query.sortBy || "DESC";
+  const orderBy = req.query.orderBy || "Status";
+  const sortBy = req.query.sortBy || "ASC";
   const keyword = req.query.keyword || "";
   const locationCodes = req.query.location ? req.query.location.split(",") : [];
   const date = req.query.date || "";
@@ -273,7 +278,7 @@ export const getDataOverNightLocation = async (req, res) => {
 
     // Kondisi tanggal
     if (date) {
-      where.ModifiedOn = {
+      where.UploadedAt = {
         [Op.gte]: Sequelize.literal(`DATE('${date}')`),
         [Op.lt]: Sequelize.literal(`DATE_ADD(DATE('${date}'), INTERVAL 1 DAY)`),
       };
@@ -299,11 +304,21 @@ export const getDataOverNightLocation = async (req, res) => {
 
     const summary = await TransactionOverNights.findAll({
       attributes: [
-        [Sequelize.fn("COUNT", Sequelize.col("VehiclePlateNo")), "TotalCount"],
         [
           Sequelize.fn(
             "SUM",
-            Sequelize.literal("CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END")
+            Sequelize.literal(
+              "CASE WHEN Status = 'In Area' AND OutTime IS NULL THEN 1 ELSE 0 END"
+            )
+          ),
+          "TotalCount",
+        ],
+        [
+          Sequelize.fn(
+            "SUM",
+            Sequelize.literal(
+              "CASE WHEN Status = 'In Area' AND OutTime IS NULL THEN 1 ELSE 0 END"
+            )
           ),
           "InareaCount",
         ],
@@ -311,14 +326,14 @@ export const getDataOverNightLocation = async (req, res) => {
           Sequelize.fn(
             "SUM",
             Sequelize.literal(
-              "CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END"
+              "CASE WHEN TIMESTAMPDIFF(DAY, `CreatedAt`, `ModifiedOn`) > 1 AND Status = 'In Area' THEN 1 ELSE 0 END"
             )
           ),
-          "NovihicleCount",
+          "MoreThanOneDayCount",
         ],
         [
           Sequelize.fn(
-            "SUM",
+            "COUNT",
             Sequelize.literal("CASE WHEN Status = 'Out' THEN 1 ELSE 0 END")
           ),
           "OutCount",
@@ -468,7 +483,7 @@ export const exportDataOverNight = async (req, res) => {
       ],
     };
 
-    const result = await TransactionOverNights.findAndCountAll({
+    const result = await TransactionOverNightOficcers.findAndCountAll({
       ...queries,
     });
 
@@ -478,8 +493,6 @@ export const exportDataOverNight = async (req, res) => {
 
       worksheet.columns = [
         { header: "No", key: "No", width: 5 },
-        { header: "Jam Masuk", width: 20, key: "InTime" },
-        { header: "No Transaksi", width: 20, key: "TransactionNo" },
         { header: "Lokasi", width: 15, key: "LocationCode" },
         { header: "Plat Nomor", width: 15, key: "VehiclePlateNo" },
         { header: "Gambar", width: 30, key: "PathPhotoImage" },

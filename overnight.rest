@@ -12,7 +12,7 @@ Content-Type: application/json
 
 #getDataByLocation
 ###
-GET http://localhost:3008/api/getDatabyLocation?location=08SKY&date=2024-06-12
+GET http://localhost:3008/api/getDatabyLocation?location=&date=2024-06-20
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImxvY2F0aW9uQ29kZSI6IjAwM1NLIiwibG9jYXRpb25OYW1lIjoiU0tZIFBMVUlUIFZJTExBR0UiLCJpYXQiOjE3MTY4Mjk4MDYsImV4cCI6MTcxNjgyOTgyMX0.tg8LpqiQFrMWsLUYI-lX4I4heuCOR_xZM8_-5vAk6Qw
 Content-Type: application/json
 

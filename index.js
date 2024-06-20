@@ -12,6 +12,7 @@ import ReportOprational from "./route/Report/ReportOprational.js";
 import OverNight from "./route/OverNight/transaction.js";
 import CountingVihicle from "./route/CountingVihicle/CountingVihicle.js";
 import path from "path";
+import { updateOutTime } from "./controller/Scheduler.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
 
@@ -46,4 +47,5 @@ app.use("/api", CountingVihicle);
 const PORT = 3008;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  updateOutTime();
 });
