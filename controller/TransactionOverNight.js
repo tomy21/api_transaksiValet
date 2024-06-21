@@ -303,7 +303,7 @@ export const getDataOverNightLocation = async (req, res) => {
           Sequelize.fn(
             "SUM",
             Sequelize.literal(
-              "CASE WHEN Status = 'In Area' AND OutTime IS NULL THEN 1 ELSE 0 END"
+              "CASE WHEN Status = 'In Area'IS NULL THEN 1 ELSE 0 END"
             )
           ),
           "TotalCount",
@@ -312,7 +312,7 @@ export const getDataOverNightLocation = async (req, res) => {
           Sequelize.fn(
             "SUM",
             Sequelize.literal(
-              "CASE WHEN Status = 'In Area' AND OutTime IS NULL THEN 1 ELSE 0 END"
+              "CASE WHEN Status = 'In Area' IS NULL THEN 1 ELSE 0 END"
             )
           ),
           "InareaCount",
