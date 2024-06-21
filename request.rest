@@ -37,15 +37,15 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Irwan Diy",
+    "Name": "Ridwan Zona 4",
     "Gender": "M",
-    "Username": "irwan_diy",
-    "Email": "irwan_diy@testing.com",
+    "Username": "ridwan_zona_4",
+    "Email": "ridwanzona4@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
     "FlagAllLocation":0,
-    "LocationCode": ["05WSK"]
+    "LocationCode": ["YKTSK", "05WSK", "015SK", "05TSK", "016SK"]
 }
 
 

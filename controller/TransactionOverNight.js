@@ -8,6 +8,7 @@ import ExcelJs from "exceljs";
 import fs from "fs";
 import path from "path";
 import moment from "moment/moment.js";
+import { UsersLocations } from "../models/UsersLocation.js";
 
 export const getDataOverNight = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -233,15 +234,44 @@ export const validationData = async (req, res) => {
   }
 };
 
+export const usersIdLocation = async (req, res) => {
+  const userId = req.query.id;
+  try {
+    const userLocations = await UsersLocations.findAll({
+      where: {
+        UserId: userId,
+      },
+      attributes: ["LocationCode"],
+    });
+
+    const locationCodes = userLocations.map(
+      (location) => location.LocationCode
+    );
+
+    res.status(200).json({
+      success: true,
+      locationCodes: locationCodes,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get location codes",
+    });
+  }
+};
+
 export const getDataOverNightLocation = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const orderBy = req.query.orderBy || "Status";
   const sortBy = req.query.sortBy || "ASC";
   const keyword = req.query.keyword || "";
-  const locationCodes = req.query.location ? req.query.location.split(",") : [];
+  const locationCodes = req.query.location
+    ? JSON.parse(req.query.location)
+    : [];
   const date = req.query.date || "";
-
+  console.log(locationCodes);
   try {
     // Buat objek where secara dinamis
     const where = {};
@@ -468,7 +498,9 @@ export const getDataOverNightPetugas = async (req, res) => {
 };
 
 export const exportDataOverNight = async (req, res) => {
-  const locationCodes = req.query.location ? req.query.location.split(",") : [];
+  const locationCodes = req.query.location
+    ? JSON.parse(req.query.location)
+    : [];
   const date = req.query.date || "";
 
   try {

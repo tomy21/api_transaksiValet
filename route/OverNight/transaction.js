@@ -9,6 +9,7 @@ import {
   exportDataOverNight,
   getDataOverNightLocation,
   updateOutAndRemaks,
+  usersIdLocation,
 } from "../../controller/TransactionOverNight.js";
 import { VerifyToken } from "../../middleware/VerifyToken.js";
 const router = express.Router();
@@ -33,6 +34,7 @@ router.get("/getAllOverNight", VerifyToken, getDataOverNight);
 router.get("/getAllOverNightApps", getDataOverNightPetugas);
 router.get("/exportDataOn", exportDataOverNight);
 router.get("/getDatabyLocation", getDataOverNightLocation);
+router.get("/getLocationById", usersIdLocation);
 router.put("/updateOutAndRemaks", VerifyToken, updateOutAndRemaks);
 
 router.post(
