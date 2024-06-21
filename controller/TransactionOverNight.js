@@ -245,6 +245,7 @@ export const getDataOverNightLocation = async (req, res) => {
   try {
     // Buat objek where secara dinamis
     const where = {};
+    const whereCount = {};
 
     if (!date) {
       return res.status(400).send("Date parameter is required");
@@ -269,11 +270,29 @@ export const getDataOverNightLocation = async (req, res) => {
           ],
         },
       ];
+
+      whereCount[Op.and] = [
+        ...Object.keys(where).map((key) => ({ [key]: where[key] })), // Menyalin kondisi where yang ada
+        {
+          [Op.or]: [
+            { TransactionNo: { [Op.like]: `%${keyword}%` } },
+            { VehiclePlateNo: { [Op.like]: `%${keyword}%` } },
+            { Status: { [Op.like]: `%${keyword}%` } },
+            { InTime: { [Op.like]: `%${keyword}%` } },
+            // Tambahkan kolom lainnya jika diperlukan
+          ],
+        },
+      ];
     }
 
     // Kondisi tanggal
     if (date) {
       where.UploadedAt = {
+        [Op.gte]: Sequelize.literal(`DATE('${date}')`),
+        [Op.lt]: Sequelize.literal(`DATE_ADD(DATE('${date}'), INTERVAL 1 DAY)`),
+      };
+
+      whereCount.ModifiedOn = {
         [Op.gte]: Sequelize.literal(`DATE('${date}')`),
         [Op.lt]: Sequelize.literal(`DATE_ADD(DATE('${date}'), INTERVAL 1 DAY)`),
       };
@@ -295,22 +314,22 @@ export const getDataOverNightLocation = async (req, res) => {
 
     const result = await TransactionOverNights.findAndCountAll(queries);
 
-    const summaryWhere = where;
+    const summaryWhere = whereCount;
 
     const summary = await TransactionOverNightOficcers.findAll({
       attributes: [
         [
           Sequelize.fn(
-            "SUM",
+            "COUNT",
             Sequelize.literal(
-              "CASE WHEN Status = 'In Area'IS NULL THEN 1 ELSE 0 END"
+              "CASE WHEN Status = 'In Area' IS NULL THEN 1 ELSE 0 END"
             )
           ),
           "TotalCount",
         ],
         [
           Sequelize.fn(
-            "SUM",
+            "COUNT",
             Sequelize.literal(
               "CASE WHEN Status = 'In Area' IS NULL THEN 1 ELSE 0 END"
             )
@@ -319,7 +338,7 @@ export const getDataOverNightLocation = async (req, res) => {
         ],
         [
           Sequelize.fn(
-            "SUM",
+            "COUNT",
             Sequelize.literal(
               "CASE WHEN TIMESTAMPDIFF(DAY, `CreatedAt`, `ModifiedOn`) > 1 AND Status = 'In Area' THEN 1 ELSE 0 END"
             )
