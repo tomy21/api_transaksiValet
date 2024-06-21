@@ -255,6 +255,9 @@ export const getDataOverNightLocation = async (req, res) => {
     if (locationCodes.length > 0) {
       where.LocationCode = { [Op.in]: locationCodes };
     }
+    if (locationCodes.length > 0) {
+      whereCount.LocationCode = { [Op.in]: locationCodes };
+    }
 
     // Kondisi kata kunci
     if (keyword) {
