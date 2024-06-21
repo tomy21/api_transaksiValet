@@ -7,12 +7,7 @@ import db from "../config/dbConfig.js";
 import ExcelJs from "exceljs";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import moment from "moment/moment.js";
-import cron from "node-cron";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export const getDataOverNight = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -302,7 +297,7 @@ export const getDataOverNightLocation = async (req, res) => {
 
     const summaryWhere = where;
 
-    const summary = await TransactionOverNights.findAll({
+    const summary = await TransactionOverNightOficcers.findAll({
       attributes: [
         [
           Sequelize.fn(

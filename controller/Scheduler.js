@@ -31,7 +31,6 @@ export const updateOutTime = async () => {
           ModifiedOn: {
             [Op.between]: [yesterdayStart, yesterdayEnd], // Rentang kemarin
           },
-          OutTime: null,
         },
       }
     );
