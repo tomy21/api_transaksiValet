@@ -537,10 +537,9 @@ export const exportDataOverNight = async (req, res) => {
               extension: "jpg",
             });
 
-            // Tentukan posisi dan ukuran gambar di worksheet
             worksheet.addImage(imageId, {
-              tl: { col: 5, row: row.number - 1 }, // posisi kiri atas
-              ext: { width: 100, height: 100 }, // ukuran gambar
+              tl: { col: 3, row: row.number - 1 },
+              ext: { width: 100, height: 100 },
             });
 
             // Hapus nilai sel jika diperlukan
