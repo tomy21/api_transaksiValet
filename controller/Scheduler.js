@@ -7,7 +7,7 @@ import { TransactionOverNights } from "../models/TransactionOverNights.js";
 export const updateOutTime = async () => {
   const yesterdayStart = moment()
     .utc(new Date())
-    .subtract(1, "days")
+    .subtract(2, "days")
     .startOf("day")
     .toDate();
   const yesterdayEnd = moment()
@@ -43,7 +43,7 @@ export const updateOutTime = async () => {
 // Jadwal tugas setiap hari pada pukul 10 pagi
 cron.schedule("0 9 * * *", updateOutTime, {
   scheduled: true,
-  timezone: "+00:00",
+  timezone: "Asia/Jakarta",
 });
 
 // Pastikan scheduler tetap berjalan
