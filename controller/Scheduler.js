@@ -43,7 +43,7 @@ export const updateOutTime = async () => {
 // Jadwal tugas setiap hari pada pukul 10 pagi
 cron.schedule("0 9 * * *", updateOutTime, {
   scheduled: true,
-  timezone: "Asia/Jakarta",
+  timezone: "+00:00",
 });
 
 // Pastikan scheduler tetap berjalan

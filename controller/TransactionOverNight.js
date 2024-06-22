@@ -271,7 +271,7 @@ export const getDataOverNightLocation = async (req, res) => {
     ? JSON.parse(req.query.location)
     : [];
   const date = req.query.date || "";
-  console.log(locationCodes);
+
   try {
     // Buat objek where secara dinamis
     const where = {};

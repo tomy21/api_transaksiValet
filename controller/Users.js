@@ -75,7 +75,6 @@ export const register = async (req, res) => {
       CreatedBy: CreatedBy,
     });
 
-    console.log(newUser.Id);
     if (!Array.isArray(LocationCode)) {
       return res.status(400).json({ msg: "LocationCode harus berupa array" });
     }
