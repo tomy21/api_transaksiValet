@@ -267,9 +267,12 @@ export const getDataOverNightLocation = async (req, res) => {
   const orderBy = req.query.orderBy || "Status";
   const sortBy = req.query.sortBy || "ASC";
   const keyword = req.query.keyword || "";
-  const locationCodes = req.query.location
-    ? JSON.parse(req.query.location)
-    : [];
+  let locationCodes = [];
+  try {
+    locationCodes = req.query.location ? JSON.parse(req.query.location) : [];
+  } catch (error) {
+    console.error("Error parsing location:", error);
+  }
   const date = req.query.date || "";
 
   try {

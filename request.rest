@@ -1,12 +1,12 @@
 GET http://localhost:3008/api/getUsers
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcxNzA0MTIwNywiZXhwIjoxNzE3MDQxMjIyfQ.mykYvJq8APz0NjOCO-NG57Dq2pGOrXOa9cztD-NKdhA
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExNCwibmFtZSI6IkhlYWRvZmZpY2UgMDEiLCJlbWFpbCI6ImhlYWRvZmZpY2UwMUB0ZXN0aW5nLmNvbSIsImlhdCI6MTcyMTA4NjMzNiwiZXhwIjoxNzIxMDg2MzUxfQ.CRWdsUG5k0gYOC46T7O9EEd5c6Ed8V2j1oxGFN9_u4Q
 
 ###
 POST http://localhost:3008/api/login
 Content-Type: application/json
 
 {
-    "data":"U2FsdGVkX1+I/xlyIYVi3V9/tGU/qzT+mf9DvtMG1eoZPCvzFdKSk4h6WgmYYt0HO9/USuuMjr/yWu4EFDAqwA=="
+    "data":"U2FsdGVkX1/mec9D7FT2Qa7A5PkqYat5qd/15lI0kmkuwJBt4rSCm7ynrZ5oGdiAtNmGIZF/1IMa8FkLIlEc5wp7uJ4RVG9SxzQkpSnq7zg="
 }
 
 ###
@@ -15,6 +15,9 @@ GET http://localhost:3008/api/token
 GET http://localhost:3008/api/logout
 ###
 GET http://localhost:3008/api/getByLocation?userId=102
+
+###
+GET http://localhost:3008/api/getAllLocation
 
 
 # request location
@@ -37,15 +40,15 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Ridwan Zona 4",
+    "Name": "Meijal jaelani",
     "Gender": "M",
-    "Username": "ridwan_zona_4",
-    "Email": "ridwanzona4@testing.com",
+    "Username": "meijal.lippopalangkaraya",
+    "Email": "meijal.lippopalangkaraya@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
     "FlagAllLocation":0,
-    "LocationCode": ["YKTSK", "05WSK", "015SK", "05TSK", "016SK"]
+    "LocationCode": ["19BSK"]
 }
 
 

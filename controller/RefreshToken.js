@@ -13,12 +13,12 @@ export const refreshToken = async (req, res) => {
         RefreshToken: refreshToken,
       },
     });
+
     const users = await Users.findAll({
       where: {
         Id: user[0].UserId,
       },
     });
-
     const LocationData = await UsersLocations.findAll({
       where: {
         UserId: user[0].UserId,
@@ -30,6 +30,7 @@ export const refreshToken = async (req, res) => {
         },
       ],
     });
+    // console.log(LocationData);
     if (!user[0]) return res.sendStatus(403);
     jwt.verify(
       refreshToken,
