@@ -1,0 +1,202 @@
+#register users
+###
+POST http://localhost:3008/v01/member/api/auth/register
+Content-Type: application/json
+
+{
+    "username":"tomy21",
+    "email":"tomy21.agung@gmail.com",
+    "phone":"+628921211111",
+    "password":"123456",
+    "pin":"321321"
+}
+
+
+#register users
+###
+POST http://localhost:3008/v01/member/api/auth/login
+Content-Type: application/json
+
+{
+    "identifier":"tomy21",
+    "password":"123456",
+    "rememberMe":true
+}
+
+#getUserById
+###
+GET http://localhost:3008/v01/member/api/auth/user/22
+Content-Type: application/json
+
+
+#getProduct
+###
+GET http://localhost:3008/v01/member/api/product
+Content-Type: application/json
+
+#getProductById
+###
+GET http://localhost:3008/v01/member/api/product/1
+Content-Type: application/json
+
+#UpdatedProductById
+###
+PATCH http://localhost:3008/v01/member/api/product/1
+Content-Type: application/json
+
+{
+    "MaxQuote": 1000
+}
+
+#DeleteProductById
+###
+DELETE http://localhost:3008/v01/member/api/product/5
+Content-Type: application/json
+
+#CreatedProduct
+###
+POST http://localhost:3008/v01/member/api/product
+Content-Type: application/json
+
+{
+    "ProductName": "Product B",
+    "ProductDescription": "Description of Product B",
+    "VehicleType": "Mobil",
+    "DateActive": "2024-12-31T23:59:59.999Z",
+    "MaxQuote": 100,
+    "CurrentQuote": 0,
+    "Price": 100000,
+    "LocationCode": "LOC002",
+    "LocationName": "Location B"
+}
+
+
+# Member Provider
+###
+# Create Payment Gateway
+###
+POST http://localhost:3008/v01/member/api/listProvider
+Content-Type: application/json
+
+{
+    "ProviderName": "Bank ABC",
+    "Description": "Payment gateway for Bank ABC",
+    "ChannelId": "ABC123",
+    "BankId": "ABC456",
+    "PartnerServiceId": "ABC789",
+    "LogoUrl": "http://example.com/logo.png"
+}
+
+# Get All Payment Gateways
+###
+GET http://localhost:3008/v01/member/api/listProvider
+Content-Type: application/json
+
+# Get Payment Gateway By ID
+###
+GET http://localhost:3008/v01/member/api/listProvider/1
+Content-Type: application/json
+
+# Update Payment Gateway By ID
+###
+PATCH http://localhost:3008/v01/member/api/listProvider/2
+Content-Type: application/json
+
+{
+    "Description": "Updated description for Bank ABC"
+}
+
+# Soft Delete Payment Gateway By ID
+###
+DELETE http://localhost:3008/v01/member/api/listProvider/1
+Content-Type: application/json
+
+
+# UserMemberProduct
+###
+# Get all MemberUserProducts
+GET http://localhost:3008/v01/member/api/userProduct
+Content-Type: application/json
+
+###
+# Get a single MemberUserProduct by ID
+GET http://localhost:3008/v01/member/api/userProduct/2
+Content-Type: application/json
+
+###
+# Get a single MemberUserProduct by ID
+GET http://localhost:3008/v01/member/api/userProduct/byUser?userId=22
+Content-Type: application/json
+
+###
+# Create a new MemberUserProduct
+POST http://localhost:3008/v01/member/api/userProduct
+Content-Type: application/json
+
+{
+  "CardId": "123456787",
+  "RfId": "987654327",
+  "PlateNumber": "B1234ABC",
+  "IsUsed": 0,
+  "MemberUserId": 22
+}
+
+###
+
+# Update a MemberUserProduct by ID
+PATCH http://localhost:3008/v01/member/api/userProduct/4
+Content-Type: application/json
+
+{
+  "TypeVehicle": "Motor"
+}
+
+###
+
+# Soft delete a MemberUserProduct by ID
+DELETE http://localhost:3008/v01/member/api/userProduct/1
+Content-Type: application/json
+
+{
+  "DeletedBy": "admin"
+}
+
+
+# history Transactions
+###
+# Get all MemberHistoryTransactions
+GET http://localhost:3008/v01/member/api/memberHistoryTransactions
+Content-Type: application/json
+
+###
+
+# Get a single MemberHistoryTransaction by ID
+GET http://localhost:3008/v01/member/api/memberHistoryTransactions/1
+Content-Type: application/json
+
+###
+
+# Get a single MemberHistoryTransaction by UserID
+GET http://localhost:3008/v01/member/api/memberHistory/users?userId=22
+Content-Type: application/json
+
+###
+
+# Create a new MemberHistoryTransaction
+POST http://localhost:3008/v01/member/api/memberHistoryTransactions
+Content-Type: application/json
+
+{
+  "IdUsers": 22,
+  "LocationName": "Mall ABC",
+  "Activity": "Parking",
+  "Price": 50000,
+  "Status": "Paid",
+  "CreatedBy": "admin"
+}
+
+
+
+
+
+

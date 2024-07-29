@@ -1,5 +1,5 @@
 GET http://localhost:3008/api/getUsers
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExNCwibmFtZSI6IkhlYWRvZmZpY2UgMDEiLCJlbWFpbCI6ImhlYWRvZmZpY2UwMUB0ZXN0aW5nLmNvbSIsImlhdCI6MTcyMTA4NjMzNiwiZXhwIjoxNzIxMDg2MzUxfQ.CRWdsUG5k0gYOC46T7O9EEd5c6Ed8V2j1oxGFN9_u4Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExNCwibmFtZSI6IkhlYWRvZmZpY2UgMDEiLCJlbWFpbCI6ImhlYWRvZmZpY2UwMUB0ZXN0aW5nLmNvbSIsImlhdCI6MTcyMTg5MzM4OCwiZXhwIjoxNzIxODkzNDAzfQ.cHkPrihp-TrwHL47j34fo6glhrcfreCmmpd25gEZmtI
 
 ###
 POST http://localhost:3008/api/login
@@ -40,15 +40,40 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Meijal jaelani",
+    "Name": "Moch Bayu",
     "Gender": "M",
-    "Username": "meijal.lippopalangkaraya",
-    "Email": "meijal.lippopalangkaraya@testing.com",
+    "Username": "bayu.bca",
+    "Email": "bayu.bca@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
     "FlagAllLocation":0,
-    "LocationCode": ["19BSK"]
+    "LocationCode": ["901SK"]
+}
+
+#register users
+###
+POST http://localhost:3008/v01/member/api/auth/register
+Content-Type: application/json
+
+{
+    "username":"tomy21",
+    "email":"tomy21.agung@gmail.com",
+    "phone":"+628921211111",
+    "password":"123456",
+    "pin":"321321"
+}
+
+
+#register users
+###
+POST http://localhost:3008/v01/member/api/auth/login
+Content-Type: application/json
+
+{
+    "identifier":"tomy21",
+    "password":"123456",
+    "rememberMe":true
 }
 
 
