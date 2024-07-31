@@ -31,6 +31,7 @@ app.use(
       "http://147.139.135.195:8091",
       "https://dev-valet.skyparking.online",
       "https://dev-on.skyparking.online",
+      "https://dev-membership.skyparking.online",
     ],
   })
 );

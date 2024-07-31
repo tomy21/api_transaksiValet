@@ -2,7 +2,7 @@
 ###
 POST http://localhost:3008/v01/member/api/auth/register
 Content-Type: application/json
-
+# https://dev-valetapi.skyparking.online
 {
     "username":"tomy21",
     "email":"tomy21.agung@gmail.com",
