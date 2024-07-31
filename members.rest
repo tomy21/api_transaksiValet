@@ -30,7 +30,7 @@ Content-Type: application/json
 
 #getUserById
 ###
-PATCH  http://localhost:3008/v01/member/api/auth/user/30
+PATCH  http://localhost:3008/v01/member/api/auth/user/24
 Content-Type: application/json
 
 {
@@ -149,7 +149,7 @@ Content-Type: application/json
 
 ###
 # Get a single MemberUserProduct by ID
-GET http://localhost:3008/v01/member/api/userProduct/byUser?userId=22
+GET http://localhost:3008/v01/member/api/userProduct/byUser?userId=30
 Content-Type: application/json
 
 ###
@@ -219,8 +219,8 @@ Content-Type: application/json
   "CreatedBy": "admin"
 }
 
-
-
-
-
+###
+# Get a single MemberUserProduct by ID
+GET http://localhost:3008/v01/member/api/trxhistories
+Content-Type: application/json
 

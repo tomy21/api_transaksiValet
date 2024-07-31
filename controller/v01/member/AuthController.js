@@ -173,6 +173,11 @@ export const activateAccount = async (req, res) => {
 export const getUserById = async (req, res) => {
   try {
     const userById = await User.findByPk(req.params.id);
+    const usersDetailById = await UserDetails.findOne({
+      where: {
+        MemberUserId: req.params.id,
+      },
+    });
     if (!userById) {
       return res.status(404).json({
         statusCode: 404,
@@ -182,6 +187,7 @@ export const getUserById = async (req, res) => {
     res.status(200).json({
       statusCode: 200,
       message: "Users retrieved successfully",
+      points: usersDetailById.Points,
       data: userById,
     });
   } catch (err) {

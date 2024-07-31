@@ -14,8 +14,9 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.post("/verifikasi", getUserByIdDetail);
-router.post("/logout", logout);
+router.get("/logout", logout);
 router.get("/user/:id", getUserById);
+router.patch("/user/:id", getUserById);
 router.get("/activate/:token", activateAccount);
 
 router.get("/protected", protect, (req, res) => {
