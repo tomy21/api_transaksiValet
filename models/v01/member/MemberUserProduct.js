@@ -21,6 +21,10 @@ const MemberUserProduct = db.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
+    LocationCode: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+    },
     LocationName: {
       type: DataTypes.STRING(50),
       allowNull: false,

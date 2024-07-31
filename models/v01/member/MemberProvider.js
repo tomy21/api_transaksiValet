@@ -17,6 +17,10 @@ const MemberProviderPaymentGateway = db.define(
       type: DataTypes.STRING(1000),
       allowNull: true,
     },
+    Type: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
     ChannelId: {
       type: DataTypes.STRING(50),
       allowNull: true,
@@ -31,6 +35,22 @@ const MemberProviderPaymentGateway = db.define(
     },
     LogoUrl: {
       type: DataTypes.STRING(255),
+      allowNull: true,
+    },
+    CreatedOn: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    UpdatedOn: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    CreatedBy: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+    },
+    UpdatedBy: {
+      type: DataTypes.STRING(50),
       allowNull: true,
     },
   },

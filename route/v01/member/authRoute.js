@@ -5,6 +5,7 @@ import {
   logout,
   activateAccount,
   getUserById,
+  getUserByIdDetail,
 } from "../../../controller/v01/member/AuthController.js";
 import { protect } from "../../../middleware/v01/member/authMiddleware.js";
 
@@ -12,7 +13,8 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.get("/logout", logout);
+router.post("/verifikasi", getUserByIdDetail);
+router.post("/logout", logout);
 router.get("/user/:id", getUserById);
 router.get("/activate/:token", activateAccount);
 

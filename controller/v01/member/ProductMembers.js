@@ -60,6 +60,39 @@ export const getMemberProduct = async (req, res) => {
   }
 };
 
+export const getMemberProductByLocation = async (req, res) => {
+  try {
+    const { LocationCode } = req.query; // Ambil LocationCode dari query string
+    if (!LocationCode) {
+      return res.status(400).json({
+        status: "fail",
+        message: "LocationCode is required",
+      });
+    }
+
+    const product = await MemberProduct.findAll({
+      where: { LocationCode }, // Gunakan objek untuk query
+    });
+
+    if (product.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: product,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: err.message,
+    });
+  }
+};
+
 // Update a member product by ID
 export const updateMemberProduct = async (req, res) => {
   try {

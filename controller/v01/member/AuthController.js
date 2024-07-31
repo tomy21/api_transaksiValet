@@ -4,27 +4,80 @@ import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { Op } from "sequelize";
 import UserDetails from "../../../models/v01/member/UserDetails.js";
+import { v4 as uuidv4 } from "uuid";
 
-const signToken = (id, rememberMe) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: rememberMe ? "30d" : "1d", // Token expiration based on rememberMe flag
+const signToken = (user, rememberMe) => {
+  const expiresIn = rememberMe ? "30d" : "1d";
+
+  const payload = {
+    Id: user.id,
+    email: user.Email,
+    iat: Math.floor(Date.now() / 1000),
+    iss: "https://skyparking.online",
+    jti: uuidv4(),
+    nbf: Math.floor(Date.now() / 1000),
+    role: user.Role,
+    sub: user.UserName,
+  };
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn,
   });
+
+  return token;
 };
 
 const createSendToken = (user, statusCode, res, rememberMe) => {
-  const token = signToken(user.id, rememberMe);
+  const token = signToken(user, rememberMe);
 
   res.cookie("refreshToken", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    expires: new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000),
   });
 
   res.status(statusCode).json({
     status: "success",
     token,
-    message: "Login Succesfully",
+    message: "Login Successfully",
   });
+};
+
+export const login = async (req, res) => {
+  const { identifier, password, rememberMe } = req.body;
+
+  if (!identifier || !password) {
+    return res.status(400).json({
+      status: "fail",
+      message:
+        "Please provide an identifier (username, email, or phone number) and password!",
+    });
+  }
+
+  // Find user by username, email, or phone number
+  const user = await User.findOne({
+    where: {
+      [Op.or]: [
+        { UserName: identifier },
+        { Email: identifier },
+        { PhoneNumber: identifier },
+      ],
+    },
+  });
+
+  if (!user || !(await user.correctPassword(password, user.PasswordHash))) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Incorrect identifier or password",
+    });
+  }
+
+  // Update the last login time
+  user.LastLogin = new Date();
+  await user.save({ validate: false });
+
+  // Pass rememberMe flag to createSendToken function
+  createSendToken(user, 200, res, rememberMe);
 };
 
 export const register = async (req, res) => {
@@ -117,43 +170,6 @@ export const activateAccount = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
-  const { identifier, password, rememberMe } = req.body;
-
-  if (!identifier || !password) {
-    return res.status(400).json({
-      status: "fail",
-      message:
-        "Please provide an identifier (username, email, or phone number) and password!",
-    });
-  }
-
-  // Find user by username, email, or phone number
-  const user = await User.findOne({
-    where: {
-      [Op.or]: [
-        { UserName: identifier },
-        { Email: identifier },
-        { PhoneNumber: identifier },
-      ],
-    },
-  });
-
-  if (!user || !(await user.correctPassword(password, user.PasswordHash))) {
-    return res.status(401).json({
-      status: "fail",
-      message: "Incorrect identifier or password",
-    });
-  }
-
-  // Update the last login time
-  user.LastLogin = new Date();
-  await user.save({ validate: false });
-
-  // Pass rememberMe flag to createSendToken function
-  createSendToken(user, 200, res, rememberMe);
-};
-
 export const getUserById = async (req, res) => {
   try {
     const userById = await User.findByPk(req.params.id);
@@ -167,6 +183,32 @@ export const getUserById = async (req, res) => {
       statusCode: 200,
       message: "Users retrieved successfully",
       data: userById,
+    });
+  } catch (err) {
+    res.status(400).json({
+      statusCode: 400,
+      message: err.message,
+    });
+  }
+};
+
+export const getUserByIdDetail = async (req, res) => {
+  const { MemberUserId, Pin } = req.body;
+  try {
+    const users = await UserDetails.findOne({
+      where: {
+        MemberUserId: MemberUserId,
+      },
+    });
+    if (!users || !(await users.correctPassword(Pin, users.Pin))) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Incorrect pin",
+      });
+    }
+    res.status(200).json({
+      statusCode: 200,
+      message: "Pin is valid",
     });
   } catch (err) {
     res.status(400).json({

@@ -6,7 +6,7 @@ Content-Type: application/json
 {
     "username":"tomy21",
     "email":"tomy21.agung@gmail.com",
-    "phone":"+628921211111",
+    "phone":"+628921233427",
     "password":"123456",
     "pin":"321321"
 }
@@ -19,14 +19,33 @@ Content-Type: application/json
 
 {
     "identifier":"tomy21",
-    "password":"123456",
+    "password":"sky123",
     "rememberMe":true
 }
 
 #getUserById
 ###
-GET http://localhost:3008/v01/member/api/auth/user/22
+GET http://localhost:3008/v01/member/api/auth/user/30
 Content-Type: application/json
+
+#getUserById
+###
+PATCH  http://localhost:3008/v01/member/api/auth/user/30
+Content-Type: application/json
+
+{
+  "Pin":"321321"
+}
+
+#getUserByIdDetail
+###
+POST http://localhost:3008/v01/member/api/auth/verifikasi
+Content-Type: application/json
+
+{
+  "MemberUserId" : 30,
+  "Pin":"123123"
+}
 
 
 #getProduct
@@ -47,6 +66,11 @@ Content-Type: application/json
 {
     "MaxQuote": 1000
 }
+
+#getByLocations
+###
+GET http://localhost:3008/v01/member/api/product/byLocation?LocationCode=004SK
+Content-Type: application/json
 
 #DeleteProductById
 ###
