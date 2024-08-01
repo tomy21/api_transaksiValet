@@ -1,8 +1,18 @@
-import { Op } from "sequelize";
 import { Location } from "../models/RefLocation.js";
 import { UsersLocations } from "../models/UsersLocation.js";
 
 export const getLocationAll = async (req, res) => {
+  try {
+    const getLocation = await Location.findAll({
+      attributes: ["Id", "Code", "Name"],
+    });
+    res.json(getLocation);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getLocationAllLocation = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
