@@ -211,12 +211,12 @@ POST http://localhost:3008/v01/member/api/memberHistoryTransactions
 Content-Type: application/json
 
 {
-  "IdUsers": 22,
-  "LocationName": "Mall ABC",
-  "Activity": "Parking",
-  "Price": 50000,
+  "IdUsers": 30,
+  "LocationName": "-",
+  "Activity": "topup",
+  "Price": 25000,
   "Status": "Paid",
-  "CreatedBy": "admin"
+  "CreatedBy": "system"
 }
 
 ###
@@ -224,3 +224,6 @@ Content-Type: application/json
 GET http://localhost:3008/v01/member/api/trxhistories
 Content-Type: application/json
 
+# request location
+###
+GET http://localhost:3008/api/getAllLocation?page=1&limit=10

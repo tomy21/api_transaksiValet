@@ -32,13 +32,17 @@ const TrxHistoryMemberProducts = db.define(
       type: DataTypes.BIGINT(20),
       allowNull: false,
       references: {
-        model: MemberUserProduct,
+        model: "MemberUserProducts",
         key: "Id",
       },
     },
     MemberProductId: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
+      references: {
+        model: "MemberProducts",
+        key: "Id",
+      },
     },
     TrxId: {
       type: DataTypes.STRING(18),
@@ -49,16 +53,5 @@ const TrxHistoryMemberProducts = db.define(
     timestamps: false,
   }
 );
-
-// Define the association
-MemberUserProduct.hasMany(TrxHistoryMemberProducts, {
-  foreignKey: "MemberUserProductId",
-  as: "TrxHistoryMemberProduct",
-});
-
-TrxHistoryMemberProducts.belongsTo(MemberUserProduct, {
-  foreignKey: "MemberUserProductId",
-  as: "MemberUserProduct", // Use singular alias
-});
 
 export default TrxHistoryMemberProducts;

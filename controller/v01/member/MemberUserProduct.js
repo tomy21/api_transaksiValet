@@ -1,4 +1,6 @@
 import MemberUserProduct from "../../../models/v01/member/MemberUserProduct.js";
+import MemberProduct from "../../../models/v01/member/ProductMember.js";
+import TrxHistoryMemberProducts from "../../../models/v01/member/TrxHistoryMemberProducts.js";
 
 // Create a new MemberUserProduct
 export const createMemberUserProduct = async (req, res) => {
@@ -20,13 +22,21 @@ export const createMemberUserProduct = async (req, res) => {
 // Get all MemberUserProducts
 export const getAllMemberUserProducts = async (req, res) => {
   try {
-    const products = await MemberUserProduct.findAll({
-      where: { DeletedOn: null },
+    const memberUserProducts = await MemberUserProduct.findAll({
+      include: {
+        model: TrxHistoryMemberProducts,
+        as: "TrxHistories",
+        include: {
+          model: MemberProduct,
+          as: "MemberProduct",
+          attributes: ["Id", "LocationName"],
+        },
+      },
     });
     res.status(200).json({
       statusCode: 200,
       message: "MemberUserProducts retrieved successfully",
-      data: products,
+      data: memberUserProducts,
     });
   } catch (err) {
     res.status(400).json({
@@ -75,6 +85,16 @@ export const getMemberByUserId = async (req, res) => {
         MemberUserId: userId,
         DeletedOn: null,
       },
+      include: {
+        model: TrxHistoryMemberProducts,
+        as: "TrxHistories",
+        include: {
+          model: MemberProduct,
+          as: "MemberProduct",
+          attributes: ["Id", "LocationName"],
+        },
+      },
+      attributes: ["Id", "CardId"],
     });
 
     if (products.length === 0) {

@@ -1,6 +1,8 @@
 // models/MemberUserProduct.js
 import { DataTypes } from "sequelize";
 import db from "../../../config/dbConfig.js";
+import TrxHistoryMemberProducts from "./TrxHistoryMemberProducts.js";
+import MemberProduct from "./ProductMember.js";
 
 const MemberUserProduct = db.define(
   "MemberUserProduct",
@@ -68,5 +70,20 @@ const MemberUserProduct = db.define(
     timestamps: false,
   }
 );
+
+MemberUserProduct.hasMany(TrxHistoryMemberProducts, {
+  foreignKey: "MemberUserProductId",
+  as: "TrxHistories",
+});
+
+TrxHistoryMemberProducts.belongsTo(MemberUserProduct, {
+  foreignKey: "MemberUserProductId",
+  as: "MemberUserProduct",
+});
+
+TrxHistoryMemberProducts.belongsTo(MemberProduct, {
+  foreignKey: "MemberProductId",
+  as: "MemberProduct",
+});
 
 export default MemberUserProduct;
