@@ -172,3 +172,36 @@ export const deleteMemberUserProduct = async (req, res) => {
     });
   }
 };
+
+export const verifikasiPlat = async (req, res) => {
+  try {
+    const platNo = req.query.platNo;
+    if (!platNo) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Missing platNo query parameter",
+      });
+    }
+    console.log("platNo");
+    const products = await MemberUserProduct.findAll({
+      where: {
+        PlateNumber: platNo,
+      },
+    });
+    if (products.length > 0) {
+      return res.status(200).json({
+        statusCode: 200,
+        message: "Plat nomor sudah terdaftar",
+      });
+    }
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Plat nomor belum terdaftar",
+    });
+  } catch (err) {
+    res.status(400).json({
+      statusCode: 400,
+      message: err.message,
+    });
+  }
+};

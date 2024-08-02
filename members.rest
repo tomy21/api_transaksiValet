@@ -143,14 +143,20 @@ GET http://localhost:3008/v01/member/api/userProduct
 Content-Type: application/json
 
 ###
-# Get a single MemberUserProduct by ID
-GET http://localhost:3008/v01/member/api/userProduct/2
+# Get all MemberUserProducts
+GET http://localhost:3008/v01/member/api/userProduct/verifikasi?platNo=B0987PPIII
 Content-Type: application/json
 
 ###
 # Get a single MemberUserProduct by ID
 GET http://localhost:3008/v01/member/api/userProduct/byUser?userId=30
 Content-Type: application/json
+
+###
+# Get a single MemberUserProduct by ID
+GET http://localhost:3008/v01/member/api/userProduct/2
+Content-Type: application/json
+
 
 ###
 # Create a new MemberUserProduct
