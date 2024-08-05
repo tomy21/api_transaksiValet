@@ -1,11 +1,15 @@
-const response = (res, statusCode, data, message) => {
-  res.status(statusCode).json({
-    payload: {
-      statusCode: statusCode,
-      message: message,
-      data: data,
-    },
+export const successResponse = (res, statusCode, message, data) => {
+  return res.status(statusCode).json({
+    statusCode,
+    message,
+    data,
   });
 };
 
-export default response;
+export const errorResponse = (res, statusCode, message, error) => {
+  return res.status(statusCode).json({
+    statusCode,
+    message,
+    error,
+  });
+};

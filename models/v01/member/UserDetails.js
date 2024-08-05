@@ -30,7 +30,7 @@ const UserDetails = db.define(
       allowNull: true,
     },
     Points: {
-      type: DataTypes.DECIMAL(16, 2),
+      type: DataTypes.INTEGER,
       allowNull: true,
       defaultValue: 0.0,
     },

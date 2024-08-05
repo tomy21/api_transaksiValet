@@ -233,3 +233,45 @@ Content-Type: application/json
 # request location
 ###
 GET http://localhost:3008/api/getAllLocation?page=1&limit=10
+
+
+### 
+# Get all MemberProductBundles
+GET http://localhost:3008/v01/member/api/memberProductBundles
+Content-Type: application/json
+
+###
+# Create a new MemberProductBundle
+POST http://localhost:3008/v01/member/api/memberProductBundles
+Content-Type: application/json
+
+{
+  "name": "Bundle Name 1",
+  "startDate": "2024-08-04T00:00:00.000Z",
+  "endDate": "2024-12-31T23:59:59.000Z",
+  "isDeleted": false,
+  "price": 999.99
+}
+
+###
+# Get a single MemberProductBundle by ID
+GET http://localhost:3008/v01/member/api/memberProductBundles/1
+Content-Type: application/json
+
+###
+# Update a MemberProductBundle by ID
+PUT http://localhost:3008/v01/member/api/memberProductBundles/1
+Content-Type: application/json
+
+{
+  "name": "Updated Bundle Name",
+  "startDate": "2024-08-04T00:00:00.000Z",
+  "endDate": "2024-12-31T23:59:59.000Z",
+  "isDeleted": false,
+  "price": 1099.99
+}
+
+###
+# Delete a MemberProductBundle by ID
+DELETE http://localhost:3008/v01/member/api/memberProductBundles/1
+Content-Type: application/json

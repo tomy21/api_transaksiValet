@@ -72,7 +72,6 @@ export const getHistoryByUserId = async (req, res) => {
         IdUsers: userId,
       },
     });
-    console.log(members);
     if (members.length === 0) {
       return res.status(404).json({
         statusCode: 404,

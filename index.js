@@ -18,6 +18,7 @@ import MemberProvider from "./route/v01/member/MemberProviderRoute.js";
 import MemberUserProduct from "./route/v01/member/MemberUserProduct.js";
 import MemberHistoryTransaction from "./route/v01/member/MemberHistoryTransaction.js";
 import TrxHistoryMemberProduct from "./route/v01/member/TrxHistoryMemberProduct.js";
+import MemberProductBundle from "./route/v01/member/MemberProductBundle.js";
 import { updateOutTime } from "./controller/Scheduler.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
@@ -58,6 +59,7 @@ app.use("/v01/member/api", MemberProvider);
 app.use("/v01/member/api", MemberUserProduct);
 app.use("/v01/member/api", MemberHistoryTransaction);
 app.use("/v01/member/api", TrxHistoryMemberProduct);
+app.use("/v01/member/api", MemberProductBundle);
 
 const PORT = 3008;
 app.listen(PORT, () => {
