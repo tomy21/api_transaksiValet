@@ -2,7 +2,7 @@ import { TransactionOverNights } from "../models/TransactionOverNights.js";
 import { TransactionOverNightOficcers } from "../models/TransactionOverNightOficcers.js";
 import XLSX from "xlsx";
 import { Location } from "../models/RefLocation.js";
-import { Op, Sequelize } from "sequelize";
+import { DATE, Op, Sequelize } from "sequelize";
 import db from "../config/dbConfig.js";
 import ExcelJs from "exceljs";
 import fs from "fs";
@@ -518,9 +518,9 @@ export const exportDataOverNight = async (req, res) => {
     if (date) {
       const formattedDate = moment(date).format("YYYY-MM-DD");
       whereClause.ModifiedOn = {
-        [Op.gte]: Sequelize.literal(`DATE('${formattedDate}')`),
+        [Op.gte]: Sequelize.literal(DATE("${formattedDate}")),
         [Op.lt]: Sequelize.literal(
-          `DATE_ADD(DATE('${formattedDate}'), INTERVAL 1 DAY)`
+          DATE_ADD(DATE("${formattedDate}"), "INTERVAL 1 DAY")
         ),
       };
     }
