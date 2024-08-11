@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import moment from "moment/moment.js";
 import { UsersLocations } from "../models/UsersLocation.js";
+import sharp from "sharp";
 
 export const getDataOverNight = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -509,12 +510,10 @@ export const exportDataOverNight = async (req, res) => {
   try {
     const whereClause = {};
 
-    // Kondisi lokasi
     if (locationCodes.length > 0) {
       whereClause.LocationCode = { [Op.in]: locationCodes };
     }
 
-    // Kondisi tanggal
     if (date) {
       const formattedDate = moment(date).format("YYYY-MM-DD");
       whereClause.ModifiedOn = {
@@ -583,9 +582,26 @@ export const exportDataOverNight = async (req, res) => {
           );
 
           if (fs.existsSync(imagePath)) {
-            // Tambahkan gambar ke workbook
+            // Kompres gambar menggunakan sharp
+            const compressedImageBuffer = await sharp(imagePath)
+              .resize({ width: 800 }) // Ubah ukuran gambar, sesuaikan jika perlu
+              .jpeg({ quality: 60 }) // Kualitas JPEG, sesuaikan jika perlu
+              .toBuffer();
+
+            // Simpan gambar terkompresi sementara
+            const compressedImagePath = path.join(
+              process.cwd(),
+              "uploads",
+              `compressed-${path.basename(value.PathPhotoImage)}`
+            );
+            await fs.promises.writeFile(
+              compressedImagePath,
+              compressedImageBuffer
+            );
+
+            // Tambahkan gambar terkompresi ke workbook
             const imageId = workbook.addImage({
-              filename: imagePath,
+              filename: compressedImagePath,
               extension: "jpg",
             });
 
@@ -594,8 +610,10 @@ export const exportDataOverNight = async (req, res) => {
               ext: { width: 100, height: 100 },
             });
 
-            // Hapus nilai sel jika diperlukan
             row.getCell("PathPhotoImage").value = "";
+
+            // Hapus gambar terkompresi setelah digunakan
+            fs.unlinkSync(compressedImagePath);
           }
         } else {
           row.getCell("PathPhotoImage").value = "Gambar tidak tersedia";

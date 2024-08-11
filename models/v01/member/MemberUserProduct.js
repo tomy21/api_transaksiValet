@@ -40,6 +40,10 @@ const MemberUserProduct = db.define(
     MemberUserId: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
+      references: {
+        model: "MemberUsers",
+        key: "id",
+      },
     },
     KID: {
       type: DataTypes.INTEGER(11),

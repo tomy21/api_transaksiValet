@@ -1,13 +1,24 @@
-import { successResponse } from "../../../config/response.js";
+import { errorResponse, successResponse } from "../../../config/response.js";
 import MemberProductBundle from "../../../models/v01/member/MemberProductBundle.js";
 
 export const getAllMemberProductBundles = async (req, res) => {
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 5;
+
   try {
-    const bundles = await MemberProductBundle.findAll({
+    const { count, rows } = await MemberProductBundle.findAndCountAll({
       where: { isDeleted: false },
+      offset: (page - 1) * limit,
+      limit: parseInt(limit),
+      order: [["createdOn", "DESC"]],
     });
 
-    return successResponse(res, 200, "Bundles retrieved successfully", bundles);
+    return successResponse(res, 200, "Products retrieved successfully", {
+      total: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+      bundles: rows,
+    });
   } catch (error) {
     return errorResponse(
       res,
@@ -21,7 +32,7 @@ export const getAllMemberProductBundles = async (req, res) => {
 export const createMemberProductBundle = async (req, res) => {
   try {
     const bundle = await MemberProductBundle.create(req.body);
-    return successResponse(res, 201, "Bundle created successfully", bundle);
+    return successResponse(res, 201, "Product created successfully", bundle);
   } catch (error) {
     return errorResponse(
       res,
@@ -36,12 +47,17 @@ export const getMemberProductBundle = async (req, res) => {
   try {
     const bundle = await MemberProductBundle.findByPk(req.params.id);
     if (bundle) {
-      return successResponse(res, 200, "Bundle retrieved successfully", bundle);
+      return successResponse(
+        res,
+        200,
+        "Product retrieved successfully",
+        bundle
+      );
     } else {
       return errorResponse(
         res,
         404,
-        "Bundle not found",
+        "Product not found",
         "The requested bundle does not exist"
       );
     }
@@ -109,6 +125,39 @@ export const deleteMemberProductBundle = async (req, res) => {
       res,
       500,
       "An error occurred while deleting bundle",
+      error.message
+    );
+  }
+};
+
+export const getProductByType = async (req, res) => {
+  try {
+    const { vehicleType } = req.params;
+
+    const products = await MemberProductBundle.findAll({
+      where: { Type: vehicleType },
+    });
+
+    if (products.length > 0) {
+      return successResponse(
+        res,
+        200,
+        "Products retrieved successfully",
+        products
+      );
+    } else {
+      return errorResponse(
+        res,
+        404,
+        "No products found",
+        `No products found for vehicle type: ${vehicleType}`
+      );
+    }
+  } catch (error) {
+    return errorResponse(
+      res,
+      500,
+      "An error occurred while retrieving products",
       error.message
     );
   }

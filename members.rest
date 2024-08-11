@@ -18,14 +18,14 @@ POST http://localhost:3008/v01/member/api/auth/login
 Content-Type: application/json
 
 {
-    "identifier":"tomy21",
+    "identifier":"newTenant01",
     "password":"sky123",
     "rememberMe":true
 }
 
 #getUserById
 ###
-GET http://localhost:3008/v01/member/api/auth/user/30
+GET http://localhost:3008/v01/member/api/auth/user
 Content-Type: application/json
 
 #getUserById
@@ -240,17 +240,26 @@ GET http://localhost:3008/api/getAllLocation?page=1&limit=10
 GET http://localhost:3008/v01/member/api/memberProductBundles
 Content-Type: application/json
 
+### 
+# Get all MemberProductBundles
+GET http://localhost:3008/v01/member/api/products/type/Mobil
+Content-Type: application/json
+
 ###
 # Create a new MemberProductBundle
 POST http://localhost:3008/v01/member/api/memberProductBundles
 Content-Type: application/json
 
 {
-  "name": "Bundle Name 1",
-  "startDate": "2024-08-04T00:00:00.000Z",
-  "endDate": "2024-12-31T23:59:59.000Z",
-  "isDeleted": false,
-  "price": 999.99
+  "Name": "Member Motor 3 Bulan",
+  "StartDate": "2024-07-01T00:00:00.000Z",
+  "EndDate": "2024-12-31T23:59:59.000Z",
+  "IsDeleted": false,
+  "Price": 300000.00,
+  "CardActivateFee": 50000.00,
+  "Type": "Motor",
+  "Fee": 5000.00,
+  "CreateBy": "Admin"
 }
 
 ###
@@ -264,14 +273,193 @@ PUT http://localhost:3008/v01/member/api/memberProductBundles/1
 Content-Type: application/json
 
 {
-  "name": "Updated Bundle Name",
-  "startDate": "2024-08-04T00:00:00.000Z",
-  "endDate": "2024-12-31T23:59:59.000Z",
-  "isDeleted": false,
-  "price": 1099.99
+  "Name": "Updated Bundle Name",
+  "StartDate": "2024-08-04T00:00:00.000Z",
+  "EndDate": "2024-12-31T23:59:59.000Z",
+  "IsDeleted": false,
+  "Price": 300000.00,
+  "CardActivate": 50000.00
 }
 
 ###
 # Delete a MemberProductBundle by ID
 DELETE http://localhost:3008/v01/member/api/memberProductBundles/1
 Content-Type: application/json
+
+
+# Tenant API Requeest
+### 
+
+###
+# Get all MemberTenants with pagination
+GET http://localhost:3008/v01/member/api/tenant?page=1&limit=10
+Content-Type: application/json
+
+###
+# Get a single MemberTenant by ID
+GET http://localhost:3008/v01/member/api/tenant/1
+Content-Type: application/json
+
+###
+# Create a new MemberTenant
+POST http://localhost:3008/v01/member/api/tenant
+Content-Type: application/json
+
+{
+  "Name": "New Tenant 1",
+  "UserName": "newTenant01",
+  "Description": "Description for new tenant",
+  "Email": "marvin.johannes@skyparking.co.id",
+  "Password":"sky123",
+  "PhoneNumber": "1234567890",
+  "Pin": "123456",
+  "Address": "123 Main St",
+  "City": "CityName",
+  "Region": "RegionName",
+  "PostalCode": "12345",
+  "Country": "CountryName",
+  "Fax": "1234567890",
+  "CreatedBy": "Admin"
+}
+
+###
+# Update a MemberTenant by ID
+PATCH http://localhost:3008/v01/member/api/tenant/1
+Content-Type: application/json
+
+{
+  "Name": "Updated Tenant Name",
+  "Description": "Updated Description",
+  "Email": "updatedemail@example.com",
+  "PhoneNumber": "0987654321",
+  "Address": "456 Another St",
+  "City": "NewCity",
+  "Region": "NewRegion",
+  "PostalCode": "54321",
+  "Country": "NewCountry",
+  "Fax": "0987654321",
+  "UpdatedBy": "Admin"
+}
+
+###
+# Delete a MemberTenant by ID
+DELETE http://localhost:3008/v01/member/api/tenant/1
+Content-Type: application/json
+
+
+
+
+# TRX Member Payment
+###
+# Get all TrxMemberPayments with pagination
+GET http://localhost:3008/v01/member/api/payments?page=1&limit=10
+Content-Type: application/json
+
+###
+# Get a single TrxMemberPayment by ID
+GET http://localhost:3008/v01/member/api/payments/1
+Content-Type: application/json
+
+###
+# Create a new TrxMemberPayment
+POST http://localhost:3008/v01/member/api/payments
+Content-Type: application/json
+
+{
+  "Type": "Credit",
+  "PartnerServiceId": "PS123456",
+  "CustomerNo": "CUST001",
+  "VirtualAccountNo": "VA00123456789",
+  "VirtualAccountName": "John Doe",
+  "VirtualAccountEmail": "john.doe@example.com",
+  "TrxId": "TRX123456789012",
+  "InquiryRequestId": "INQREQ1234567890",
+  "PaymentRequestId": "PAYREQ1234567890",
+  "PaymentFlagStatus": "01",
+  "ExpiredDate": "2024-08-31T23:59:59.000Z",
+  "TrxDateTime": "2024-08-05T10:00:00.000Z",
+  "TransactionDate": "2024-08-05T10:00:00.000Z",
+  "ReferenceNo": "REF123456",
+  "JournalNum": "JN001",
+  "FlagAdvise": "Y",
+  "IsDeleted": 0,
+  "TrxMemberTotalAmountId": 1,
+  "TrxMemberPaidAmountId": 1,
+  "TrxMemberAdditionalInfoId": 1,
+  "MemberUserProductId": 1
+}
+
+###
+# Update a TrxMemberPayment by ID
+PATCH http://localhost:3008/v01/member/api/payments/1
+Content-Type: application/json
+
+{
+  "Type": "Debit",
+  "PartnerServiceId": "PS654321",
+  "CustomerNo": "CUST002",
+  "VirtualAccountNo": "VA9876543210",
+  "VirtualAccountName": "Jane Doe",
+  "VirtualAccountEmail": "jane.doe@example.com",
+  "TrxId": "TRX098765432109",
+  "InquiryRequestId": "INQREQ0987654321",
+  "PaymentRequestId": "PAYREQ0987654321",
+  "PaymentFlagStatus": "02",
+  "ExpiredDate": "2024-09-30T23:59:59.000Z",
+  "TrxDateTime": "2024-09-05T10:00:00.000Z",
+  "TransactionDate": "2024-09-05T10:00:00.000Z",
+  "ReferenceNo": "REF654321",
+  "JournalNum": "JN002",
+  "FlagAdvise": "N",
+  "IsDeleted": 1,
+  "TrxMemberTotalAmountId": 2,
+  "TrxMemberPaidAmountId": 2,
+  "TrxMemberAdditionalInfoId": 2,
+  "MemberUserProductId": 2
+}
+
+###
+# Delete a TrxMemberPayment by ID
+DELETE http://localhost:3008/v01/member/api/payments/1
+Content-Type: application/json
+
+
+# member transaction tenants
+### Create a new tempTransactionMemberTenant
+POST http://localhost:3008/v01/member/api/transactionTenants
+Content-Type: application/json
+
+{
+  "OrderId": "ORD123",
+  "TenantName": "Tenant A",
+  "LocationCode": "LOC001",
+  "LocationName": "Location A",
+  "QuotaMember": 10,
+  "Price": 500.00,
+  "RecordStatus": "Active",
+  "CreatedBy": "Admin"
+}
+
+### Get all transactionTenants
+GET http://localhost:3008/v01/member/api/transactionTenants
+
+### Get a tempTransactionMemberTenant by ID
+GET http://localhost:3008/v01/member/api/transactionTenants/1
+
+### Update a tempTransactionMemberTenant
+PATCH http://localhost:3008/v01/member/api/transactionTenants/1
+Content-Type: application/json
+
+{
+  "OrderId": "ORD124",
+  "TenantName": "Tenant B",
+  "LocationCode": "LOC002",
+  "LocationName": "Location B",
+  "QuotaMember": 20,
+  "Price": 700.00,
+  "RecordStatus": "Inactive",
+  "UpdatedBy": "Admin"
+}
+
+### Delete a tempTransactionMemberTenant
+DELETE http://localhost:3008/v01/member/api/transactionTenants/1

@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { Op } from "sequelize";
 import UserDetails from "../../../models/v01/member/UserDetails.js";
 import { v4 as uuidv4 } from "uuid";
+import MemberUserProduct from "../../../models/v01/member/MemberUserProduct.js";
 
 const signToken = (user, rememberMe) => {
   const expiresIn = rememberMe ? "30d" : "1d";
@@ -233,4 +234,39 @@ export const logout = (req, res) => {
   res.status(200).json({
     status: "success",
   });
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 5;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await User.findAndCountAll({
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [["createdOn", "DESC"]],
+      include: [
+        {
+          model: UserDetails,
+          attributes: ["Points"],
+        },
+        {
+          model: MemberUserProduct,
+          attributes: ["CardId"],
+        },
+      ],
+    });
+
+    const totalPages = Math.floor(count / limit);
+
+    res.status(200).json({
+      total: count,
+      totalPages: totalPages,
+      currentPage: parseInt(page),
+      data: rows,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };

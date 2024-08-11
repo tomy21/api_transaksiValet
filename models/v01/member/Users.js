@@ -2,6 +2,8 @@ import { Sequelize, DataTypes } from "sequelize";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import db from "../../../config/dbConfig.js";
+import UserDetails from "./UserDetails.js";
+import MemberUserProduct from "./MemberUserProduct.js";
 
 const User = db.define(
   "MemberUsers",
@@ -142,5 +144,19 @@ User.prototype.correctPassword = async function (
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
 };
+
+User.hasMany(UserDetails, {
+  foreignKey: "MemberUserId",
+});
+User.hasMany(MemberUserProduct, {
+  foreignKey: "MemberUserId",
+});
+
+UserDetails.belongsTo(User, {
+  foreignKey: "MemberUserId",
+});
+MemberUserProduct.belongsTo(User, {
+  foreignKey: "MemberUserId",
+});
 
 export default User;

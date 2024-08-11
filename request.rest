@@ -41,15 +41,15 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Brian Maskat",
+    "Name": "Baihaki",
     "Gender": "M",
-    "Username": "brian.upd",
-    "Email": "brian.upd@testing.com",
+    "Username": "baihaki.colony",
+    "Email": "baihaki.colony@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
     "FlagAllLocation":0,
-    "LocationCode": ["08USK"]
+    "LocationCode": ["03ASK"]
 }
 
 #register users

@@ -1,28 +1,65 @@
-import { DataTypes } from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
 import db from "../../../config/dbConfig.js";
 
 const MemberProductBundle = db.define(
   "MemberProductBundle",
   {
-    name: {
+    Name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    startDate: {
+    StartDate: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    endDate: {
+    EndDate: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    isDeleted: {
+    IsDeleted: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    price: {
+    Price: {
       type: DataTypes.DECIMAL(16, 2),
       allowNull: false,
+    },
+    CardActivateFee: {
+      type: DataTypes.DECIMAL(16, 2),
+      allowNull: false,
+    },
+    Fee: {
+      type: DataTypes.DECIMAL(16, 2),
+      allowNull: false,
+    },
+    Type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    CreatedOn: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.NOW,
+    },
+    UpdatedOn: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    DeletedOn: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    CreatedBy: {
+      type: DataTypes.STRING(45),
+      allowNull: true,
+    },
+    UpdatedBy: {
+      type: DataTypes.STRING(45),
+      allowNull: true,
+    },
+    DeletedBy: {
+      type: DataTypes.STRING(45),
+      allowNull: true,
     },
   },
   {
