@@ -518,9 +518,9 @@ export const exportDataOverNight = async (req, res) => {
     if (date) {
       const formattedDate = moment(date).format("YYYY-MM-DD");
       whereClause.ModifiedOn = {
-        [Op.gte]: Sequelize.literal(DATE("${formattedDate}")),
+        [Op.gte]: Sequelize.literal(DATE(`${formattedDate}`)),
         [Op.lt]: Sequelize.literal(
-          DATE_ADD(DATE("${formattedDate}"), "INTERVAL 1 DAY")
+          DATE_ADD(DATE(`${formattedDate}`), "INTERVAL 1 DAY")
         ),
       };
     }
