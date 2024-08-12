@@ -37,13 +37,18 @@ export const getAllMemberHistoryTransactions = async (req, res) => {
 // Get a single MemberHistoryTransaction by ID
 export const getMemberHistoryTransaction = async (req, res) => {
   try {
-    const transaction = await MemberHistoryTransaction.findByPk(req.params.id);
-    if (!transaction) {
+    const transactions = await MemberHistoryTransaction.findAll({
+      where: { memberId: req.params.id }, // Mengasumsikan memberId sebagai foreign key
+      order: [["createdAt", "DESC"]], // Mengurutkan berdasarkan createdAt descending
+    });
+
+    if (!transactions || transactions.length === 0) {
       return res.status(404).json({
         statusCode: 404,
         message: "MemberHistoryTransaction not found",
       });
     }
+
     res.status(200).json({
       statusCode: 200,
       message: "MemberHistoryTransaction retrieved successfully",
@@ -71,6 +76,7 @@ export const getHistoryByUserId = async (req, res) => {
       where: {
         IdUsers: userId,
       },
+      order: [["createdAt", "DESC"]],
     });
     if (members.length === 0) {
       return res.status(404).json({

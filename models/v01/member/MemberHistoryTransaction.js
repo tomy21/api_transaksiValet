@@ -34,10 +34,10 @@ const MemberHistoryTransaction = db.define(
       allowNull: false,
       defaultValue: Sequelize.NOW,
     },
-    CreatedBy: {
-      type: DataTypes.STRING(45),
-      allowNull: false,
-    },
+    // CreatedBy: {
+    //   type: DataTypes.STRING(45),
+    //   allowNull: false,
+    // },
   },
   {
     timestamps: false,

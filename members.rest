@@ -207,7 +207,7 @@ Content-Type: application/json
 ###
 
 # Get a single MemberHistoryTransaction by UserID
-GET http://localhost:3008/v01/member/api/memberHistory/users?userId=22
+GET http://localhost:3008/v01/member/api/memberHistory/users?userId=21
 Content-Type: application/json
 
 ###
