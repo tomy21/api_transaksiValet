@@ -9,6 +9,10 @@ const MemberProviderPaymentGateway = db.define(
       autoIncrement: true,
       primaryKey: true,
     },
+    PaymentGatewayName: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+    },
     ProviderName: {
       type: DataTypes.STRING(100),
       allowNull: false,
@@ -56,6 +60,11 @@ const MemberProviderPaymentGateway = db.define(
       allowNull: true,
     },
     IsDeleted: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    IsOpen: {
       type: DataTypes.TINYINT,
       allowNull: false,
       defaultValue: 0,

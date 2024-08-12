@@ -65,6 +65,9 @@ export const getMemberHistoryTransaction = async (req, res) => {
 export const getHistoryByUserId = async (req, res) => {
   try {
     const userId = req.query.userId;
+    const page = parseInt(req.query.page) || 1; // Default ke halaman pertama
+    const limit = parseInt(req.query.limit) || 10; // Default limit 10 item per halaman
+
     if (!userId) {
       return res.status(400).json({
         statusCode: 400,
@@ -72,13 +75,18 @@ export const getHistoryByUserId = async (req, res) => {
       });
     }
 
-    const members = await MemberHistoryTransaction.findAll({
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await MemberHistoryTransaction.findAndCountAll({
       where: {
         IdUsers: userId,
       },
       order: [["createdAt", "DESC"]],
+      limit: limit,
+      offset: offset,
     });
-    if (members.length === 0) {
+
+    if (rows.length === 0) {
       return res.status(404).json({
         statusCode: 404,
         message: "MemberUserProduct not found",
@@ -88,7 +96,10 @@ export const getHistoryByUserId = async (req, res) => {
     res.status(200).json({
       statusCode: 200,
       message: "MemberUserProducts retrieved successfully",
-      data: members,
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
+      totalItems: count,
+      data: rows,
     });
   } catch (err) {
     res.status(400).json({

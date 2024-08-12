@@ -116,6 +116,10 @@ Content-Type: application/json
 GET http://localhost:3008/v01/member/api/listProvider
 Content-Type: application/json
 
+###
+GET http://localhost:3008/v01/member/api/listProvider/list?isOpen=1
+Content-Type: application/json
+
 # Get Payment Gateway By ID
 ###
 GET http://localhost:3008/v01/member/api/listProvider/1
@@ -144,7 +148,7 @@ Content-Type: application/json
 
 ###
 # Get all MemberUserProducts
-GET http://localhost:3008/v01/member/api/userProduct/verifikasi?platNo=B0987PPIII
+GET http://localhost:3008/v01/member/api/userProduct/verifikasi?platNo=B0987PPI
 Content-Type: application/json
 
 ###
@@ -251,11 +255,11 @@ POST http://localhost:3008/v01/member/api/memberProductBundles
 Content-Type: application/json
 
 {
-  "Name": "Member Motor 3 Bulan",
-  "StartDate": "2024-07-01T00:00:00.000Z",
-  "EndDate": "2024-12-31T23:59:59.000Z",
+  "Name": "1 Bulan September",
+  "StartDate": "2024-09-01T00:00:00.000Z",
+  "EndDate": "2024-09-31T23:59:59.000Z",
   "IsDeleted": false,
-  "Price": 300000.00,
+  "Price": 150000.00,
   "CardActivateFee": 50000.00,
   "Type": "Motor",
   "Fee": 5000.00,
@@ -264,7 +268,7 @@ Content-Type: application/json
 
 ###
 # Get a single MemberProductBundle by ID
-GET http://localhost:3008/v01/member/api/memberProductBundles/1
+GET http://localhost:3008/v01/member/api/memberProductBundles/11
 Content-Type: application/json
 
 ###
@@ -463,3 +467,9 @@ Content-Type: application/json
 
 ### Delete a tempTransactionMemberTenant
 DELETE http://localhost:3008/v01/member/api/transactionTenants/1
+
+
+###
+# Get a single MemberProductBundle by ID
+GET http://localhost:3008/v01/member/api/quota/1
+Content-Type: application/json

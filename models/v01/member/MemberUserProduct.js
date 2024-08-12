@@ -24,15 +24,17 @@ const MemberUserProduct = db.define(
       type: DataTypes.STRING(50),
       allowNull: false,
     },
-    LocationCode: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
-    LocationName: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
     IsUsed: {
+      type: DataTypes.TINYINT(1),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    IsDeleted: {
+      type: DataTypes.TINYINT(1),
+      allowNull: false,
+      defaultValue: 0,
+    },
+    UsePoint: {
       type: DataTypes.TINYINT(1),
       allowNull: false,
       defaultValue: 0,
@@ -49,10 +51,10 @@ const MemberUserProduct = db.define(
       type: DataTypes.INTEGER(11),
       allowNull: false,
     },
-    TypeVehicle: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-    },
+    // TypeVehicle: {
+    //   type: DataTypes.STRING(50),
+    //   allowNull: false,
+    // },
     CreatedOn: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

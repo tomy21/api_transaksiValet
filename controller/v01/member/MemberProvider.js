@@ -17,6 +17,53 @@ export const createPaymentGateway = async (req, res) => {
   }
 };
 
+export const getProviderByisOpen = async (req, res) => {
+  try {
+    const isOpen = req.query.isOpen;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    if (!isOpen) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Missing isOpen query parameter",
+      });
+    }
+
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await MemberProviderPaymentGateway.findAndCountAll({
+      where: {
+        IsOpen: isOpen,
+      },
+      order: [["createdOn", "DESC"]],
+      limit: limit,
+      offset: offset,
+    });
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "MemberUserProduct not found",
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      message: "Provider retrieved successfully",
+      currentPage: page,
+      totalPages: Math.ceil(count / limit),
+      totalItems: count,
+      data: rows,
+    });
+  } catch (err) {
+    res.status(400).json({
+      statusCode: 400,
+      message: err.message,
+    });
+  }
+};
+
 // Get all payment gateways
 export const getAllPaymentGateways = async (req, res) => {
   try {
