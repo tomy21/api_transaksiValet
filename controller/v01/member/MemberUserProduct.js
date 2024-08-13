@@ -83,7 +83,7 @@ export const getMemberByUserId = async (req, res) => {
     const products = await MemberUserProduct.findAll({
       where: {
         MemberUserId: userId,
-        DeletedOn: null,
+        // DeletedOn: null,
       },
       include: {
         model: TrxHistoryMemberProducts,
@@ -94,7 +94,7 @@ export const getMemberByUserId = async (req, res) => {
           attributes: ["Id", "LocationName"],
         },
       },
-      attributes: ["Id", "CardId"],
+      attributes: ["Id", "CardId", "PlateNumber"],
     });
 
     if (products.length === 0) {

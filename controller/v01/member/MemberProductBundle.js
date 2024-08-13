@@ -1,5 +1,6 @@
 import { errorResponse, successResponse } from "../../../config/response.js";
 import MemberProductBundle from "../../../models/v01/member/MemberProductBundle.js";
+import TrxMemberQuota from "../../../models/v01/member/TrxMemberQuota.js";
 
 export const getAllMemberProductBundles = async (req, res) => {
   const page = req.query.page || 1;
@@ -11,6 +12,10 @@ export const getAllMemberProductBundles = async (req, res) => {
       offset: (page - 1) * limit,
       limit: parseInt(limit),
       order: [["createdOn", "DESC"]],
+      include: {
+        model: TrxMemberQuota,
+        as: "TrxMemberQuote",
+      },
     });
 
     return successResponse(res, 200, "Products retrieved successfully", {
@@ -45,7 +50,12 @@ export const createMemberProductBundle = async (req, res) => {
 
 export const getMemberProductBundle = async (req, res) => {
   try {
-    const bundle = await MemberProductBundle.findByPk(req.params.id);
+    const bundle = await MemberProductBundle.findByPk(req.params.id, {
+      include: {
+        model: TrxMemberQuota,
+        as: "TrxMemberQuote",
+      },
+    });
     if (bundle) {
       return successResponse(
         res,
@@ -136,6 +146,10 @@ export const getProductByType = async (req, res) => {
 
     const products = await MemberProductBundle.findAll({
       where: { Type: vehicleType },
+      include: {
+        model: TrxMemberQuota,
+        as: "TrxMemberQuote",
+      },
     });
 
     if (products.length > 0) {

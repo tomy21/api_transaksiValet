@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
 import db from "../../../config/dbConfig.js";
+import TrxMemberQuota from "./TrxMemberQuota.js";
 
 const MemberProductBundle = db.define(
   "MemberProductBundle",
@@ -30,6 +31,10 @@ const MemberProductBundle = db.define(
     },
     Fee: {
       type: DataTypes.DECIMAL(16, 2),
+      allowNull: false,
+    },
+    TrxMemberQuoteId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     Type: {
@@ -66,5 +71,15 @@ const MemberProductBundle = db.define(
     timestamps: false,
   }
 );
+
+MemberProductBundle.hasMany(TrxMemberQuota, {
+  foreignKey: "Id",
+  as: "TrxMemberQuote",
+});
+
+TrxMemberQuota.belongsTo(MemberProductBundle, {
+  foreignKey: "Id",
+  as: "ProductBundle",
+});
 
 export default MemberProductBundle;
