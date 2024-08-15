@@ -53,7 +53,7 @@ export const getMemberProductBundle = async (req, res) => {
     const bundle = await MemberProductBundle.findByPk(req.params.Id, {
       include: {
         model: TrxMemberQuota,
-        as: "TrxMemberQuote",
+        as: "TrxMemberQuote", // Menggunakan alias yang sesuai
       },
     });
     if (bundle) {

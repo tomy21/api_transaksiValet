@@ -72,14 +72,10 @@ const MemberProductBundle = db.define(
   }
 );
 
-MemberProductBundle.hasMany(TrxMemberQuota, {
-  foreignKey: "Id",
-  as: "TrxMemberQuote",
-});
-
-TrxMemberQuota.belongsTo(MemberProductBundle, {
-  foreignKey: "id",
-  as: "ProductBundle",
+// Hubungkan TrxMemberQuota dengan MemberProductBundle
+MemberProductBundle.belongsTo(TrxMemberQuota, {
+  foreignKey: "TrxMemberQuoteId", // Menghubungkan TrxMemberQuoteId di MemberProductBundle ke Id di TrxMemberQuota
+  as: "TrxMemberQuote", // Alias untuk akses data dari relasi ini
 });
 
 export default MemberProductBundle;

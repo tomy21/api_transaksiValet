@@ -273,7 +273,7 @@ Content-Type: application/json
 
 ###
 # Update a MemberProductBundle by ID
-PUT http://localhost:3008/v01/member/api/memberProductBundles/22
+PUT http://localhost:3008/v01/member/api/memberProductBundles/20
 Content-Type: application/json
 
 {
