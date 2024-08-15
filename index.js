@@ -38,6 +38,7 @@ app.use(
       "https://dev-valet.skyparking.online",
       "https://dev-on.skyparking.online",
       "https://dev-membership.skyparking.online",
+      "https://dump-membership.vercel.app",
     ],
   })
 );

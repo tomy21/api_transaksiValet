@@ -78,7 +78,7 @@ MemberProductBundle.hasMany(TrxMemberQuota, {
 });
 
 TrxMemberQuota.belongsTo(MemberProductBundle, {
-  foreignKey: "Id",
+  foreignKey: "id",
   as: "ProductBundle",
 });
 

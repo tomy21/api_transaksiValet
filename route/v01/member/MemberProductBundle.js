@@ -16,7 +16,7 @@ router
   .get(getAllMemberProductBundles);
 router.get("/products/type/:vehicleType", getProductByType);
 router
-  .route("/memberProductBundles/:id")
+  .route("/memberProductBundles/:Id")
   .get(getMemberProductBundle)
   .put(updateMemberProductBundle)
   .delete(deleteMemberProductBundle);

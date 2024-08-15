@@ -50,7 +50,7 @@ Content-Type: application/json
 
 #getProduct
 ###
-GET http://localhost:3008/v01/member/api/product
+GET http://localhost:3008/v01/member/api/product?page=1&limit=5
 Content-Type: application/json
 
 #getProductById
@@ -83,15 +83,14 @@ POST http://localhost:3008/v01/member/api/product
 Content-Type: application/json
 
 {
-    "ProductName": "Product B",
+    "ProductName": "Product 1",
     "ProductDescription": "Description of Product B",
     "VehicleType": "Mobil",
-    "DateActive": "2024-12-31T23:59:59.999Z",
+    "DateActive": "2024-08-31T23:59:59.999Z",
     "MaxQuote": 100,
-    "CurrentQuote": 0,
-    "Price": 100000,
-    "LocationCode": "LOC002",
-    "LocationName": "Location B"
+    "isDeleted": "0",
+    "LocationCode": "004SK",
+    "LocationName": "UNIVERSITAS PELITA HARAPAN"
 }
 
 
@@ -236,7 +235,7 @@ Content-Type: application/json
 
 # request location
 ###
-GET http://localhost:3008/api/getAllLocation?page=1&limit=10
+GET http://localhost:3008/api/getByLocationAll?page=1&limit=10
 
 
 ### 
@@ -255,25 +254,26 @@ POST http://localhost:3008/v01/member/api/memberProductBundles
 Content-Type: application/json
 
 {
-  "Name": "1 Bulan September",
-  "StartDate": "2024-09-01T00:00:00.000Z",
-  "EndDate": "2024-09-31T23:59:59.000Z",
+  "Name": "1 Bulan Agustus",
+  "StartDate": "2024-08-01T00:00:00.000Z",
+  "EndDate": "2024-08-31T23:59:59.000Z",
   "IsDeleted": false,
-  "Price": 150000.00,
+  "Price": 300000.00,
   "CardActivateFee": 50000.00,
-  "Type": "Motor",
+  "Type": "Mobil",
   "Fee": 5000.00,
+  "TrxMemberQuoteId": 19,
   "CreateBy": "Admin"
 }
 
 ###
 # Get a single MemberProductBundle by ID
-GET http://localhost:3008/v01/member/api/memberProductBundles/20
+GET http://localhost:3008/v01/member/api/memberProductBundles/23
 Content-Type: application/json
 
 ###
 # Update a MemberProductBundle by ID
-PUT http://localhost:3008/v01/member/api/memberProductBundles/1
+PUT http://localhost:3008/v01/member/api/memberProductBundles/22
 Content-Type: application/json
 
 {

@@ -1,3 +1,4 @@
+import { errorResponse, successResponse } from "../../../config/response.js";
 import MemberProduct from "../../../models/v01/member/ProductMember.js";
 
 // Create a new member product
@@ -21,18 +22,28 @@ export const createMemberProduct = async (req, res) => {
 // Get all member products
 export const getAllMemberProducts = async (req, res) => {
   try {
-    const products = await MemberProduct.findAll();
-    res.status(200).json({
-      status: "success",
-      data: {
-        products,
-      },
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 5;
+
+    const { count, rows } = await MemberProduct.findAndCountAll({
+      offset: (page - 1) * limit,
+      limit: parseInt(limit),
+      order: [["Id", "DESC"]],
+    });
+
+    return successResponse(res, 200, "Products retrieved successfully", {
+      total: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+      products: rows,
     });
   } catch (err) {
-    res.status(400).json({
-      status: "fail",
-      message: err.message,
-    });
+    return errorResponse(
+      res,
+      500,
+      "An error occurred while retrieving bundles",
+      err.message
+    );
   }
 };
 

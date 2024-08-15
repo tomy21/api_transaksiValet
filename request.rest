@@ -22,7 +22,7 @@ GET http://localhost:3008/api/getAllLocation
 
 # request location
 ###
-GET http://localhost:3008/api/getAllLocation
+GET http://localhost:3008/api/getByLocationAll
 Content-Type: application/json
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDc1OTE0NiwiZXhwIjoxNzE0NzU5MTYxfQ.4yQZGJf_EKRU79YuApY6BgSa7QAG6ZDBysZ75llcXrA
 
@@ -41,15 +41,15 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Baihaki",
+    "Name": "Ilvan",
     "Gender": "M",
-    "Username": "baihaki.colony",
-    "Email": "baihaki.colony@testing.com",
+    "Username": "ilvan.beverly",
+    "Email": "ilvan.beverly@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
     "FlagAllLocation":0,
-    "LocationCode": ["03ASK"]
+    "LocationCode": ["014SK"]
 }
 
 #register users

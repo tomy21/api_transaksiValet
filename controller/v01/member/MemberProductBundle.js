@@ -50,7 +50,7 @@ export const createMemberProductBundle = async (req, res) => {
 
 export const getMemberProductBundle = async (req, res) => {
   try {
-    const bundle = await MemberProductBundle.findByPk(req.params.id, {
+    const bundle = await MemberProductBundle.findByPk(req.params.Id, {
       include: {
         model: TrxMemberQuota,
         as: "TrxMemberQuote",

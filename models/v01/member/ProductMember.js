@@ -29,14 +29,6 @@ const MemberProduct = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    // CurrentQuote: {
-    //   type: DataTypes.INTEGER,
-    //   allowNull: false,
-    // },
-    // Price: {
-    //   type: DataTypes.DECIMAL(16, 2),
-    //   allowNull: false,
-    // },
     IsActive: {
       type: DataTypes.TINYINT,
       allowNull: false,
@@ -54,30 +46,6 @@ const MemberProduct = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    // CreatedBy: {
-    //   type: DataTypes.STRING(50),
-    //   allowNull: true,
-    // },
-    // UpdatedBy: {
-    //   type: DataTypes.STRING(50),
-    //   allowNull: true,
-    // },
-    // DeletedBy: {
-    //   type: DataTypes.STRING(50),
-    //   allowNull: true,
-    // },
-    // CreatedOn: {
-    //   type: DataTypes.DATE,
-    //   defaultValue: Sequelize.NOW,
-    // },
-    // UpdatedOn: {
-    //   type: DataTypes.DATE,
-    //   defaultValue: Sequelize.NOW,
-    // },
-    // DeletedOn: {
-    //   type: DataTypes.DATE,
-    //   allowNull: true,
-    // },
   },
   {
     timestamps: false,
