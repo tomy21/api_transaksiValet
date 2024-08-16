@@ -68,6 +68,9 @@ export const Location = db.define(
     RecordStatus: {
       type: DataTypes.INTEGER,
     },
+    IsMember: {
+      type: DataTypes.BOOLEAN,
+    },
   },
   { timestamps: false, tableName: "RefLocation" }
 );

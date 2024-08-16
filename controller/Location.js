@@ -19,14 +19,15 @@ export const getLocationAllLocation = async (req, res) => {
     const searchQuery = req.query.search || "";
     const offset = (page - 1) * limit;
 
-    const whereCondition = searchQuery
-      ? {
-          [Op.or]: [
-            { Name: { [Op.like]: `%${searchQuery}%` } },
-            { Address: { [Op.like]: `%${searchQuery}%` } },
-          ],
-        }
-      : {};
+    const whereCondition = {
+      IsMember: 1,
+      ...(searchQuery && {
+        [Op.or]: [
+          { Name: { [Op.like]: `%${searchQuery}%` } },
+          { Address: { [Op.like]: `%${searchQuery}%` } },
+        ],
+      }),
+    };
 
     const getLocation = await Location.findAndCountAll({
       attributes: ["Id", "Code", "Name", "Address"],
