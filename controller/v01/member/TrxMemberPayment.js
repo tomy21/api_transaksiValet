@@ -3,6 +3,7 @@ import TrxMemberPaidAmounts from "../../../models/v01/member/TrxMemberPaidAmount
 import MemberProviderPaymentGateway from "../../../models/v01/member/MemberProviderPaymentGateway.js";
 import { Op, Sequelize } from "sequelize";
 import db from "../../../config/dbConfig.js";
+import { errorResponse, successResponse } from "../../../config/response.js";
 
 export const getAllPayments = async (req, res) => {
   try {
@@ -110,5 +111,23 @@ export const deletePayment = async (req, res) => {
     res.status(204).json();
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const getPaymentByTrxId = async (req, res) => {
+  try {
+    const payment = await TrxMemberPayments.findAll({
+      where: { TrxId: req.params.trxId },
+      attributes: ["Id"],
+    });
+
+    // Cek apakah hasilnya kosong
+    if (payment.length === 0) {
+      return errorResponse(res, 404, "Failed", "Payment not found");
+    }
+
+    return successResponse(res, 200, "Success", payment);
+  } catch (err) {
+    return errorResponse(res, 500, "Failed to create data", err.message);
   }
 };

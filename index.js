@@ -23,7 +23,6 @@ import MemberTenants from "./route/v01/member/MemberTenants.js";
 import TrxMemberPayment from "./route/v01/member/TrxMemberPayments.js";
 import TempMemberTenantTransaction from "./route/v01/member/TempTransactionMemberTenant.js";
 import TrxMemberQuote from "./route/v01/member/TrxMemberQuota.js";
-import { updateOutTime } from "./controller/Scheduler.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
 

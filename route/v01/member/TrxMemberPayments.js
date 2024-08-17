@@ -5,6 +5,7 @@ import {
   createPayment,
   updatePayment,
   deletePayment,
+  getPaymentByTrxId,
 } from "../../../controller/v01/member/TrxMemberPayment.js";
 
 const router = express.Router();
@@ -16,5 +17,7 @@ router
   .get(getPaymentById)
   .patch(updatePayment)
   .delete(deletePayment);
+
+router.route("/paymentStatus/:trxId").get(getPaymentByTrxId);
 
 export default router;

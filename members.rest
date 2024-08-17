@@ -361,7 +361,12 @@ Content-Type: application/json
 
 ###
 # Get a single TrxMemberPayment by ID
-GET http://localhost:3008/v01/member/api/payments/1
+GET http://localhost:3008/v01/member/api/payments/92
+Content-Type: application/json
+
+###
+# Get a single TrxMemberPayment by ID
+GET http://localhost:3008/v01/member/api/paymentStatus/213332319739011688
 Content-Type: application/json
 
 ###
