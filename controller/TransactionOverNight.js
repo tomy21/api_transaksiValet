@@ -10,6 +10,10 @@ import path from "path";
 import sharp from "sharp";
 import moment from "moment/moment.js";
 import { UsersLocations } from "../models/UsersLocation.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const getDataOverNight = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
