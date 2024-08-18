@@ -176,13 +176,23 @@ export const validationData = async (req, res) => {
       return res.status(400).json({ message: "Gambar harus diunggah" });
     }
 
-    // Mengubah ukuran gambar menggunakan sharp
-    const resizedImageBuffer = await sharp(file.buffer)
-      .resize(800) // Ubah ukuran lebar gambar menjadi 800px, proporsi tinggi akan menyesuaikan
-      .jpeg({ quality: 80 }) // Mengubah format ke JPEG dengan kualitas 80%
-      .toBuffer();
+    // Membaca file dari disk
+    const filePath = path.join(__dirname, "../../uploads/", file.filename);
+    const fileBuffer = fs.readFileSync(filePath);
 
-    const filePath = "/uploads/" + file.filename;
+    // Mengubah ukuran gambar menggunakan sharp
+    let resizedImageBuffer;
+    try {
+      resizedImageBuffer = await sharp(fileBuffer)
+        .resize(800) // Ubah ukuran lebar gambar menjadi 800px, proporsi tinggi akan menyesuaikan
+        .jpeg({ quality: 80 }) // Mengubah format ke JPEG dengan kualitas 80%
+        .toBuffer();
+    } catch (sharpError) {
+      console.error("Sharp Error:", sharpError);
+      return res.status(400).json({ message: "File gambar tidak valid." });
+    }
+
+    const newFilePath = "/uploads/" + file.filename;
 
     const existingRecord = await TransactionOverNights.findOne({
       where: {
@@ -197,7 +207,7 @@ export const validationData = async (req, res) => {
         Status: "In Area",
         ModifiedBy: officer,
         TypeVehicle: typeVehicle,
-        PathPhotoImage: filePath,
+        PathPhotoImage: newFilePath,
         UploadedAt: new Date(),
       });
 
@@ -207,7 +217,7 @@ export const validationData = async (req, res) => {
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
         TypeVehicle: typeVehicle,
-        PathPhotoImage: filePath,
+        PathPhotoImage: newFilePath,
         PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
       });
 
@@ -219,7 +229,7 @@ export const validationData = async (req, res) => {
         Plateregognizer: platerecognizer,
         ModifiedBy: officer,
         TypeVehicle: typeVehicle,
-        PathPhotoImage: filePath,
+        PathPhotoImage: newFilePath,
         Status: "In Area",
         PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
       });
@@ -229,7 +239,7 @@ export const validationData = async (req, res) => {
         Status: "In Area",
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
-        PathPhotoImage: filePath,
+        PathPhotoImage: newFilePath,
         TypeVehicle: typeVehicle,
         PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
       });
