@@ -186,7 +186,7 @@ export const login = async (req, res) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Menggunakan secure hanya di production
-      sameSite: "lax",
+      sameSite: "none",
     });
 
     res.json({ accessToken });
