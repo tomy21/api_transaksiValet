@@ -7,6 +7,7 @@ import db from "../config/dbConfig.js";
 import ExcelJs from "exceljs";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 import moment from "moment/moment.js";
 import { UsersLocations } from "../models/UsersLocation.js";
 
@@ -166,6 +167,7 @@ export const validationData = async (req, res) => {
     const { locationCode, plateNo, platerecognizer, officer, typeVehicle } =
       req.body;
     const file = req.file;
+
     if (!locationCode || !plateNo || !officer) {
       return res.status(400).json({ message: "Semua field harus diisi" });
     }
@@ -173,6 +175,12 @@ export const validationData = async (req, res) => {
     if (!file) {
       return res.status(400).json({ message: "Gambar harus diunggah" });
     }
+
+    // Mengubah ukuran gambar menggunakan sharp
+    const resizedImageBuffer = await sharp(file.buffer)
+      .resize(800) // Ubah ukuran lebar gambar menjadi 800px, proporsi tinggi akan menyesuaikan
+      .jpeg({ quality: 80 }) // Mengubah format ke JPEG dengan kualitas 80%
+      .toBuffer();
 
     const filePath = "/uploads/" + file.filename;
 
@@ -188,7 +196,6 @@ export const validationData = async (req, res) => {
       await existingRecord.update({
         Status: "In Area",
         ModifiedBy: officer,
-        // PhotoImage: file.buffer,
         TypeVehicle: typeVehicle,
         PathPhotoImage: filePath,
         UploadedAt: new Date(),
@@ -200,21 +207,21 @@ export const validationData = async (req, res) => {
         ModifiedBy: officer,
         VehiclePlateNo: plateNo,
         TypeVehicle: typeVehicle,
-        // PhotoImage: file.buffer,
         PathPhotoImage: filePath,
+        PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
       });
 
       res.status(200).send("Data berhasil diperbarui!");
     } else {
-      TransactionOverNights.create({
+      await TransactionOverNights.create({
         LocationCode: locationCode,
         VehiclePlateNo: plateNo,
         Plateregognizer: platerecognizer,
         ModifiedBy: officer,
         TypeVehicle: typeVehicle,
-        // PhotoImage: file.buffer,
         PathPhotoImage: filePath,
         Status: "In Area",
+        PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
       });
 
       await TransactionOverNightOficcers.create({
@@ -224,7 +231,7 @@ export const validationData = async (req, res) => {
         VehiclePlateNo: plateNo,
         PathPhotoImage: filePath,
         TypeVehicle: typeVehicle,
-        PhotoImage: file.buffer,
+        PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
       });
       res.status(200).send("Data berhasil disimpan!");
     }
