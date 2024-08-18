@@ -184,9 +184,10 @@ export const login = async (req, res) => {
     );
 
     res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === "production", // Menggunakan secure hanya di production
       sameSite: "none",
+      domain: "dev-valetapi.skyparking.online",
     });
 
     res.json({ accessToken });
