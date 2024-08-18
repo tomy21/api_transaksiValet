@@ -14,7 +14,10 @@ export const getUsers = async (req, res) => {
     });
     res.json(users);
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching users:", error);
+    res
+      .status(500)
+      .json({ msg: "Terjadi kesalahan saat mengambil data pengguna" });
   }
 };
 
@@ -38,16 +41,17 @@ export const register = async (req, res) => {
     CreatedBy,
   } = req.body;
   const password = "sky123";
-  const salt = await bcrypt.genSalt();
-  const hashPassword = await bcrypt.hash(password, salt);
-
-  const currentDate = new Date();
-  const oneYearLater = new Date(
-    currentDate.getFullYear() + 1,
-    currentDate.getMonth(),
-    currentDate.getDate()
-  );
   try {
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    const currentDate = new Date();
+    const oneYearLater = new Date(
+      currentDate.getFullYear() + 1,
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
+
     const lastUsers = await Users.findOne({
       order: [["Id", "DESC"]],
     });
@@ -89,25 +93,32 @@ export const register = async (req, res) => {
 
     res.json({ msg: "Register berhasil" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Terjadi kesalahan" });
+    console.error("Error during registration:", error);
+    res.status(500).json({ msg: "Terjadi kesalahan saat registrasi" });
   }
 };
 
 export const login = async (req, res) => {
-  const encryptedData = req.body.data;
-  const decryptedResult = crypto.AES.decrypt(encryptedData, secretKey).toString(
-    crypto.enc.Utf8
-  );
-  const decryptedObject = JSON.parse(decryptedResult);
-  const emailUser = decryptedObject.email;
-  const password = decryptedObject.password;
   try {
+    const encryptedData = req.body.data;
+    const decryptedResult = crypto.AES.decrypt(
+      encryptedData,
+      secretKey
+    ).toString(crypto.enc.Utf8);
+    const decryptedObject = JSON.parse(decryptedResult);
+    const emailUser = decryptedObject.email;
+    const password = decryptedObject.password;
+
     const user = await Users.findAll({
       where: {
         Email: emailUser,
       },
     });
+
+    if (user.length === 0) {
+      return res.status(404).json({ msg: "Email tidak valid" });
+    }
+
     const userLocation = await UsersLocations.findAll({
       where: {
         UserId: user[0].Id,
@@ -116,6 +127,7 @@ export const login = async (req, res) => {
 
     const match = await bcrypt.compare(password, user[0].Password);
     if (!match) return res.status(400).json({ msg: "Password tidak valid" });
+
     const userId = user[0].Id;
     const name = user[0].Name;
     const email = user[0].Email;
@@ -140,26 +152,27 @@ export const login = async (req, res) => {
         UserId: userId,
       },
     });
-    if (tokenUsers == "") {
+
+    if (tokenUsers.length === 0) {
       await UsersToken.create({
         UserId: userId,
         OperatingSystem: "Website",
-        App: "Valet",
+        App: "Overnight",
         TokenFCM: null,
-        RefreshToken: null,
+        RefreshToken: refreshToken, // Update here to use the new refresh token
         Detail_Device: null,
         Version: null,
       });
+    } else {
+      await UsersToken.update(
+        { RefreshToken: refreshToken },
+        {
+          where: {
+            UserId: userId,
+          },
+        }
+      );
     }
-
-    await UsersToken.update(
-      { RefreshToken: refreshToken },
-      {
-        where: {
-          UserId: userId,
-        },
-      }
-    );
 
     await Users.update(
       { LastActivity: new Date() },
@@ -169,6 +182,7 @@ export const login = async (req, res) => {
         },
       }
     );
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: false,
       maxAge: 24 * 60 * 60 * 1000,
@@ -179,29 +193,38 @@ export const login = async (req, res) => {
 
     res.json({ accessToken });
   } catch (error) {
-    res.status(404).json({ msg: "Email tidak valid" });
+    console.error("Login error:", error);
+    res.status(500).json({ msg: "Terjadi kesalahan saat login" });
   }
 };
 
 export const logout = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  console.log(refreshToken);
-  if (!refreshToken) return res.sendStatus(204);
-  const user = await UsersToken.findAll({
-    where: {
-      RefreshToken: refreshToken,
-    },
-  });
-  if (!user[0]) return res.sendStatus(204);
-  const userId = user[0].Id;
-  await UsersToken.update(
-    { RefreshToken: null },
-    {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.sendStatus(204);
+
+    const user = await UsersToken.findAll({
       where: {
-        Id: userId,
+        RefreshToken: refreshToken,
       },
-    }
-  );
-  res.clearCookie("refreshToken");
-  res.sendStatus(200);
+    });
+
+    if (user.length === 0) return res.sendStatus(204);
+
+    const userId = user[0].UserId;
+    await UsersToken.update(
+      { RefreshToken: null },
+      {
+        where: {
+          UserId: userId,
+        },
+      }
+    );
+
+    res.clearCookie("refreshToken");
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ msg: "Terjadi kesalahan saat logout" });
+  }
 };
