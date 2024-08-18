@@ -181,7 +181,11 @@ export const validationData = async (req, res) => {
     }
 
     // Membaca file dari disk
-    const filePath = path.join(__dirname, "../../uploads/", file.filename);
+    const filePath = path.join(__dirname, "../uploads/", file.filename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(400).json({ message: "File gambar tidak ditemukan." });
+    }
     const fileBuffer = fs.readFileSync(filePath);
 
     // Mengubah ukuran gambar menggunakan sharp
