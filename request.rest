@@ -6,7 +6,7 @@ POST https://dev-valetapi.skyparking.online/api/login
 Content-Type: application/json
 
 {
-    "data":"U2FsdGVkX1/mec9D7FT2Qa7A5PkqYat5qd/15lI0kmkuwJBt4rSCm7ynrZ5oGdiAtNmGIZF/1IMa8FkLIlEc5wp7uJ4RVG9SxzQkpSnq7zg="
+    "data":"U2FsdGVkX1/dlZ0+bxR7uhiWDfy/bPLWssswUot8DW6znL9vop4IwTZT7YvSNbqkh4LM6YI5RRMy07WJLT0kn9sa6njGt4hjDoYuJ7m2Tyw="
 }
 
 ###

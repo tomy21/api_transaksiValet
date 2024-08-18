@@ -185,10 +185,8 @@ export const login = async (req, res) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      domain: "https://skyparking.online",
-      sameSite: "None",
-      secure: true,
+      secure: process.env.NODE_ENV === "production", // Menggunakan secure hanya di production
+      sameSite: "lax",
     });
 
     res.json({ accessToken });
