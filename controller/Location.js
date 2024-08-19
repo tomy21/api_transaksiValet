@@ -1,5 +1,7 @@
+import { Sequelize } from "sequelize";
 import { Location } from "../models/RefLocation.js";
 import { UsersLocations } from "../models/UsersLocation.js";
+import MemberProduct from "../models/v01/member/ProductMember.js";
 
 export const getLocationAll = async (req, res) => {
   try {
@@ -34,6 +36,42 @@ export const getLocationAllLocation = async (req, res) => {
       where: whereCondition,
       limit: limit,
       offset: offset,
+      include: [
+        {
+          model: MemberProduct,
+          as: "Products", // Alias yang sesuai
+          attributes: [],
+          where: { IsActive: 1 }, // Hanya mengambil data yang aktif
+          required: false, // Left join agar location tetap muncul meskipun tidak ada memberProduct
+        },
+      ],
+      attributes: {
+        include: [
+          // Agregasi untuk VehicleType 'motor'
+          [
+            Sequelize.literal(`(
+              SELECT SUM(\`MaxQuote\`)
+              FROM \`MemberProducts\`
+              WHERE \`MemberProducts\`.\`LocationCode\` = \`RefLocation\`.\`Code\`
+              AND \`MemberProducts\`.\`IsActive\` = 1
+              AND \`MemberProducts\`.\`VehicleType\` = 'motor'
+            )`),
+            "totalQuotaMotor",
+          ],
+          // Agregasi untuk VehicleType 'mobil'
+          [
+            Sequelize.literal(`(
+              SELECT SUM(\`MaxQuote\`)
+              FROM \`MemberProducts\`
+              WHERE \`MemberProducts\`.\`LocationCode\` = \`RefLocation\`.\`Code\`
+              AND \`MemberProducts\`.\`IsActive\` = 1
+              AND \`MemberProducts\`.\`VehicleType\` = 'mobil'
+            )`),
+            "totalQuotaMobil",
+          ],
+        ],
+      },
+      group: ["RefLocation.Id"], // Kelompokkan berdasarkan Location
     });
 
     res.json({

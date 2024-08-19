@@ -32,7 +32,7 @@ const createSendToken = (user, statusCode, res, rememberMe) => {
   const token = signToken(user, rememberMe);
 
   res.cookie("refreshToken", token, {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     expires: new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000),
   });
@@ -148,8 +148,6 @@ export const activateAccount = async (req, res) => {
       },
     });
 
-    console.log("data", user);
-
     if (!user) {
       return res.status(400).json({
         status: "fail",
@@ -162,7 +160,8 @@ export const activateAccount = async (req, res) => {
     user.activationExpires = null;
     await user.save();
 
-    createSendToken(user, 200, res);
+    // Redirect ke halaman setelah sukses aktivasi
+    res.redirect("http://dev-membership.skyparking.online");
   } catch (err) {
     res.status(400).json({
       status: "fail",

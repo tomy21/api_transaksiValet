@@ -11,6 +11,7 @@ import sharp from "sharp";
 import moment from "moment/moment.js";
 import { UsersLocations } from "../models/UsersLocation.js";
 import { fileURLToPath } from "url";
+import xl from "excel4node";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -565,84 +566,47 @@ export const exportDataOverNight = async (req, res) => {
     });
 
     if (result) {
-      const workbook = new ExcelJs.Workbook();
+      const workbook = new xl.Workbook();
       const worksheet = workbook.addWorksheet("Transaction OverNight");
 
-      worksheet.columns = [
-        { header: "No", key: "No", width: 5 },
-        { header: "Lokasi", width: 35, key: "LocationCode" },
-        { header: "Plat Nomor", width: 15, key: "VehiclePlateNo" },
-        { header: "Gambar", width: 30, key: "PathPhotoImage" },
-        { header: "Type Kendaraan", width: 20, key: "TypeVehicle" },
-        { header: "Status", width: 10, key: "Status" },
-        { header: "Petugas", width: 50, key: "ModifiedBy" },
-        { header: "Tanggal Update", width: 20, key: "ModifiedOn" },
-      ];
+      // Definisikan kolom
+      worksheet.cell(1, 1).string("No");
+      worksheet.cell(1, 2).string("Lokasi");
+      worksheet.cell(1, 3).string("Plat Nomor");
+      worksheet.cell(1, 4).string("Gambar");
+      worksheet.cell(1, 5).string("Type Kendaraan");
+      worksheet.cell(1, 6).string("Status");
+      worksheet.cell(1, 7).string("Petugas");
+      worksheet.cell(1, 8).string("Tanggal Update");
 
-      worksheet.eachRow((row) => {
-        row.eachCell((cell) => {
-          cell.alignment = { vertical: "middle", horizontal: "center" };
-        });
-      });
-
+      // Isi data
       for (const [index, value] of result.rows.entries()) {
-        const row = worksheet.addRow({
-          No: index + 1,
-          LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
-          VehiclePlateNo: value.VehiclePlateNo ? value.VehiclePlateNo : "-",
-          PathPhotoImage: "-",
-          TypeVehicle: value.TypeVehicle ? value.TypeVehicle : "-",
-          Status: value.Status,
-          ModifiedBy: value.ModifiedBy,
-          ModifiedOn: moment
-            .utc(value.ModifiedOn)
-            .utcOffset("+07:00")
-            .format("YYYY-MM-DD HH:mm:ss"),
-        });
-
-        if (value.PathPhotoImage) {
-          const imagePath = path.join(
-            process.cwd(),
-            "uploads",
-            path.basename(value.PathPhotoImage)
+        worksheet.cell(index + 2, 1).number(index + 1);
+        worksheet
+          .cell(index + 2, 2)
+          .string(value.RefLocation ? value.RefLocation.Name : "-");
+        worksheet.cell(index + 2, 3).string(value.VehiclePlateNo || "-");
+        worksheet.cell(index + 2, 4).string("Gambar tidak tersedia");
+        worksheet.cell(index + 2, 5).string(value.TypeVehicle || "-");
+        worksheet.cell(index + 2, 6).string(value.Status);
+        worksheet.cell(index + 2, 7).string(value.ModifiedBy);
+        worksheet
+          .cell(index + 2, 8)
+          .string(
+            moment
+              .utc(value.ModifiedOn)
+              .utcOffset("+07:00")
+              .format("YYYY-MM-DD HH:mm:ss")
           );
-
-          if (fs.existsSync(imagePath)) {
-            // Tambahkan gambar ke workbook
-            const imageId = workbook.addImage({
-              filename: imagePath,
-              extension: "jpg",
-            });
-
-            worksheet.addImage(imageId, {
-              tl: { col: 3, row: row.number - 1 },
-              ext: { width: 100, height: 100 },
-            });
-
-            // Hapus nilai sel jika diperlukan
-            row.getCell("PathPhotoImage").value = "";
-          }
-        } else {
-          row.getCell("PathPhotoImage").value = "Gambar tidak tersedia";
-        }
-
-        worksheet.getRow(row.number).height = 80;
-
-        row.eachCell((cell) => {
-          cell.alignment = { vertical: "middle", horizontal: "center" };
-        });
       }
 
-      const fileName = locationCodes && date ? `${date}.xlsx` : `alldate.xlsx`;
+      const fileName = locationCodes && date ? `${date}.xls` : `alldate.xls`;
 
-      res.setHeader(
-        "Content-Type",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-      );
+      res.setHeader("Content-Type", "application/vnd.ms-excel");
       res.setHeader("Content-Disposition", `attachment; filename=${fileName}`);
 
-      await workbook.xlsx.write(res);
-      res.end();
+      // Tulis workbook ke response
+      workbook.write(fileName, res);
     } else {
       res.status(400).json({ success: false, message: "Get data failed" });
     }

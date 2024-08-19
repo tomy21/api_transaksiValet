@@ -11,6 +11,7 @@ export const Location = db.define(
     },
     Code: {
       type: DataTypes.STRING(40),
+      unique: true,
     },
     Name: {
       type: DataTypes.STRING(150),
