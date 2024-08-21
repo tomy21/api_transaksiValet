@@ -1,3 +1,4 @@
+import MemberProductBundle from "../../../models/v01/member/MemberProductBundle.js";
 import MemberUserProduct from "../../../models/v01/member/MemberUserProduct.js";
 import MemberProduct from "../../../models/v01/member/ProductMember.js";
 import TrxHistoryMemberProducts from "../../../models/v01/member/TrxHistoryMemberProducts.js";
@@ -88,11 +89,18 @@ export const getMemberByUserId = async (req, res) => {
       include: {
         model: TrxHistoryMemberProducts,
         as: "TrxHistories",
-        include: {
-          model: MemberProduct,
-          as: "MemberProduct",
-          attributes: ["Id", "LocationName"],
-        },
+        include: [
+          {
+            model: MemberProduct,
+            as: "MemberProduct",
+            attributes: ["Id", "LocationName", "VehicleType"],
+          },
+          {
+            model: MemberProductBundle,
+            as: "ProductBundle", // Alias sesuai dengan yang didefinisikan di asosiasi
+            attributes: ["Id", "StartDate", "EndDate", "Price"], // Atribut dari MemberProductBundle yang ingin diambil
+          },
+        ],
       },
       attributes: ["Id", "CardId", "PlateNumber"],
     });

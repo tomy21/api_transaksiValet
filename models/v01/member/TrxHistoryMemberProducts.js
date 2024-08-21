@@ -1,6 +1,7 @@
 // models/TrxHistoryMemberProducts.js
 import { DataTypes } from "sequelize";
 import db from "../../../config/dbConfig.js";
+import MemberProductBundle from "./MemberProductBundle.js";
 
 const TrxHistoryMemberProducts = db.define(
   "TrxHistoryMemberProduct",
@@ -42,6 +43,10 @@ const TrxHistoryMemberProducts = db.define(
     MemberProductBundleId: {
       type: DataTypes.INTEGER(11),
       allowNull: true,
+      references: {
+        model: "MemberProductBundle",
+        key: "Id",
+      },
     },
     IsCanceled: {
       type: DataTypes.INTEGER(1),
@@ -56,5 +61,10 @@ const TrxHistoryMemberProducts = db.define(
     timestamps: false,
   }
 );
+
+TrxHistoryMemberProducts.belongsTo(MemberProductBundle, {
+  foreignKey: "MemberProductBundleId",
+  as: "ProductBundle",
+});
 
 export default TrxHistoryMemberProducts;

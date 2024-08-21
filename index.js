@@ -23,6 +23,7 @@ import MemberTenants from "./route/v01/member/MemberTenants.js";
 import TrxMemberPayment from "./route/v01/member/TrxMemberPayments.js";
 import TempMemberTenantTransaction from "./route/v01/member/TempTransactionMemberTenant.js";
 import TrxMemberQuote from "./route/v01/member/TrxMemberQuota.js";
+import MemberMaster from "./route/v01/member/MemberMaster.js";
 import { initAssociations } from "./models/v01/member/associations.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
@@ -69,6 +70,7 @@ app.use("/v01/member/api", MemberTenants);
 app.use("/v01/member/api", TrxMemberPayment);
 app.use("/v01/member/api", TempMemberTenantTransaction);
 app.use("/v01/member/api", TrxMemberQuote);
+app.use("/v01/member/api", MemberMaster);
 
 const PORT = 3008;
 app.listen(PORT, () => {
