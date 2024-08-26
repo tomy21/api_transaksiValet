@@ -24,7 +24,9 @@ import TrxMemberPayment from "./route/v01/member/TrxMemberPayments.js";
 import TempMemberTenantTransaction from "./route/v01/member/TempTransactionMemberTenant.js";
 import TrxMemberQuote from "./route/v01/member/TrxMemberQuota.js";
 import MemberMaster from "./route/v01/member/MemberMaster.js";
+import OccCapture from "./route/OCC/index.js";
 import { initAssociations } from "./models/v01/member/associations.js";
+import SendWhatsapp from "./route/ThirdParty/SendMessage.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
 
@@ -71,6 +73,9 @@ app.use("/v01/member/api", TrxMemberPayment);
 app.use("/v01/member/api", TempMemberTenantTransaction);
 app.use("/v01/member/api", TrxMemberQuote);
 app.use("/v01/member/api", MemberMaster);
+app.use("/v01/member/api", SendWhatsapp);
+
+app.use("/v01/occ/api", OccCapture);
 
 const PORT = 3008;
 app.listen(PORT, () => {

@@ -245,7 +245,7 @@ GET http://localhost:3008/api/getByLocationAll?page=1&limit=10
 
 ### 
 # Get all MemberProductBundles
-GET http://localhost:3008/v01/member/api/memberProductBundles
+GET http://localhost:3008/v01/member/api/memberProductBundles/23
 Content-Type: application/json
 
 ### 
@@ -483,3 +483,13 @@ DELETE http://localhost:3008/v01/member/api/transactionTenants/1
 # Get a single MemberProductBundle by ID
 GET http://localhost:3008/v01/member/api/quota/1
 Content-Type: application/json
+
+###
+# Get a single MemberProductBundle by ID
+POST http://localhost:3008/v01/member/api/send-whatsapp
+Content-Type: application/json
+
+{
+  "to": "+6285161537784",
+  "message": "Hello from Twilio WhatsApp!"
+}
