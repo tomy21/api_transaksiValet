@@ -73,7 +73,7 @@ app.use("/v01/member/api", TrxMemberPayment);
 app.use("/v01/member/api", TempMemberTenantTransaction);
 app.use("/v01/member/api", TrxMemberQuote);
 app.use("/v01/member/api", MemberMaster);
-app.use("/v01/member/api", SendWhatsapp);
+// app.use("/v01/member/api", SendWhatsapp);
 
 app.use("/v01/occ/api", OccCapture);
 
