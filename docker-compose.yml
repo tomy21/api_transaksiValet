@@ -15,11 +15,11 @@ services:
       - "8090:3008"
     # command: npm install cookie-parser && npm start
     networks:
-      - bridge
+      - backend_network
   
 # volumes:
 #   node_modules:
 
-# networks:
-#   backend_network:
-#     driver: bridge
+networks:
+  backend_network:
+    driver: bridge
