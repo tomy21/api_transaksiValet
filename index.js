@@ -26,7 +26,7 @@ import TrxMemberQuote from "./route/v01/member/TrxMemberQuota.js";
 import MemberMaster from "./route/v01/member/MemberMaster.js";
 import OccCapture from "./route/OCC/index.js";
 import { initAssociations } from "./models/v01/member/associations.js";
-import SendWhatsapp from "./route/ThirdParty/SendMessage.js";
+// import SendWhatsapp from "./route/ThirdParty/SendMessage.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
 
