@@ -8,7 +8,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --max-old-space-size=4096 index.js",
+    "start": "pm2 start index.js --max-memory-restart 8192M",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
