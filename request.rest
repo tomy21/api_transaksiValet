@@ -2,11 +2,12 @@ GET http://localhost:3008/api/getUsers
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExNCwibmFtZSI6IkhlYWRvZmZpY2UgMDEiLCJlbWFpbCI6ImhlYWRvZmZpY2UwMUB0ZXN0aW5nLmNvbSIsImlhdCI6MTcyMTg5MzM4OCwiZXhwIjoxNzIxODkzNDAzfQ.cHkPrihp-TrwHL47j34fo6glhrcfreCmmpd25gEZmtI
 
 ###
-POST https://dev-valetapi.skyparking.online/api/login
+POST http://localhost:3008/api/login
 Content-Type: application/json
 
 {
-    "data":"U2FsdGVkX1/dlZ0+bxR7uhiWDfy/bPLWssswUot8DW6znL9vop4IwTZT7YvSNbqkh4LM6YI5RRMy07WJLT0kn9sa6njGt4hjDoYuJ7m2Tyw="
+    "identifier":"v3@gmail.comn",
+    "password":"sky123"
 }
 
 ###
@@ -14,7 +15,7 @@ GET http://localhost:3008/api/token
 ###
 GET http://localhost:3008/api/logout
 ###
-GET http://localhost:3008/api/getByLocation?userId=102
+GET http://localhost:3008/api/getByLocation?userId=29
 
 ###
 GET http://localhost:3008/api/getAllLocation
@@ -30,7 +31,7 @@ Content-Type: application/json
 # request Issuer
 ###
 GET http://localhost:3008/api/getAllOverNightApps?location=08SKY
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNTA3MDc5OSwiZXhwIjoxNzE1MDcwODE0fQ.SuhTdSq6CFjht0w1oYhk9FkSqACPB_BttKgFC0u3cG0
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MjksImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcyNDk0MjQ2MywiaXNzIjoiaHR0cHM6Ly9za3lwYXJraW5nLm9ubGluZSIsInN1YiI6IkFkbWluVmFsZXQzIiwiZXhwIjoxNzI1MDI4ODYzfQ.G2tVkUV95Yi2WtGNpdPeJxMT8nJ55qFjhyuEPLgBuvE
 
 #register users
 ###

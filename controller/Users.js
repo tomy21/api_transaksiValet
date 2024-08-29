@@ -5,7 +5,38 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto-js";
 import generateUserCode from "../config/Function.js";
-const secretKey = "PARTNER_KEY";
+import { Op } from "sequelize";
+
+const signToken = (user) => {
+  return jwt.sign(
+    {
+      Id: user.Id,
+      email: user.Email,
+      iat: Math.floor(Date.now() / 1000),
+      iss: "https://skyparking.online",
+      role: user.Role,
+      sub: user.Username,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+};
+
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user);
+
+  res.cookie("refreshToken", token, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+  });
+
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    message: "Login berhasil",
+  });
+};
 
 export const getUsers = async (req, res) => {
   try {
@@ -100,97 +131,37 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const encryptedData = req.body.data;
-    const decryptedResult = crypto.AES.decrypt(
-      encryptedData,
-      secretKey
-    ).toString(crypto.enc.Utf8);
-    const decryptedObject = JSON.parse(decryptedResult);
-    const emailUser = decryptedObject.email;
-    const password = decryptedObject.password;
+    const { identifier, password } = req.body;
 
-    const user = await Users.findAll({
-      where: {
-        Email: emailUser,
-      },
-    });
-
-    if (user.length === 0) {
-      return res.status(404).json({ msg: "Email tidak valid" });
-    }
-
-    const userLocation = await UsersLocations.findAll({
-      where: {
-        UserId: user[0].Id,
-      },
-    });
-
-    const match = await bcrypt.compare(password, user[0].Password);
-    if (!match) return res.status(400).json({ msg: "Password tidak valid" });
-
-    const userId = user[0].Id;
-    const name = user[0].Name;
-    const email = user[0].Email;
-    const accessToken = jwt.sign(
-      { userId, name, email },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "15s",
-      }
-    );
-
-    const refreshToken = jwt.sign(
-      { userId, name, email },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
-
-    const tokenUsers = await UsersToken.findAll({
-      where: {
-        UserId: userId,
-      },
-    });
-
-    if (tokenUsers.length === 0) {
-      await UsersToken.create({
-        UserId: userId,
-        OperatingSystem: "Website",
-        App: "Overnight",
-        TokenFCM: null,
-        RefreshToken: refreshToken, // Update here to use the new refresh token
-        Detail_Device: null,
-        Version: null,
+    if (!identifier || !password) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Harap masukkan identifier (username, email, atau nomor telepon) dan password!",
       });
-    } else {
-      await UsersToken.update(
-        { RefreshToken: refreshToken },
-        {
-          where: {
-            UserId: userId,
-          },
-        }
-      );
     }
 
-    await Users.update(
-      { LastActivity: new Date() },
-      {
-        where: {
-          Id: userId,
-        },
-      }
-    );
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Menggunakan secure hanya di production
-      sameSite: "none",
-      domain: ".skyparking.online",
+    const user = await Users.findOne({
+      where: {
+        [Op.or]: [
+          { Username: identifier },
+          { Email: identifier },
+          { Phone: identifier },
+        ],
+      },
     });
 
-    res.json({ accessToken });
+    if (!user || !(await bcrypt.compare(password, user.Password))) {
+      return res.status(401).json({
+        status: "fail",
+        message: "Identifier atau password tidak sesuai",
+      });
+    }
+
+    user.LastLogin = new Date();
+    await user.save({ validate: false });
+
+    createSendToken(user, 200, res);
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ msg: "Terjadi kesalahan saat login" });

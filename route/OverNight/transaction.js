@@ -39,15 +39,9 @@ router.put("/updateOutAndRemaks", VerifyToken, updateOutAndRemaks);
 
 router.post(
   "/upload/dataOverNight",
-  // VerifyToken,
   uploadExcel.single("file"),
   importDataExcel
 );
-router.post(
-  "/upload/imageOfficer",
-  VerifyToken,
-  upload.single("file"),
-  validationData
-);
+router.post("/upload/imageOfficer", upload.single("file"), validationData);
 
 export default router;
