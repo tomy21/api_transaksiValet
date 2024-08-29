@@ -428,22 +428,25 @@ export const getDataOverNightPetugas = async (req, res) => {
   const orderBy = req.query.orderBy || "ModifiedOn";
   const sortBy = req.query.sortBy || "DESC";
   const locationCode = req.query.location || "";
-  const startDate =
-    req.query.startDate || new Date().toISOString().split("T")[0];
-  const endDate = req.query.endDate || new Date().toISOString().split("T")[0];
-  const formatDate = (date) => date.toISOString().split("T")[0];
+  const startDate = req.query.startDate
+    ? new Date(req.query.startDate)
+    : new Date();
+  const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
 
-  const currentDate = new Date();
-  const formattedCurrentDate = formatDate(currentDate);
-  const startOfDay = new Date(formattedCurrentDate);
-  const endOfDay = new Date(startOfDay);
-  endOfDay.setDate(endOfDay.getDate() + 1);
+  // Set endDate to the end of the day
+  endDate.setHours(23, 59, 59, 999);
 
   try {
     const queries = {
-      where: locationCode ? { LocationCode: locationCode } : {},
+      where: {
+        ...(locationCode && { LocationCode: locationCode }),
+        ModifiedOn: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
       offset: (page - 1) * limit,
       limit,
+      order: [[orderBy, sortBy]],
       include: [
         {
           model: Location,
@@ -452,55 +455,46 @@ export const getDataOverNightPetugas = async (req, res) => {
       ],
     };
 
-    if (startDate && endDate) {
-      queries.where = {
-        ...queries.where,
-        ModifiedOn: {
-          [Op.between]: [startOfDay, endOfDay],
-        },
-      };
-    }
+    const result = await TransactionOverNightOficcers.findAndCountAll(queries);
 
-    if (orderBy) {
-      queries.order = [[orderBy, sortBy]];
-    }
-
-    const result = await TransactionOverNightOficcers.findAndCountAll({
-      ...queries,
-    });
-
-    const query = `
-    SELECT
-        COALESCE(COUNT(VehiclePlateNo), 0) AS TotalCount,
-        COALESCE(SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END), 0) AS InareaCount,
-        COALESCE(SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END), 0) AS NovihicleCount,
-        COALESCE(SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END), 0) AS OutCount
-    FROM TransactionOverNightOficcers
-    WHERE DATE(ModifiedOn) = CURDATE()
-    ${locationCode ? `AND LocationCode = '${locationCode}'` : ""};
+    const summaryQuery = `
+      SELECT
+          COALESCE(COUNT(VehiclePlateNo), 0) AS TotalCount,
+          COALESCE(SUM(CASE WHEN Status = 'In Area' THEN 1 ELSE 0 END), 0) AS InareaCount,
+          COALESCE(SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END), 0) AS NovihicleCount,
+          COALESCE(SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END), 0) AS OutCount
+      FROM TransactionOverNightOficcers
+      WHERE ModifiedOn BETWEEN :startDate AND :endDate
+      ${locationCode ? `AND LocationCode = :locationCode` : ""};
     `;
 
-    const queryType = `
-    SELECT
-        COALESCE(SUM(CASE WHEN TypeVehicle = 'MOTOR' THEN 1 ELSE 0 END), 0) AS Motor,
-        COALESCE(SUM(CASE WHEN TypeVehicle = 'MOBIL' THEN 1 ELSE 0 END), 0) AS Mobil
-    FROM TransactionOverNightOficcers
-    WHERE DATE(ModifiedOn) = CURDATE()
-    ${locationCode ? `AND LocationCode = '${locationCode}'` : ""};
+    const summaryTypeQuery = `
+      SELECT
+          COALESCE(SUM(CASE WHEN TypeVehicle = 'MOTOR' THEN 1 ELSE 0 END), 0) AS Motor,
+          COALESCE(SUM(CASE WHEN TypeVehicle = 'MOBIL' THEN 1 ELSE 0 END), 0) AS Mobil
+      FROM TransactionOverNightOficcers
+      WHERE ModifiedOn BETWEEN :startDate AND :endDate
+      ${locationCode ? `AND LocationCode = :locationCode` : ""};
     `;
 
-    const summary = await db.query(query, { type: db.QueryTypes.SELECT });
-    const summaryType = await db.query(queryType, {
+    const summary = await db.query(summaryQuery, {
+      replacements: { startDate, endDate, locationCode },
       type: db.QueryTypes.SELECT,
     });
+
+    const summaryType = await db.query(summaryTypeQuery, {
+      replacements: { startDate, endDate, locationCode },
+      type: db.QueryTypes.SELECT,
+    });
+
     if (result) {
       const response = {
         success: true,
-        totalPages: Math.ceil(result?.count / limit),
-        totalItems: result?.count,
-        summary: summary,
-        summaryType: summaryType,
-        data: result?.rows,
+        totalPages: Math.ceil(result.count / limit),
+        totalItems: result.count,
+        summary,
+        summaryType,
+        data: result.rows,
       };
       res.status(201).json(response);
     } else {
