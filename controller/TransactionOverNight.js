@@ -428,20 +428,17 @@ export const getDataOverNightPetugas = async (req, res) => {
   const orderBy = req.query.orderBy || "ModifiedOn";
   const sortBy = req.query.sortBy || "DESC";
   const locationCode = req.query.location || "";
-  const startDate = req.query.startDate
-    ? new Date(req.query.startDate)
-    : new Date();
-  const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
 
-  // Set endDate to the end of the day
-  endDate.setHours(23, 59, 59, 999);
+  // Menentukan awal dan akhir hari ini berdasarkan zona waktu Asia/Jakarta
+  const startOfDay = moment.tz("Asia/Jakarta").startOf("day").toDate();
+  const endOfDay = moment.tz("Asia/Jakarta").endOf("day").toDate();
 
   try {
     const queries = {
       where: {
         ...(locationCode && { LocationCode: locationCode }),
         ModifiedOn: {
-          [Op.between]: [startDate, endDate],
+          [Op.between]: [startOfDay, endOfDay],
         },
       },
       offset: (page - 1) * limit,
@@ -464,7 +461,7 @@ export const getDataOverNightPetugas = async (req, res) => {
           COALESCE(SUM(CASE WHEN Status = 'No vehicle' THEN 1 ELSE 0 END), 0) AS NovihicleCount,
           COALESCE(SUM(CASE WHEN Status = 'Out' THEN 1 ELSE 0 END), 0) AS OutCount
       FROM TransactionOverNightOficcers
-      WHERE ModifiedOn BETWEEN :startDate AND :endDate
+      WHERE ModifiedOn BETWEEN :startOfDay AND :endOfDay
       ${locationCode ? `AND LocationCode = :locationCode` : ""};
     `;
 
@@ -473,17 +470,17 @@ export const getDataOverNightPetugas = async (req, res) => {
           COALESCE(SUM(CASE WHEN TypeVehicle = 'MOTOR' THEN 1 ELSE 0 END), 0) AS Motor,
           COALESCE(SUM(CASE WHEN TypeVehicle = 'MOBIL' THEN 1 ELSE 0 END), 0) AS Mobil
       FROM TransactionOverNightOficcers
-      WHERE ModifiedOn BETWEEN :startDate AND :endDate
+      WHERE ModifiedOn BETWEEN :startOfDay AND :endOfDay
       ${locationCode ? `AND LocationCode = :locationCode` : ""};
     `;
 
     const summary = await db.query(summaryQuery, {
-      replacements: { startDate, endDate, locationCode },
+      replacements: { startOfDay, endOfDay, locationCode },
       type: db.QueryTypes.SELECT,
     });
 
     const summaryType = await db.query(summaryTypeQuery, {
-      replacements: { startDate, endDate, locationCode },
+      replacements: { startOfDay, endOfDay, locationCode },
       type: db.QueryTypes.SELECT,
     });
 
