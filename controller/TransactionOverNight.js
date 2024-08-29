@@ -7,11 +7,9 @@ import db from "../config/dbConfig.js";
 import ExcelJs from "exceljs";
 import fs from "fs";
 import path from "path";
-import sharp from "sharp";
 import moment from "moment/moment.js";
 import { UsersLocations } from "../models/UsersLocation.js";
 import { fileURLToPath } from "url";
-import xl from "excel4node";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -189,18 +187,6 @@ export const validationData = async (req, res) => {
     }
     const fileBuffer = fs.readFileSync(filePath);
 
-    // Mengubah ukuran gambar menggunakan sharp
-    let resizedImageBuffer;
-    try {
-      resizedImageBuffer = await sharp(fileBuffer)
-        .resize(800) // Ubah ukuran lebar gambar menjadi 800px, proporsi tinggi akan menyesuaikan
-        .jpeg({ quality: 80 }) // Mengubah format ke JPEG dengan kualitas 80%
-        .toBuffer();
-    } catch (sharpError) {
-      console.error("Sharp Error:", sharpError);
-      return res.status(400).json({ message: "File gambar tidak valid." });
-    }
-
     const newFilePath = "/uploads/" + file.filename;
 
     const existingRecord = await TransactionOverNights.findOne({
@@ -227,7 +213,7 @@ export const validationData = async (req, res) => {
         VehiclePlateNo: plateNo,
         TypeVehicle: typeVehicle,
         PathPhotoImage: newFilePath,
-        PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
+        PhotoImage: null,
       });
 
       res.status(200).send("Data berhasil diperbarui!");
@@ -240,7 +226,7 @@ export const validationData = async (req, res) => {
         TypeVehicle: typeVehicle,
         PathPhotoImage: newFilePath,
         Status: "In Area",
-        PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
+        PhotoImage: null,
       });
 
       await TransactionOverNightOficcers.create({
@@ -250,7 +236,7 @@ export const validationData = async (req, res) => {
         VehiclePlateNo: plateNo,
         PathPhotoImage: newFilePath,
         TypeVehicle: typeVehicle,
-        PhotoImage: resizedImageBuffer, // Menggunakan gambar yang sudah diperkecil
+        PhotoImage: null,
       });
       res.status(200).send("Data berhasil disimpan!");
     }
