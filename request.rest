@@ -1,5 +1,5 @@
 GET http://localhost:3008/api/getUsers
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExNCwibmFtZSI6IkhlYWRvZmZpY2UgMDEiLCJlbWFpbCI6ImhlYWRvZmZpY2UwMUB0ZXN0aW5nLmNvbSIsImlhdCI6MTcyMTg5MzM4OCwiZXhwIjoxNzIxODkzNDAzfQ.cHkPrihp-TrwHL47j34fo6glhrcfreCmmpd25gEZmtI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MjksImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcyNDk1NzQxNywiaXNzIjoiaHR0cHM6Ly9za3lwYXJraW5nLm9ubGluZSIsInN1YiI6IkFkbWluVmFsZXQzIiwiZXhwIjoxNzI1MDQzODE3fQ.DVMNXZfVfXeQsR_uet9QjXgPXeyDu43VL6rgufoAKMA
 
 ###
 POST http://localhost:3008/api/login
@@ -15,7 +15,7 @@ GET http://localhost:3008/api/token
 ###
 GET http://localhost:3008/api/logout
 ###
-GET http://localhost:3008/api/getByLocation?userId=29
+GET http://localhost:3008/api/getByLocation?userId=114
 
 ###
 GET http://localhost:3008/api/getAllLocation

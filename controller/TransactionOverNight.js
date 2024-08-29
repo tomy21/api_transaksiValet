@@ -170,6 +170,7 @@ export const validationData = async (req, res) => {
     const { locationCode, plateNo, platerecognizer, officer, typeVehicle } =
       req.body;
     const file = req.file;
+    const currentTime = moment().tz("Asia/Jakarta").format();
 
     if (!locationCode || !plateNo || !officer) {
       return res.status(400).json({ message: "Semua field harus diisi" });
@@ -203,7 +204,7 @@ export const validationData = async (req, res) => {
         ModifiedBy: officer,
         TypeVehicle: typeVehicle,
         PathPhotoImage: newFilePath,
-        UploadedAt: new Date(),
+        UploadedAt: currentTime,
       });
 
       await TransactionOverNightOficcers.create({
