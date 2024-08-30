@@ -515,21 +515,19 @@ export const exportDataOverNight = async (req, res) => {
 
     // Kondisi lokasi
     if (locationCodes.length > 0) {
-      whereClause.LocationCode = { [Op.in]: locationCodes };
+      whereClause.LocationCode = { [Sequelize.Op.in]: locationCodes };
     }
 
     // Kondisi tanggal
     if (date) {
-      const formattedDate = moment(date).format("YYYY-MM-DD");
+      const startOfDay = moment(date).startOf("day").toDate();
+      const endOfDay = moment(date).endOf("day").toDate();
       whereClause.ModifiedOn = {
-        [Op.gte]: Sequelize.literal(`DATE('${formattedDate}')`),
-        [Op.lt]: Sequelize.literal(
-          `DATE_ADD(DATE('${formattedDate}'), INTERVAL 1 DAY)`
-        ),
+        [Sequelize.Op.between]: [startOfDay, endOfDay],
       };
     }
 
-    const queries = {
+    const result = await TransactionOverNightOficcers.findAndCountAll({
       where: whereClause,
       include: [
         {
@@ -537,10 +535,6 @@ export const exportDataOverNight = async (req, res) => {
           attributes: ["Name"],
         },
       ],
-    };
-
-    const result = await TransactionOverNightOficcers.findAndCountAll({
-      ...queries,
     });
 
     if (result) {
@@ -568,14 +562,13 @@ export const exportDataOverNight = async (req, res) => {
         const row = worksheet.addRow({
           No: index + 1,
           LocationCode: value.RefLocation ? value.RefLocation.Name : "-",
-          VehiclePlateNo: value.VehiclePlateNo ? value.VehiclePlateNo : "-",
+          VehiclePlateNo: value.VehiclePlateNo || "-",
           PathPhotoImage: "-",
-          TypeVehicle: value.TypeVehicle ? value.TypeVehicle : "-",
+          TypeVehicle: value.TypeVehicle || "-",
           Status: value.Status,
           ModifiedBy: value.ModifiedBy,
-          ModifiedOn: moment
-            .utc(value.ModifiedOn)
-            .utcOffset("+07:00")
+          ModifiedOn: moment(value.ModifiedOn)
+            .tz("Asia/Jakarta")
             .format("YYYY-MM-DD HH:mm:ss"),
         });
 
@@ -587,7 +580,6 @@ export const exportDataOverNight = async (req, res) => {
           );
 
           if (fs.existsSync(imagePath)) {
-            // Tambahkan gambar ke workbook
             const imageId = workbook.addImage({
               filename: imagePath,
               extension: "jpg",
@@ -598,21 +590,22 @@ export const exportDataOverNight = async (req, res) => {
               ext: { width: 100, height: 100 },
             });
 
-            // Hapus nilai sel jika diperlukan
             row.getCell("PathPhotoImage").value = "";
+            worksheet.getRow(row.number).height = 80;
+          } else {
+            row.getCell("PathPhotoImage").value = "Gambar tidak tersedia";
           }
         } else {
           row.getCell("PathPhotoImage").value = "Gambar tidak tersedia";
         }
-
-        worksheet.getRow(row.number).height = 80;
 
         row.eachCell((cell) => {
           cell.alignment = { vertical: "middle", horizontal: "center" };
         });
       }
 
-      const fileName = locationCodes && date ? `${date}.xlsx` : `alldate.xlsx`;
+      const fileName =
+        locationCodes.length > 0 && date ? `${date}.xlsx` : `alldate.xlsx`;
 
       res.setHeader(
         "Content-Type",

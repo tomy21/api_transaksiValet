@@ -29,6 +29,7 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    sameSite: "None",
   });
 
   res.status(statusCode).json({
