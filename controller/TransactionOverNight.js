@@ -435,9 +435,10 @@ export const getDataOverNightPetugas = async (req, res) => {
   const locationCode = req.query.location || "";
 
   // Menentukan awal dan akhir hari ini berdasarkan zona waktu Asia/Jakarta
-  const startOfDay = moment.tz("America/Denver").startOf("day").toDate();
-  const endOfDay = moment.tz("America/Denver").endOf("day").toDate();
-
+  const startOfDay = moment.tz("Australia/Sydney").startOf("day").toDate();
+  const endOfDay = moment.tz("Australia/Sydney").endOf("day").toDate();
+  console.log("Start of Day:", startOfDay); // Harus menunjukkan waktu UTC yang setara dengan 00:00:00 di zona waktu -07:00
+  console.log("End of Day:", endOfDay);
   try {
     const queries = {
       where: {
