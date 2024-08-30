@@ -202,6 +202,7 @@ export const validationData = async (req, res) => {
       await existingRecord.update({
         Status: "In Area",
         ModifiedBy: officer,
+        ModifiedOn: currentTime,
         TypeVehicle: typeVehicle,
         PathPhotoImage: newFilePath,
         UploadedAt: currentTime,
@@ -211,6 +212,7 @@ export const validationData = async (req, res) => {
         LocationCode: locationCode,
         Status: "In Area",
         ModifiedBy: officer,
+        ModifiedOn: currentTime,
         VehiclePlateNo: plateNo,
         TypeVehicle: typeVehicle,
         PathPhotoImage: newFilePath,
@@ -228,6 +230,7 @@ export const validationData = async (req, res) => {
         PathPhotoImage: newFilePath,
         Status: "In Area",
         PhotoImage: null,
+        ModifiedOn: currentTime,
       });
 
       await TransactionOverNightOficcers.create({
@@ -238,6 +241,7 @@ export const validationData = async (req, res) => {
         PathPhotoImage: newFilePath,
         TypeVehicle: typeVehicle,
         PhotoImage: null,
+        ModifiedOn: currentTime,
       });
       res.status(200).send("Data berhasil disimpan!");
     }

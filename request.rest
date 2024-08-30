@@ -20,6 +20,9 @@ GET http://localhost:3008/api/getByLocation?userId=114
 ###
 GET http://localhost:3008/api/getAllLocation
 
+###
+GET http://localhost:3008/api/getDatabyLocation
+
 
 # request location
 ###
@@ -30,7 +33,7 @@ Content-Type: application/json
 
 # request Issuer
 ###
-GET http://localhost:3008/api/getAllOverNightApps?location=08SKY
+GET http://localhost:3008/api/getAllOverNightApps?location=009SK
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MjksImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcyNDk0MjQ2MywiaXNzIjoiaHR0cHM6Ly9za3lwYXJraW5nLm9ubGluZSIsInN1YiI6IkFkbWluVmFsZXQzIiwiZXhwIjoxNzI1MDI4ODYzfQ.G2tVkUV95Yi2WtGNpdPeJxMT8nJ55qFjhyuEPLgBuvE
 
 #register users
