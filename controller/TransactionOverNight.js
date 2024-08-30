@@ -243,6 +243,8 @@ export const validationData = async (req, res) => {
         PhotoImage: null,
         ModifiedOn: currentTime,
       });
+
+      console.log(currentTime);
       res.status(200).send("Data berhasil disimpan!");
     }
   } catch (error) {
