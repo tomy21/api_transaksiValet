@@ -243,8 +243,6 @@ export const validationData = async (req, res) => {
         PhotoImage: null,
         ModifiedOn: currentTime,
       });
-
-      console.log(currentTime);
       res.status(200).send("Data berhasil disimpan!");
     }
   } catch (error) {
@@ -532,7 +530,6 @@ export const exportDataOverNight = async (req, res) => {
         [Sequelize.Op.between]: [startOfDay, endOfDay],
       };
     }
-
     const result = await TransactionOverNightOficcers.findAndCountAll({
       where: whereClause,
       include: [
