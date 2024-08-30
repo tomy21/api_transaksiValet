@@ -26,8 +26,8 @@ const createSendToken = (user, statusCode, res) => {
   const token = signToken(user);
 
   res.cookie("refreshToken", token, {
-    httpOnly: false,
-    secure: false,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
     expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     sameSite: "None",
   });
