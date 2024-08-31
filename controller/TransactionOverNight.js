@@ -522,15 +522,16 @@ export const exportDataOverNight = async (req, res) => {
       whereClause.LocationCode = { [Sequelize.Op.in]: locationCodes };
     }
 
-    console.log(moment(date).format("YYYY-MM-DD"));
-    // Kondisi tanggal
-    if (date) {
-      whereClause.ModifiedOn = {
-        [Sequelize.Op.eq]: moment(date).format("YYYY-MM-DD"),
-      };
-    }
+    // Buat kondisi tanggal menggunakan Sequelize.literal di luar whereClause
+    const dateCondition = date
+      ? Sequelize.where(Sequelize.fn("DATE", Sequelize.col("ModifiedOn")), date)
+      : null;
+
     const result = await TransactionOverNightOficcers.findAndCountAll({
-      where: whereClause,
+      where: {
+        ...whereClause,
+        ...(dateCondition ? { [Sequelize.Op.and]: dateCondition } : {}),
+      },
       include: [
         {
           model: Location,
