@@ -514,7 +514,6 @@ export const exportDataOverNight = async (req, res) => {
     : [];
   const date = req.query.date || "";
 
-  console.log(date);
   try {
     const whereClause = {};
 
@@ -523,16 +522,11 @@ export const exportDataOverNight = async (req, res) => {
       whereClause.LocationCode = { [Sequelize.Op.in]: locationCodes };
     }
 
+    console.log(moment(date).format("YYYY-MM-DD"));
     // Kondisi tanggal
     if (date) {
-      const startOfDay = moment(date).startOf("day").toDate();
-      const endOfDay = moment(date).endOf("day").toDate();
-
-      console.log(startOfDay);
-      console.log(endOfDay);
-
       whereClause.ModifiedOn = {
-        [Sequelize.Op.between]: [startOfDay, endOfDay],
+        [Sequelize.Op.eq]: moment(date).format("YYYY-MM-DD"),
       };
     }
     const result = await TransactionOverNightOficcers.findAndCountAll({
