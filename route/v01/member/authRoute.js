@@ -7,6 +7,9 @@ import {
   getUserById,
   getUserByIdDetail,
   getAllUsers,
+  userRole,
+  getRoles,
+  getRoleById,
 } from "../../../controller/v01/member/AuthController.js";
 import { protect } from "../../../middleware/v01/member/authMiddleware.js";
 
@@ -20,6 +23,10 @@ router.get("/user/:id", getUserById);
 router.get("/user", getAllUsers);
 router.patch("/user/:id", getUserById);
 router.get("/activate/:token", activateAccount);
+
+router.post("/role", userRole);
+router.get("/role", getRoles);
+router.get("/rolesDetail/:id", getRoleById);
 
 router.get("/protected", protect, (req, res) => {
   res.status(200).json({

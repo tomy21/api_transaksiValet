@@ -6,6 +6,9 @@ import { Op } from "sequelize";
 import UserDetails from "../../../models/v01/member/UserDetails.js";
 import { v4 as uuidv4 } from "uuid";
 import MemberUserProduct from "../../../models/v01/member/MemberUserProduct.js";
+import { errorResponse, successResponse } from "../../../config/response.js";
+import MemberRole from "../../../models/v01/member/RoleModel.js";
+import MemberUserRole from "../../../models/v01/member/MemberUserRoles.js";
 
 const signToken = (user, rememberMe) => {
   const expiresIn = rememberMe ? "30d" : "1d";
@@ -83,7 +86,7 @@ export const login = async (req, res) => {
 
 export const register = async (req, res) => {
   try {
-    const { username, email, password, phone, pin } = req.body;
+    const { username, email, password, phone, pin, roleId } = req.body;
 
     const newUser = await User.create({
       UserName: username,
@@ -97,6 +100,11 @@ export const register = async (req, res) => {
     await UserDetails.create({
       Pin: pin,
       MemberUserId: newUser.id,
+    });
+
+    await MemberUserRole.create({
+      UserId: newUser.id,
+      RoleId: roleId,
     });
 
     const activationToken = newUser.createActivationToken();
@@ -254,6 +262,10 @@ export const getAllUsers = async (req, res) => {
           model: MemberUserProduct,
           attributes: ["CardId"],
         },
+        {
+          model: MemberUserRole,
+          attributes: ["RoleId"],
+        },
       ],
     });
 
@@ -267,5 +279,43 @@ export const getAllUsers = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const userRole = async (req, res) => {
+  try {
+    const { Name, NormalizedName, ConcurrencyStamp } = req.body;
+    const role = await MemberRole.create({
+      Name,
+      NormalizedName,
+      ConcurrencyStamp,
+    });
+    return successResponse(res, 200, "Get Data successfully", {
+      role,
+    });
+  } catch (err) {
+    return errorResponse(res, 500, "Error", err.message);
+  }
+};
+
+export const getRoles = async (req, res) => {
+  try {
+    const roles = await MemberRole.findAll();
+    return successResponse(res, 200, "Get Data successfully", {
+      roles,
+    });
+  } catch (error) {
+    return errorResponse(res, 500, "Error", error.message);
+  }
+};
+
+export const getRoleById = async (req, res) => {
+  try {
+    const dataRoles = await MemberUserRole.findByPk(req.params.id);
+    return successResponse(res, 200, "Get Data successfully", {
+      data: dataRoles,
+    });
+  } catch (error) {
+    return errorResponse(res, 500, "Error", error.message);
   }
 };

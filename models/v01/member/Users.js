@@ -4,6 +4,7 @@ import crypto from "crypto";
 import db from "../../../config/dbConfig.js";
 import UserDetails from "./UserDetails.js";
 import MemberUserProduct from "./MemberUserProduct.js";
+import MemberUserRole from "./MemberUserRoles.js";
 
 const User = db.define(
   "MemberUsers",
@@ -151,12 +152,19 @@ User.hasMany(UserDetails, {
 User.hasMany(MemberUserProduct, {
   foreignKey: "MemberUserId",
 });
+User.hasMany(MemberUserRole, {
+  foreignKey: "UserId",
+});
 
 UserDetails.belongsTo(User, {
   foreignKey: "MemberUserId",
 });
 MemberUserProduct.belongsTo(User, {
   foreignKey: "MemberUserId",
+});
+
+MemberUserRole.belongsTo(User, {
+  foreignKey: "UserId",
 });
 
 export default User;
