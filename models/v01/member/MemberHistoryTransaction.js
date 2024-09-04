@@ -29,6 +29,10 @@ const MemberHistoryTransaction = db.define(
       type: DataTypes.STRING(45),
       allowNull: false,
     },
+    PlateNumber: {
+      type: DataTypes.STRING(45),
+      allowNull: true,
+    },
     CreatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
