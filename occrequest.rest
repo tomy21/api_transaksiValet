@@ -1,2 +1,2 @@
 ###
-GET http://localhost:3008/v01/occ/api/gates/4
+GET https://dev-valetapi.skyparking.online/v01/occ/api/gates/2
