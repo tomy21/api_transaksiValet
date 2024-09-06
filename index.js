@@ -59,6 +59,7 @@ app.use(
       "https://dev-on.skyparking.online",
       "https://dev-membership.skyparking.online",
       "https://dev-injectmember.skyparking.online",
+      "https://dev-paymentapi.skyparking.online",
     ],
   })
 );
