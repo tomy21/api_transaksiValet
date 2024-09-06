@@ -37,7 +37,17 @@ import { WebSocketServer } from "ws";
 initAssociations();
 const app = express();
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ port: 9999 });
+
+app.use((req, res, next) => {
+  if (wss) {
+    console.log(`WebSocket Server passed to req.wss`);
+    req.wss = wss;
+  } else {
+    console.error("WebSocket server is undefined");
+  }
+  next();
+});
 
 app.use(
   cors({
@@ -81,12 +91,6 @@ app.use("/v01/member/api", TempMemberTenantTransaction);
 app.use("/v01/member/api", TrxMemberQuote);
 app.use("/v01/member/api", MemberMaster);
 // app.use("/v01/member/api", SendWhatsapp);
-
-app.use((req, res, next) => {
-  console.log(`WebSocket Server passed to ${req.wss}`);
-  req.wss = wss;
-  next();
-});
 
 app.use("/v01/occ/api", HikvisionIntegration);
 app.use("/v01/occ/api", OccCapture);
