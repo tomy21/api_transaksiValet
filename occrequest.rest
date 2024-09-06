@@ -1,0 +1,2 @@
+###
+GET http://localhost:3008/v01/occ/api/gates/4

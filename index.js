@@ -25,13 +25,18 @@ import TempMemberTenantTransaction from "./route/v01/member/TempTransactionMembe
 import TrxMemberQuote from "./route/v01/member/TrxMemberQuota.js";
 import MemberMaster from "./route/v01/member/MemberMaster.js";
 import OccCapture from "./route/OCC/index.js";
+import GateRoutes from "./route/OCC/GateRoutes.js";
+import HikvisionIntegration from "./route/OCC/HikvisionRoutes.js";
 import { initAssociations } from "./models/v01/member/associations.js";
+import { createServer } from "http";
+import { WebSocketServer } from "ws";
 // import SendWhatsapp from "./route/ThirdParty/SendMessage.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
 
 initAssociations();
 const app = express();
+const wss = new WebSocketServer({ port: 9080 });
 
 app.use(
   cors({
@@ -76,7 +81,32 @@ app.use("/v01/member/api", TrxMemberQuote);
 app.use("/v01/member/api", MemberMaster);
 // app.use("/v01/member/api", SendWhatsapp);
 
+app.use((req, res, next) => {
+  console.log("WebSocket Server passed to req.wss");
+  req.wss = wss;
+  next();
+});
+
+app.use("/v01/occ/api", HikvisionIntegration);
 app.use("/v01/occ/api", OccCapture);
+app.use("/v01/occ/api", GateRoutes);
+
+// Handling WebSocket connection
+wss.on("connection", (ws) => {
+  console.log("Client connected to WebSocket server");
+
+  // Kirim pesan sebagai JSON
+  // ws.send(JSON.stringify({ message: "Welcome to WebSocket server" }));
+
+  ws.on("message", (message) => {
+    console.log(`Received message: ${message}`);
+    ws.send(JSON.stringify({ message: "Message received" }));
+  });
+
+  ws.on("close", () => {
+    console.log("WebSocket connection closed");
+  });
+});
 
 const PORT = 3008;
 app.listen(PORT, () => {
