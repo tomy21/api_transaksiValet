@@ -36,7 +36,8 @@ import { WebSocketServer } from "ws";
 
 initAssociations();
 const app = express();
-const wss = new WebSocketServer({ port: 9080 });
+const server = createServer(app);
+const wss = new WebSocketServer(server);
 
 app.use(
   cors({
