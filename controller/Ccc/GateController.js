@@ -1,6 +1,6 @@
 import { Gate } from "../../models/OCC/Gate.js";
 import { LocationCCC } from "../../models/OCC/Location.js";
-import { notifyGateUpdate } from "../../route/OCC/GateRoutes.js";
+// import { notifyGateUpdate } from "../../route/OCC/GateRoutes.js";
 
 // Get All Gates
 export const getAllGates = async (req, res) => {
