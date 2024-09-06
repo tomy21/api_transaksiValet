@@ -83,7 +83,7 @@ app.use("/v01/member/api", MemberMaster);
 // app.use("/v01/member/api", SendWhatsapp);
 
 app.use((req, res, next) => {
-  console.log("WebSocket Server passed to req.wss");
+  console.log(`WebSocket Server passed to ${req.wss}`);
   req.wss = wss;
   next();
 });
