@@ -10,20 +10,24 @@ import {
 const router = express.Router();
 
 // Route HTTP untuk Gate
-router.get("/gates", (req, res) => getAllGates(req, res));
-router.get("/gates/:id", (req, res) => getGateById(req, res));
-router.post("/gates", (req, res) => createGate(req, res));
-router.put("/gates/:id", (req, res) => updateGate(req, res));
-router.delete("/gates/:id", (req, res) => deleteGate(req, res));
+router.get("/gates", getAllGates);
+router.get("/gates/:id", getGateById);
+router.post("/gates", (req, res) => {
+  createGate(req, res);
+  notifyGateUpdate(req.io, { event: "create", data: req.body });
+});
+router.put("/gates/:id", (req, res) => {
+  updateGate(req, res);
+  notifyGateUpdate(req.io, { event: "update", data: req.body });
+});
+router.delete("/gates/:id", (req, res) => {
+  deleteGate(req, res);
+  notifyGateUpdate(req.io, { event: "delete", data: req.params.id });
+});
 
 // Fungsi untuk mengirim notifikasi WebSocket ke semua client
-export const notifyGateUpdate = (wss, gateData) => {
-  wss.clients.forEach((client) => {
-    if (client.readyState === 1) {
-      // Jika koneksi WebSocket masih terbuka
-      client.send(JSON.stringify(gateData)); // Kirim data ke client WebSocket
-    }
-  });
+export const notifyGateUpdate = (io, gateData) => {
+  io.emit("gateUpdate", gateData); // Mengirim pesan ke semua klien WebSocket yang terhubung
 };
 
 export default router;

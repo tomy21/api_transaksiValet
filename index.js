@@ -29,7 +29,7 @@ import GateRoutes from "./route/OCC/GateRoutes.js";
 import HikvisionIntegration from "./route/OCC/HikvisionRoutes.js";
 import { initAssociations } from "./models/v01/member/associations.js";
 import { createServer } from "http";
-import { WebSocketServer } from "ws";
+import { Server } from "socket.io";
 // import SendWhatsapp from "./route/ThirdParty/SendMessage.js";
 // import getReport from "./route/Valet/report.js";
 // import connect from "./config/dbConfig";
@@ -37,7 +37,7 @@ import { WebSocketServer } from "ws";
 initAssociations();
 const app = express();
 
-const wss = new WebSocketServer({ port: 9999 });
+const httpServer = createServer(app);
 
 app.use(
   cors({
@@ -49,9 +49,25 @@ app.use(
       "https://dev-on.skyparking.online",
       "https://dev-membership.skyparking.online",
       "https://dev-injectmember.skyparking.online",
+      "https://inject.skyparking.com",
     ],
   })
 );
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: [
+      "http://localhost:3000",
+      "http://147.139.135.195:8091",
+      "https://dev-valet.skyparking.online",
+      "https://dev-on.skyparking.online",
+      "https://dev-membership.skyparking.online",
+      "https://dev-injectmember.skyparking.online",
+    ],
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -83,8 +99,7 @@ app.use("/v01/member/api", MemberMaster);
 // app.use("/v01/member/api", SendWhatsapp);
 
 app.use((req, res, next) => {
-  console.log("WebSocket Server passed to req.wss");
-  req.wss = wss;
+  req.io = io; // Pass Socket.IO instance ke setiap request
   next();
 });
 
@@ -93,24 +108,27 @@ app.use("/v01/occ/api", OccCapture);
 app.use("/v01/occ/api", GateRoutes);
 
 // Handling WebSocket connection
-wss.on("connection", (ws) => {
-  console.log("Client connected to WebSocket server");
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
 
-  // Kirim pesan sebagai JSON
-  // ws.send(JSON.stringify({ message: "Welcome to WebSocket server" }));
+  // Mengirim pesan ke client setelah terhubung
+  socket.emit("welcome", { message: "Welcome to Socket.IO server" });
 
-  ws.on("message", (message) => {
-    console.log(`Received message: ${message}`);
-    ws.send(JSON.stringify({ message: "Message received" }));
+  // Menerima pesan dari client
+  socket.on("message", (msg) => {
+    console.log(`Message from client: ${msg}`);
+
+    // Kirim balasan ke client yang sama
+    socket.emit("response", { message: "Message received" });
   });
 
-  ws.on("close", () => {
-    console.log("WebSocket connection closed");
+  // Event untuk menangani disconnect
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
   });
 });
 
 const PORT = 3008;
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  // updateOutTime();
 });

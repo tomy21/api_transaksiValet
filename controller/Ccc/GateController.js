@@ -8,7 +8,7 @@ export const getAllGates = async (req, res) => {
     const gates = await Gate.findAll();
 
     // Kirim ke semua WebSocket client
-    notifyGateUpdate(req.wss, gates); // Memastikan req.wss digunakan
+    notifyGateUpdate(req.io, gates); // Mengganti req.wss dengan req.io
     res.status(200).json(gates);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -22,8 +22,8 @@ export const getGateById = async (req, res) => {
       include: [
         {
           model: LocationCCC,
-          as: "location", // Alias sesuai yang ditentukan pada relasi
-          attributes: ["Name"], // Menyertakan hanya kolom Name
+          as: "location",
+          attributes: ["Name"],
         },
       ],
     });
@@ -31,7 +31,7 @@ export const getGateById = async (req, res) => {
       return res.status(404).json({ message: "Gate not found" });
     }
 
-    notifyGateUpdate(req.wss, gate);
+    req.io.emit("gateViewed", { event: "view", data: gate });
 
     res.status(200).json(gate);
   } catch (error) {
@@ -53,7 +53,7 @@ export const createGate = async (req, res) => {
     });
 
     // Kirim ke semua WebSocket client setelah pembuatan gate
-    notifyGateUpdate(req.wss, newGate); // Memastikan req.wss digunakan
+    notifyGateUpdate(req.io, { event: "create", data: newGate });
 
     res.status(201).json(newGate);
   } catch (error) {
@@ -71,9 +71,6 @@ export const updateGate = async (req, res) => {
       return res.status(404).json({ message: "Gate not found" });
     }
 
-    console.log("Existing Gate:", existingGate);
-    console.log("Incoming Data:", req.body);
-
     // Update only the fields that are provided, keep others as they are
     existingGate.id_location = id_location || existingGate.id_location;
     existingGate.gate = gate || existingGate.gate;
@@ -84,7 +81,7 @@ export const updateGate = async (req, res) => {
     await existingGate.save();
 
     // Kirim ke semua WebSocket client setelah update
-    // notifyGateUpdate(req.wss, existingGate);
+    notifyGateUpdate(req.io, { event: "update", data: existingGate });
 
     res.status(200).json(existingGate);
   } catch (error) {
@@ -103,9 +100,7 @@ export const deleteGate = async (req, res) => {
     await gate.destroy();
 
     // Kirim notifikasi penghapusan melalui WebSocket
-    notifyGateUpdate(req.wss, {
-      message: `Gate with ID ${req.params.id} deleted`,
-    }); // Memastikan req.wss digunakan
+    notifyGateUpdate(req.io, { event: "delete", data: { id: req.params.id } });
 
     res.status(200).json({ message: "Gate deleted successfully" });
   } catch (error) {
