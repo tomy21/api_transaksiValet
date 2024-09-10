@@ -31,9 +31,8 @@ export const getGateById = async (req, res) => {
       return res.status(404).json({ message: "Gate not found" });
     }
 
-    // Kirim ke semua WebSocket client
-    // console.log(req.wss);
     notifyGateUpdate(req.wss, gate);
+
     res.status(200).json(gate);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -72,17 +71,20 @@ export const updateGate = async (req, res) => {
       return res.status(404).json({ message: "Gate not found" });
     }
 
-    // Update fields
-    existingGate.id_location = id_location;
-    existingGate.gate = gate;
-    existingGate.channel_cctv = channel_cctv;
-    existingGate.arduino = arduino;
-    existingGate.id_tele = id_tele;
+    console.log("Existing Gate:", existingGate);
+    console.log("Incoming Data:", req.body);
+
+    // Update only the fields that are provided, keep others as they are
+    existingGate.id_location = id_location || existingGate.id_location;
+    existingGate.gate = gate || existingGate.gate;
+    existingGate.channel_cctv = channel_cctv || existingGate.channel_cctv;
+    existingGate.arduino = arduino || existingGate.arduino;
+    existingGate.id_tele = id_tele || existingGate.id_tele;
 
     await existingGate.save();
 
     // Kirim ke semua WebSocket client setelah update
-    notifyGateUpdate(req.wss, existingGate); // Memastikan req.wss digunakan
+    // notifyGateUpdate(req.wss, existingGate);
 
     res.status(200).json(existingGate);
   } catch (error) {

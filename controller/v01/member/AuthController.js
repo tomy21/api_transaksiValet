@@ -196,6 +196,7 @@ export const getUserById = async (req, res) => {
       statusCode: 200,
       message: "Users retrieved successfully",
       points: usersDetailById.Points,
+      detaildata: usersDetailById,
       data: userById,
     });
   } catch (err) {
