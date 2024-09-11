@@ -88,6 +88,27 @@ export const getGateById = async (req, res) => {
   }
 };
 
+export const getArduinoById = async (req, res) => {
+  try {
+    const gate = await Gate.findByPk(req.params.id, {
+      include: [
+        {
+          model: LocationCCC,
+          as: "location",
+          attributes: ["Name"],
+        },
+      ],
+    });
+    if (!gate) {
+      return res.status(404).json({ message: "Gate not found" });
+    }
+
+    res.status(200).json(gate);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // Create a New Gate
 export const createGate = async (req, res) => {
   const { id_location, gate, channel_cctv, arduino, id_tele } = req.body;

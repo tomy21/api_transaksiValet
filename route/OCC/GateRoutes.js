@@ -5,6 +5,7 @@ import {
   createGate,
   updateGate,
   deleteGate,
+  getArduinoById,
 } from "../../controller/Ccc/GateController.js";
 
 const router = express.Router();
@@ -12,6 +13,7 @@ const router = express.Router();
 // Route HTTP untuk Gate
 router.get("/gates", getAllGates);
 router.get("/gates/:id", getGateById);
+router.get("/gates/:id", getArduinoById);
 router.post("/gates", (req, res) => {
   createGate(req, res);
   notifyGateUpdate(req.io, { event: "create", data: req.body });

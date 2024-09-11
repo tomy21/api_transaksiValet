@@ -13,6 +13,14 @@ Content-Type: application/json
 }
 
 ###
+PUT http://147.139.135.195:8090/v01/occ/api/gates/2
+Content-Type: application/json
+
+{
+    "arduino": "1"
+}
+
+###
 PUT http://localhost:3008/v01/occ/api/gates/2
 Content-Type: application/json
 
