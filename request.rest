@@ -64,10 +64,10 @@ POST http://localhost:3008/v01/member/api/auth/register
 Content-Type: application/json
 
 {
-    "username":"tomy21",
-    "email":"tomy21.agung@gmail.com",
-    "phone":"+628921211111",
-    "password":"123456",
+    "username":"Heru_UPH",
+    "email":"arifinsetiadidermawan@gmail.com",
+    "phone":"+6289671182249",
+    "password":"sky123",
     "pin":"321321"
 }
 

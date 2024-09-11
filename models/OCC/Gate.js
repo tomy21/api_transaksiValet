@@ -27,6 +27,10 @@ export const Gate = dbOCC.define(
       type: DataTypes.ENUM("0", "1"),
       allowNull: false,
     },
+    statusGate: {
+      type: DataTypes.ENUM("0", "1"),
+      allowNull: false,
+    },
     id_tele: {
       type: DataTypes.TEXT,
       allowNull: true,

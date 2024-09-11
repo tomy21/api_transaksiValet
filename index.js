@@ -49,7 +49,7 @@ app.use(
       "https://dev-on.skyparking.online",
       "https://dev-membership.skyparking.online",
       "https://dev-injectmember.skyparking.online",
-      "https://inject.skyparking.com",
+      "https://inject.skyparking.online",
     ],
   })
 );
@@ -64,7 +64,7 @@ const io = new Server(httpServer, {
       "https://dev-membership.skyparking.online",
       "https://dev-injectmember.skyparking.online",
     ],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT"],
     credentials: true,
   },
 });
