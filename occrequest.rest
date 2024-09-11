@@ -1,5 +1,5 @@
 ###
-GET https://dev-valetapi.skyparking.online/v01/occ/api/gates/2
+GET http://localhost:3008/v01/occ/api/gates/2
 
 ###
 GET http://localhost:3008/v01/occ/api/gates?page=1&limit=&search=10

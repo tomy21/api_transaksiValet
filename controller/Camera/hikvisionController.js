@@ -4,7 +4,9 @@ import { spawn } from "child_process";
 // Controller untuk menangkap gambar (capture)
 export const captureImage = async (req, res) => {
   const channelId = req.query.channelId || 101;
-  const captureUrl = `/ISAPI/Streaming/channels/${channelId}/picture`; // Endpoint capture untuk channel 101
+  const idChannel = parseInt(channelId);
+  const captureUrl = `/ISAPI/Streaming/channels/${idChannel}/picture`; // Endpoint capture untuk channel 101
+  console.log(captureUrl);
   const hasil = await makeHikvisionRequest(
     captureUrl,
     "GET",

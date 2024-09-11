@@ -13,7 +13,7 @@ const router = express.Router();
 // Route HTTP untuk Gate
 router.get("/gates", getAllGates);
 router.get("/gates/:id", getGateById);
-router.get("/gates/:id", getArduinoById);
+router.get("/gatesArduino/:id", getArduinoById);
 router.post("/gates", (req, res) => {
   createGate(req, res);
   notifyGateUpdate(req.io, { event: "create", data: req.body });
