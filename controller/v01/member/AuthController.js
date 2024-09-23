@@ -171,7 +171,7 @@ export const activateAccount = async (req, res) => {
     await user.save();
 
     // Redirect ke halaman setelah sukses aktivasi
-    res.redirect("http://localhost:3000/");
+    res.redirect("https://dev-membership.skyparking.online/");
   } catch (err) {
     res.status(400).json({
       status: "fail",
