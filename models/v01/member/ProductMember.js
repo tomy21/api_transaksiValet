@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes } from "sequelize";
 import db from "../../../config/dbConfig.js";
+import { Location } from "../../RefLocation.js";
 
 const MemberProduct = db.define(
   "MemberProducts",
@@ -37,6 +38,10 @@ const MemberProduct = db.define(
     LocationCode: {
       type: DataTypes.STRING,
       allowNull: false,
+      references: {
+        model: "RefLocation",
+        key: "LocationCode",
+      },
     },
     LocationName: {
       type: DataTypes.STRING,
@@ -51,5 +56,10 @@ const MemberProduct = db.define(
     timestamps: false,
   }
 );
+
+MemberProduct.belongsTo(Location, {
+  foreignKey: "LocationCode",
+  targetKey: "LocationCode",
+});
 
 export default MemberProduct;

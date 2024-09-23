@@ -69,6 +69,15 @@ export const Location = db.define(
     RecordStatus: {
       type: DataTypes.INTEGER,
     },
+    LocationCode: {
+      type: DataTypes.STRING(225),
+    },
+    Quota: {
+      type: DataTypes.INTEGER,
+    },
+    UsedQuota: {
+      type: DataTypes.INTEGER,
+    },
     IsMember: {
       type: DataTypes.BOOLEAN,
     },

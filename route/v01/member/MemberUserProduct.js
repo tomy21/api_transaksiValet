@@ -20,7 +20,7 @@ router.route("/userProduct/byUser").get(getMemberByUserId);
 router.route("/userProduct/verifikasi").get(verifikasiPlat);
 
 router
-  .route("/userProduct/:id")
+  .route("/userProduct/updateData/:id")
   .get(getMemberUserProduct)
   .patch(updateMemberUserProduct)
   .delete(deleteMemberUserProduct);

@@ -1,6 +1,8 @@
 ###
 GET http://147.139.135.195:8090/v01/occ/api/gates/2
 ###
+GET http://localhost:3008/v01/occ/api/gates/2
+###
 GET http://147.139.135.195:8090/v01/occ/api/gatesArduino/2
 
 ###

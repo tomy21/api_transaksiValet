@@ -16,9 +16,10 @@ router
   .get(getAllMemberProductBundles);
 router.get("/products/type/:vehicleType", getProductByType);
 router
-  .route("/memberProductBundles/:Id")
+  .route("/memberProductBundles/:id")
   .get(getMemberProductBundle)
-  .put(updateMemberProductBundle)
-  .delete(deleteMemberProductBundle);
+  .put(updateMemberProductBundle);
+
+router.route("/memberProductBundles/delete/:id").put(deleteMemberProductBundle);
 
 export default router;

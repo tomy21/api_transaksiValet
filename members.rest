@@ -1,14 +1,15 @@
 #register users
 ###
 POST http://localhost:3008/v01/member/api/auth/register
-Content-Type: application/json
+# Content-Type: application/json
 # https://dev-valetapi.skyparking.online
 {
-    "username":"tomy21",
-    "email":"tomy21.agung@gmail.com",
+    "username":"heru_uph",
+    "email":"arifinsetiadidermawan@gmail.com",
     "phone":"+628921233427",
     "password":"123456",
-    "pin":"321321"
+    "pin":"321321",
+    "roleId": 3
 }
 
 
@@ -25,8 +26,21 @@ Content-Type: application/json
 
 #getUserById
 ###
-GET http://localhost:3008/v01/member/api/auth/user
+GET http://localhost:3008/v01/member/api/auth/user/7
 Content-Type: application/json
+
+#getUserById
+###
+GET http://localhost:3008/v01/member/api/auth/usersDetail/18
+
+#getUserById
+###
+PUT http://localhost:3008/v01/member/api/auth/usersDetail/18
+Content-Type: application/json
+
+{
+  "FullName": "Tomy Agung Saputro"
+}
 
 #getUserById
 ###
@@ -44,11 +58,19 @@ Content-Type: application/json
 
 #getUserById
 ###
-PATCH  http://localhost:3008/v01/member/api/auth/user/24
+GET  http://localhost:3008/v01/member/api/auth/user
+Content-Type: application/json
+
+# {
+#   "Pin":"321321"
+# }
+
+### Reset Password
+POST http://localhost:3008/v01/member/api/auth/request-password-reset
 Content-Type: application/json
 
 {
-  "Pin":"321321"
+  "email": "tomy21.agung@gmail.com"
 }
 
 #getUserByIdDetail
@@ -69,7 +91,7 @@ Content-Type: application/json
 
 #getProductById
 ###
-GET http://localhost:3008/v01/member/api/product/1
+GET http://localhost:3008/v01/member/api/product
 Content-Type: application/json
 
 #UpdatedProductById
@@ -166,7 +188,7 @@ Content-Type: application/json
 
 ###
 # Get a single MemberUserProduct by ID
-GET http://localhost:3008/v01/member/api/userProduct/byUser?userId=21
+GET http://localhost:3008/v01/member/api/userProduct/byUser?userId=7
 Content-Type: application/json
 
 ###
@@ -176,8 +198,12 @@ Content-Type: application/json
 
 ###
 # Get a single MemberUserProduct by ID
-GET http://localhost:3008/v01/member/api/userProduct/2
+GET  http://localhost:3008/v01/member/api/userProduct
 Content-Type: application/json
+
+# {
+#   "RfId": "309812311"
+# }
 
 
 ###
@@ -284,10 +310,31 @@ Content-Type: application/json
   "TrxMemberQuoteId": 19,
   "CreateBy": "Admin"
 }
+###
+# Create a new MemberProductBundle
+PUT http://localhost:3008/v01/member/api/memberProductBundles/19
+Content-Type: application/json
+
+{
+  "Name": "1 Bulan Agustus",
+  "StartDate": "2024-08-01T00:00:00.000Z",
+  "EndDate": "2024-08-31T23:59:59.000Z",
+  "IsDeleted": false,
+  "Price": 300000.00,
+  "CardActivateFee": 50000.00,
+  "Type": "Mobil",
+  "Fee": 5000.00,
+  "CreateBy": "Admin"
+}
 
 ###
 # Get a single MemberProductBundle by ID
-GET http://localhost:3008/v01/member/api/memberProductBundles/23
+GET http://localhost:3008/v01/member/api/memberProductBundles/19
+Content-Type: application/json
+
+###
+# Get a single MemberProductBundle by ID
+GET http://localhost:3008/v01/member/api/memberProductBundles
 Content-Type: application/json
 
 ###
@@ -306,8 +353,12 @@ Content-Type: application/json
 
 ###
 # Delete a MemberProductBundle by ID
-DELETE http://localhost:3008/v01/member/api/memberProductBundles/1
+PUT http://localhost:3008/v01/member/api/memberProductBundles/delete/19
 Content-Type: application/json
+
+{
+  "DeletedBy":"Tomy"
+}
 
 
 # Tenant API Requeest
@@ -507,3 +558,13 @@ Content-Type: application/json
   "to": "+6285161537784",
   "message": "Hello from Twilio WhatsApp!"
 }
+
+### 
+# Get all MemberProductBundles
+GET http://localhost:3008/v01/member/api/history-post
+Content-Type: application/json
+
+### 
+# Get all MemberProductBundles
+GET http://localhost:3008/v01/member/api//history-post/card/ABCD12
+Content-Type: application/json

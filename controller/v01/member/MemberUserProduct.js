@@ -74,6 +74,7 @@ export const getMemberUserProduct = async (req, res) => {
 export const getMemberByUserId = async (req, res) => {
   try {
     const userId = req.query.userId;
+
     if (!userId) {
       return res.status(400).json({
         statusCode: 400,
@@ -84,7 +85,6 @@ export const getMemberByUserId = async (req, res) => {
     const products = await MemberUserProduct.findAll({
       where: {
         MemberUserId: userId,
-        // DeletedOn: null,
       },
       include: {
         model: TrxHistoryMemberProducts,
@@ -102,7 +102,7 @@ export const getMemberByUserId = async (req, res) => {
           },
         ],
       },
-      attributes: ["Id", "CardId", "PlateNumber"],
+      attributes: ["Id", "CardId", "PlateNumber", "RfId", "IsUsed"],
     });
 
     if (products.length === 0) {
@@ -129,21 +129,37 @@ export const getMemberByUserId = async (req, res) => {
 export const updateMemberUserProduct = async (req, res) => {
   try {
     const [updated] = await MemberUserProduct.update(req.body, {
-      where: { Id: req.params.id, DeletedOn: null },
+      where: { Id: req.params.id },
     });
-    if (!updated) {
+    if (!updated || updated === 0) {
       return res.status(404).json({
         statusCode: 404,
         message: "MemberUserProduct not found or already deleted",
       });
     }
+
     const updatedProduct = await MemberUserProduct.findByPk(req.params.id);
+    if (!updatedProduct) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "MemberUserProduct not found",
+      });
+    }
     res.status(200).json({
       statusCode: 200,
       message: "MemberUserProduct updated successfully",
       data: updatedProduct,
     });
   } catch (err) {
+    if (
+      err.name === "SequelizeDatabaseError" &&
+      err.parent.code === "ER_BAD_FIELD_ERROR"
+    ) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Invalid request body",
+      });
+    }
     res.status(400).json({
       statusCode: 400,
       message: err.message,

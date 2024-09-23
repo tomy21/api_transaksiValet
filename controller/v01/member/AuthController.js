@@ -9,6 +9,8 @@ import MemberUserProduct from "../../../models/v01/member/MemberUserProduct.js";
 import { errorResponse, successResponse } from "../../../config/response.js";
 import MemberRole from "../../../models/v01/member/RoleModel.js";
 import MemberUserRole from "../../../models/v01/member/MemberUserRoles.js";
+import MemberUserToken from "../../../models/v01/member/MemberUserToken.js";
+import bcrypt from "bcryptjs/dist/bcrypt.js";
 
 const signToken = (user, rememberMe) => {
   const expiresIn = rememberMe ? "30d" : "1d";
@@ -35,7 +37,7 @@ const createSendToken = (user, statusCode, res, rememberMe) => {
   const token = signToken(user, rememberMe);
 
   res.cookie("refreshToken", token, {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === "production",
     expires: new Date(Date.now() + (rememberMe ? 30 : 1) * 24 * 60 * 60 * 1000),
   });
@@ -104,7 +106,7 @@ export const register = async (req, res) => {
 
     await MemberUserRole.create({
       UserId: newUser.id,
-      RoleId: roleId,
+      RoleId: roleId || 4,
     });
 
     const activationToken = newUser.createActivationToken();
@@ -169,7 +171,7 @@ export const activateAccount = async (req, res) => {
     await user.save();
 
     // Redirect ke halaman setelah sukses aktivasi
-    res.redirect("http://dev-membership.skyparking.online");
+    res.redirect("http://localhost:3000/");
   } catch (err) {
     res.status(400).json({
       status: "fail",
@@ -250,7 +252,11 @@ export const getAllUsers = async (req, res) => {
     const limit = req.query.limit || 5;
     const offset = (page - 1) * limit;
 
-    const { count, rows } = await User.findAndCountAll({
+    // Query pertama untuk menghitung total user di tabel User tanpa include
+    const totalUsers = await User.count();
+
+    // Query kedua untuk mendapatkan data user dengan relasi yang diinginkan
+    const rows = await User.findAll({
       limit: parseInt(limit),
       offset: parseInt(offset),
       order: [["createdOn", "DESC"]],
@@ -270,10 +276,11 @@ export const getAllUsers = async (req, res) => {
       ],
     });
 
-    const totalPages = Math.floor(count / limit);
+    // Menghitung total halaman
+    const totalPages = Math.ceil(totalUsers / limit);
 
     res.status(200).json({
-      total: count,
+      total: totalUsers,
       totalPages: totalPages,
       currentPage: parseInt(page),
       data: rows,
@@ -318,5 +325,146 @@ export const getRoleById = async (req, res) => {
     });
   } catch (error) {
     return errorResponse(res, 500, "Error", error.message);
+  }
+};
+
+export const updateUserDetails = async (req, res) => {
+  const { id } = req.params; // Extract the MemberUserId from the URL
+  const {
+    FullName,
+    IpAddress,
+    Gender,
+    Birthdate,
+    Address,
+    IdNumber,
+    Points,
+    RewardPoints,
+    P256dh,
+    Auth,
+    Url,
+    Pin,
+  } = req.body;
+
+  try {
+    const user = await UserDetails.findOne({ where: { Id: id } });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.FullName = FullName || user.FullName;
+    user.IpAddress = IpAddress || user.IpAddress;
+    user.Gender = Gender || user.Gender;
+    user.Birthdate = Birthdate || user.Birthdate;
+    user.Address = Address || user.Address;
+    user.IdNumber = IdNumber || user.IdNumber;
+    user.Points = Points !== undefined ? Points : user.Points; // Check if Points is explicitly passed
+    user.RewardPoints =
+      RewardPoints !== undefined ? RewardPoints : user.RewardPoints;
+    user.P256dh = P256dh || user.P256dh;
+    user.Auth = Auth || user.Auth;
+    user.Url = Url || user.Url;
+    user.Pin = Pin || user.Pin;
+
+    // Save the updated user details
+    await user.save();
+
+    res.status(200).json({
+      message: "User details updated successfully",
+      data: user,
+    });
+  } catch (error) {
+    console.error("Error updating user details:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { Email: email } });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "User not found" });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    const data = await MemberUserToken.create({
+      UserId: user.id,
+      LoginProvider: "reset_password",
+      Name: "password_reset_token",
+      Value: hashedToken,
+      ExpiredDate: new Date(Date.now() + 30 * 60 * 1000), // Token berlaku 30 menit
+    });
+
+    // Kirim email dengan token
+    const resetURL = `http://localhost:3000/reset-password?token=${resetToken}`;
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.office365.com", // Server SMTP Outlook
+      port: 587, // Port SMTP
+      secure: false, // Gunakan false untuk port 587
+      auth: {
+        user: process.env.EMAIL_USER, // Gantilah dengan email pengguna Outlook Anda
+        pass: process.env.EMAIL_PASS, // Gantilah dengan password email pengguna Outlook Anda
+      },
+      tls: {
+        ciphers: "SSLv3", // Menetapkan cipher yang aman
+      },
+    });
+
+    // Contoh pengiriman email
+    const mailOptions = {
+      from: process.env.EMAIL_USER, // Gantilah dengan email pengguna Outlook Anda
+      to: email, // Email tujuan
+      subject: "Account Activation",
+      text: `Please activate your account by clicking on the link: ${resetURL}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      status: "success",
+      message: "Reset password email sent successfully",
+    });
+  } catch (err) {
+    res.status(500).json({ status: "fail", message: err.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const memberUserToken = await MemberUserToken.findOne({
+      where: {
+        Value: hashedToken,
+        ExpiredDate: { [Op.gt]: new Date() }, // Cek apakah token belum expired
+      },
+    });
+
+    if (!memberUserToken) {
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Invalid or expired token" });
+    }
+    const user = await User.findByPk(memberUserToken.UserId);
+    user.PasswordHash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+
+    res
+      .status(200)
+      .json({ status: "success", message: "Password reset successfully" });
+  } catch (err) {
+    res.status(500).json({ status: "fail", message: err.message });
   }
 };

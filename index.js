@@ -24,6 +24,7 @@ import TrxMemberPayment from "./route/v01/member/TrxMemberPayments.js";
 import TempMemberTenantTransaction from "./route/v01/member/TempTransactionMemberTenant.js";
 import TrxMemberQuote from "./route/v01/member/TrxMemberQuota.js";
 import MemberMaster from "./route/v01/member/MemberMaster.js";
+import MemberHistoryPost from "./route/v01/member/MemberHistoryPost.js";
 import OccCapture from "./route/OCC/index.js";
 import GateRoutes from "./route/OCC/GateRoutes.js";
 import HikvisionIntegration from "./route/OCC/HikvisionRoutes.js";
@@ -99,6 +100,7 @@ app.use("/v01/member/api", TrxMemberPayment);
 app.use("/v01/member/api", TempMemberTenantTransaction);
 app.use("/v01/member/api", TrxMemberQuote);
 app.use("/v01/member/api", MemberMaster);
+app.use("/v01/member/api", MemberHistoryPost);
 // app.use("/v01/member/api", SendWhatsapp);
 
 app.use((req, res, next) => {

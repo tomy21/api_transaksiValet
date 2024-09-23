@@ -1,4 +1,5 @@
 import { errorResponse, successResponse } from "../../../config/response.js";
+import { Location } from "../../../models/RefLocation.js";
 import MemberProduct from "../../../models/v01/member/ProductMember.js";
 
 // Create a new member product
@@ -29,6 +30,12 @@ export const getAllMemberProducts = async (req, res) => {
       offset: (page - 1) * limit,
       limit: parseInt(limit),
       order: [["Id", "DESC"]],
+      include: [
+        {
+          model: Location,
+          attributes: ["Name", "Region", "Vendor"],
+        },
+      ],
     });
 
     return successResponse(res, 200, "Products retrieved successfully", {

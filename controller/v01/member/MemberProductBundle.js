@@ -8,14 +8,10 @@ export const getAllMemberProductBundles = async (req, res) => {
 
   try {
     const { count, rows } = await MemberProductBundle.findAndCountAll({
-      where: { isDeleted: false },
+      where: { IsDeleted: false },
       offset: (page - 1) * limit,
       limit: parseInt(limit),
       order: [["createdOn", "DESC"]],
-      include: {
-        model: TrxMemberQuota,
-        as: "TrxMemberQuote",
-      },
     });
 
     return successResponse(res, 200, "Products retrieved successfully", {
@@ -50,12 +46,7 @@ export const createMemberProductBundle = async (req, res) => {
 
 export const getMemberProductBundle = async (req, res) => {
   try {
-    const bundle = await MemberProductBundle.findByPk(req.params.Id, {
-      include: {
-        model: TrxMemberQuota,
-        as: "TrxMemberQuote", // Menggunakan alias yang sesuai
-      },
-    });
+    const bundle = await MemberProductBundle.findByPk(req.params.id);
     if (bundle) {
       return successResponse(
         res,
@@ -84,21 +75,21 @@ export const getMemberProductBundle = async (req, res) => {
 export const updateMemberProductBundle = async (req, res) => {
   try {
     const [updated] = await MemberProductBundle.update(req.body, {
-      where: { id: req.params.id },
+      where: { Id: req.params.id },
     });
     if (updated) {
       const updatedBundle = await MemberProductBundle.findByPk(req.params.id);
       return successResponse(
         res,
         200,
-        "Bundle updated successfully",
+        "Product updated successfully",
         updatedBundle
       );
     } else {
       return errorResponse(
         res,
         404,
-        "Bundle not found",
+        "Product not found",
         "The requested bundle does not exist"
       );
     }
@@ -114,19 +105,27 @@ export const updateMemberProductBundle = async (req, res) => {
 
 export const deleteMemberProductBundle = async (req, res) => {
   try {
-    const [deleted] = await MemberProductBundle.update(
-      { isDeleted: true },
-      {
-        where: { id: req.params.id },
-      }
-    );
-    if (deleted) {
-      return successResponse(res, 204, "Bundle deleted successfully", null);
+    const data = {
+      DeletedOn: new Date(),
+      IsDeleted: true,
+      DeletedBy: req.body.DeletedBy,
+    };
+    const [updated] = await MemberProductBundle.update(data, {
+      where: { Id: req.params.id },
+    });
+    if (updated) {
+      const updatedBundle = await MemberProductBundle.findByPk(req.params.id);
+      return successResponse(
+        res,
+        200,
+        "Product deleted successfully",
+        updatedBundle
+      );
     } else {
       return errorResponse(
         res,
         404,
-        "Bundle not found",
+        "Product not found",
         "The requested bundle does not exist"
       );
     }
@@ -134,7 +133,7 @@ export const deleteMemberProductBundle = async (req, res) => {
     return errorResponse(
       res,
       500,
-      "An error occurred while deleting bundle",
+      "An error occurred while updating bundle",
       error.message
     );
   }
@@ -145,11 +144,7 @@ export const getProductByType = async (req, res) => {
     const { vehicleType } = req.params;
 
     const products = await MemberProductBundle.findAll({
-      where: { Type: vehicleType },
-      include: {
-        model: TrxMemberQuota,
-        as: "TrxMemberQuote",
-      },
+      where: { Type: vehicleType, IsDeleted: false },
     });
 
     if (products.length > 0) {
