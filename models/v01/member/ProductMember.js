@@ -51,6 +51,10 @@ const MemberProduct = db.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    MemberProductBundleId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     timestamps: false,

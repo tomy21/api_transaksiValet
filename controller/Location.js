@@ -14,6 +14,18 @@ export const getLocationAll = async (req, res) => {
   }
 };
 
+export const getLocationActiveMember = async (req, res) => {
+  try {
+    const getLocation = await Location.findAll({
+      where: { IsMember: 1 },
+      attributes: ["Id", "Code", "Name", "LocationCode"],
+    });
+    res.json(getLocation);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const getLocationAllLocation = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;

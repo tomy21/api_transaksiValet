@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { DataTypes } from "sequelize";
 import db from "../../../config/dbConfig.js";
 
 const MemberHistoryPost = db.define(
@@ -8,6 +8,10 @@ const MemberHistoryPost = db.define(
       type: DataTypes.BIGINT,
       primaryKey: true,
       autoIncrement: true,
+    },
+    MemberUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     CreatedAt: {
       type: DataTypes.DATE,
