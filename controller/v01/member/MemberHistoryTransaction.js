@@ -52,7 +52,7 @@ export const getMemberHistoryTransaction = async (req, res) => {
     res.status(200).json({
       statusCode: 200,
       message: "MemberHistoryTransaction retrieved successfully",
-      data: transaction,
+      data: transactions,
     });
   } catch (err) {
     res.status(400).json({

@@ -25,6 +25,25 @@ export const getQuoteById = async (req, res) => {
   }
 };
 
+export const getQuoteByMemberId = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return errorResponse(res, 400, "Missing id parameter");
+    }
+
+    const quote = await TrxMemberQuota.findOne({
+      where: { MemberProductId: id },
+    });
+    if (!quote) {
+      return errorResponse(res, 404, "TrxMemberQuota not found");
+    }
+    return successResponse(res, 200, "Success get quota member", quote);
+  } catch (err) {
+    return errorResponse(res, 500, "Failed to get data", err.message);
+  }
+};
+
 // Create a new record
 export const createQuote = async (req, res) => {
   try {

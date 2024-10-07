@@ -171,3 +171,37 @@ export const getProductByType = async (req, res) => {
     );
   }
 };
+
+export const getProductByIdProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await MemberProductBundle.findOne({
+      where: { MemberProductId: id, IsDeleted: false },
+    });
+
+    if (product === null) {
+      return errorResponse(res, 404, "No products found");
+    }
+    if (product === undefined) {
+      return errorResponse(
+        res,
+        500,
+        "An error occurred while retrieving products"
+      );
+    }
+
+    return successResponse(
+      res,
+      200,
+      "Products retrieved successfully",
+      product
+    );
+  } catch (error) {
+    return errorResponse(
+      res,
+      500,
+      "An error occurred while retrieving products",
+      error.message
+    );
+  }
+};

@@ -25,9 +25,11 @@ import TempMemberTenantTransaction from "./route/v01/member/TempTransactionMembe
 import TrxMemberQuote from "./route/v01/member/TrxMemberQuota.js";
 import MemberMaster from "./route/v01/member/MemberMaster.js";
 import MemberHistoryPost from "./route/v01/member/MemberHistoryPost.js";
-import OccCapture from "./route/OCC/index.js";
-import GateRoutes from "./route/OCC/GateRoutes.js";
-import HikvisionIntegration from "./route/OCC/HikvisionRoutes.js";
+// import OccCapture from "./route/OCC/index.js";
+// import GateRoutes from "./route/OCC/GateRoutes.js";
+// import HikvisionIntegration from "./route/OCC/HikvisionRoutes.js";
+// import userOcc from "./route/OCC/Users.js";
+// import issuesOcc from "./route/OCC/Issues.js";
 import { initAssociations } from "./models/v01/member/associations.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -56,22 +58,22 @@ app.use(
   })
 );
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: [
-      "*",
-      "http://localhost:3000",
-      "http://147.139.135.195:8091",
-      "https://dev-valet.skyparking.online",
-      "https://dev-on.skyparking.online",
-      "https://dev-membership.skyparking.online",
-      "https://dev-injectmember.skyparking.online",
-      "https://inject.skyparking.online",
-    ],
-    methods: ["GET", "POST", "PUT"],
-    credentials: true,
-  },
-});
+// const io = new Server(httpServer, {
+//   cors: {
+//     origin: [
+//       "*",
+//       "http://localhost:3000",
+//       "http://147.139.135.195:8091",
+//       "https://dev-valet.skyparking.online",
+//       "https://dev-on.skyparking.online",
+//       "https://dev-membership.skyparking.online",
+//       "https://dev-injectmember.skyparking.online",
+//       "https://inject.skyparking.online",
+//     ],
+//     methods: ["GET", "POST", "PUT"],
+//     credentials: true,
+//   },
+// });
 
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -103,35 +105,37 @@ app.use("/v01/member/api", MemberMaster);
 app.use("/v01/member/api", MemberHistoryPost);
 // app.use("/v01/member/api", SendWhatsapp);
 
-app.use((req, res, next) => {
-  req.io = io; // Pass Socket.IO instance ke setiap request
-  next();
-});
+// app.use((req, res, next) => {
+//   req.io = io; // Pass Socket.IO instance ke setiap request
+//   next();
+// });
 
-app.use("/v01/occ/api", HikvisionIntegration);
-app.use("/v01/occ/api", OccCapture);
-app.use("/v01/occ/api", GateRoutes);
+// app.use("/v01/occ/api", HikvisionIntegration);
+// app.use("/v01/occ/api", OccCapture);
+// app.use("/v01/occ/api", GateRoutes);
+// app.use("/v01/occ/api", userOcc);
+// app.use("/v01/occ/api", issuesOcc);
 
-// Handling WebSocket connection
-io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
+// // Handling WebSocket connection
+// io.on("connection", (socket) => {
+//   console.log(`User connected: ${socket.id}`);
 
-  // Mengirim pesan ke client setelah terhubung
-  socket.emit("welcome", { message: "Welcome to Socket.IO server" });
+//   // Mengirim pesan ke client setelah terhubung
+//   socket.emit("welcome", { message: "Welcome to Socket.IO server" });
 
-  // Menerima pesan dari client
-  socket.on("message", (msg) => {
-    console.log(`Message from client: ${msg}`);
+//   // Menerima pesan dari client
+//   socket.on("message", (msg) => {
+//     console.log(`Message from client: ${msg}`);
 
-    // Kirim balasan ke client yang sama
-    socket.emit("response", { message: "Message received" });
-  });
+//     // Kirim balasan ke client yang sama
+//     socket.emit("response", { message: "Message received" });
+//   });
 
-  // Event untuk menangani disconnect
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
-  });
-});
+//   // Event untuk menangani disconnect
+//   socket.on("disconnect", () => {
+//     console.log(`User disconnected: ${socket.id}`);
+//   });
+// });
 
 const PORT = 3008;
 httpServer.listen(PORT, () => {

@@ -7,7 +7,7 @@ const hikvisionAuth = {
 };
 
 // URL dasar untuk perangkat Hikvision (ganti dengan DDNS publik Anda)
-const hikvisionBaseUrl = "http://nvrshlv.ddns.net:8000";
+const hikvisionBaseUrl = "http://nvrshlv.ddns.net";
 
 // Fungsi untuk melakukan request ke API Hikvision
 export const makeHikvisionRequest = async (

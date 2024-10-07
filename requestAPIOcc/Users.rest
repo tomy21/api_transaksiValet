@@ -1,0 +1,33 @@
+#register users
+###
+POST http://localhost:3008/v01/occ/api/register
+Content-Type: application/json
+
+{
+    "username": "tomy21_test",
+    "email": "tomy21.agung@gmail.com",
+    "password": "sky123",
+    "phone": "+625676123111",
+    "idLokasi": 1
+}
+
+#register users
+###
+POST http://localhost:3008/v01/occ/api/login
+Content-Type: application/json
+
+{
+    "identifier":"tomy21_test",
+    "password":"sky123",
+    "rememberMe":true
+}
+
+#register users
+###
+GET http://localhost:3008/v01/occ/api/getUserById
+Content-Type: application/json
+
+#register users
+###
+GET http://localhost:3008/v01/occ/api/protected
+Content-Type: application/json

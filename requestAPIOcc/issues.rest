@@ -1,0 +1,20 @@
+# Create Issue
+POST http://localhost:3008/v01/occ/api/issues
+Content-Type: application/json
+
+{
+    "idLocation":1,
+    "category": "Parking",
+    "lokasi": "Surabaya",
+    "description": "Masalah pada gerbang masuk",
+    "id_gate": 1,
+    "action": "Periksa mesin",
+    "foto": "gate_problem.jpg",
+    "number_plate": "B1234XYZ",
+    "status": "open"
+}
+
+###
+# Create Issue
+GET http://localhost:3008/v01/occ/api/issues
+Content-Type: application/json

@@ -114,7 +114,12 @@ Content-Type: application/json
 
 #getByLocations
 ###
-GET http://localhost:3008/v01/member/api/product/byLocation?LocationCode=004SK
+GET http://localhost:3008/v01/member/api/product/getByProductId/3
+Content-Type: application/json
+
+#getByLocations
+###
+GET http://localhost:3008/v01/member/api/product/byLocation?LocationCode=700097LOC0000001
 Content-Type: application/json
 
 #DeleteProductById
@@ -556,6 +561,16 @@ DELETE http://localhost:3008/v01/member/api/transactionTenants/1
 ###
 # Get a single MemberProductBundle by ID
 GET http://localhost:3008/v01/member/api/quota/1
+Content-Type: application/json
+
+###
+# Get a single MemberProductBundle by ID
+GET http://localhost:3008/v01/member/api/quota-memberBundle/5
+Content-Type: application/json
+
+###
+# Get a single MemberProductBundle by ID
+GET http://localhost:3008/v01/member/api/product/getByProductId/3
 Content-Type: application/json
 
 ###

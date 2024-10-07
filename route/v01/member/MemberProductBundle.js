@@ -6,6 +6,7 @@ import {
   updateMemberProductBundle,
   deleteMemberProductBundle,
   getProductByType,
+  getProductByIdProduct,
 } from "../../../controller/v01/member/MemberProductBundle.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router
   .post(createMemberProductBundle)
   .get(getAllMemberProductBundles);
 router.get("/products/type/:vehicleType", getProductByType);
+router.route("/product/getByProductId/:id").get(getProductByIdProduct);
 router
   .route("/memberProductBundles/:id")
   .get(getMemberProductBundle)
