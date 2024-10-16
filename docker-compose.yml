@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/app
       - node_modules:/app/node_modules
-      # - /shared/upload_on/uploads:/app/uploads
+      - /shared/upload_on/uploads:/app/uploads
     environment:
       - PORT=3002
     ports:
