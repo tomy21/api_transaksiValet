@@ -18,7 +18,7 @@ COPY package*.json ./
 RUN npm install
 
 # Install PM2 globally
-RUN npm install -g pm2
+# RUN npm install -g pm2
 
 # Copy the rest of the application code
 COPY . .
@@ -27,4 +27,4 @@ COPY . .
 EXPOSE 3002
 
 # Start the application using PM2
-CMD ["pm2-runtime", "start", "npm", "--", "start"]
+CMD ["npm", "start"]
