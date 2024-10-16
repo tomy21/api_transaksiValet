@@ -1,8 +1,8 @@
-version: '3.9'
+version: '3.8'
 
 services:
   app:
-    container_name: 'backend_occ'
+    container_name: 'server_transaksi'
     build: 
       context: .
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
     ports:
       - "8090:3002"
     networks:
-      - backend_command_center
+      - backend_network
     restart: always
     deploy:
       resources:
@@ -30,5 +30,5 @@ volumes:
   node_modules:
 
 networks:
-  backend_command_center:
+  backend_network:
     driver: bridge
