@@ -7,7 +7,6 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - .:/app
       - node_modules:/app/node_modules
       - /shared/upload_on/uploads:/app/uploads
     environment:
@@ -16,6 +15,15 @@ services:
       - "8090:3002"
     networks:
       - backend_network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
 
 volumes:
   node_modules:
