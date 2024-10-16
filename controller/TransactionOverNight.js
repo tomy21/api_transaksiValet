@@ -170,7 +170,7 @@ export const validationData = async (req, res) => {
     const { locationCode, plateNo, platerecognizer, officer, typeVehicle } =
       req.body;
     const file = req.file;
-    const currentTime = moment().tz("UTC").format();
+    const currentTime = moment().tz("Asia/Jakarta").format();
 
     if (!locationCode || !plateNo || !officer) {
       return res.status(400).json({ message: "Semua field harus diisi" });
@@ -414,18 +414,12 @@ export const getDataOverNightLocation = async (req, res) => {
     });
 
     if (result) {
-      const formattedData = result.rows.map((row) => {
-        return {
-          ...row.dataValues, // Copy dataValues untuk setiap baris
-          ModifiedOn: moment(row.createdAt).tz("Asia/Jakarta").format(), // Format createdAt ke zona waktu Asia/Jakarta
-        };
-      });
       const response = {
         success: true,
         totalPages: Math.ceil(result.count / limit),
         totalItems: result.count,
         summary: summary,
-        data: formattedData,
+        data: result.rows,
       };
       res.status(201).json(response);
     } else {
