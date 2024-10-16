@@ -180,71 +180,75 @@ export const validationData = async (req, res) => {
       return res.status(400).json({ message: "Gambar harus diunggah" });
     }
 
+    const newFilePath = path.join(__dirname, "../uploads/", file.filename);
     // Membaca file dari disk
-    const filePath = path.join(__dirname, "../uploads/", file.filename);
+    fs.access(newFilePath, fs.constants.F_OK, async (err) => {
+      if (err) {
+        return res
+          .status(400)
+          .json({ message: "File gambar tidak ditemukan." });
+      }
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(400).json({ message: "File gambar tidak ditemukan." });
-    }
-    const fileBuffer = fs.readFileSync(filePath);
+      // Cari record yang ada
+      const existingRecord = await TransactionOverNights.findOne({
+        where: {
+          VehiclePlateNo: plateNo,
+          LocationCode: locationCode,
+          OutTime: null,
+        },
+      });
 
-    const newFilePath = "/uploads/" + file.filename;
+      if (existingRecord) {
+        // Update record yang ada
+        await existingRecord.update({
+          Status: "In Area",
+          ModifiedBy: officer,
+          ModifiedOn: currentTime,
+          TypeVehicle: typeVehicle,
+          PathPhotoImage: `/uploads/${file.filename}`,
+          UploadedAt: currentTime,
+        });
 
-    const existingRecord = await TransactionOverNights.findOne({
-      where: {
-        VehiclePlateNo: plateNo,
-        LocationCode: locationCode,
-        OutTime: null,
-      },
+        await TransactionOverNightOficcers.create({
+          LocationCode: locationCode,
+          Status: "In Area",
+          ModifiedBy: officer,
+          ModifiedOn: currentTime,
+          VehiclePlateNo: plateNo,
+          TypeVehicle: typeVehicle,
+          PathPhotoImage: `/uploads/${file.filename}`,
+          PhotoImage: null,
+        });
+
+        return res.status(200).send("Data berhasil diperbarui!");
+      } else {
+        // Buat record baru
+        await TransactionOverNights.create({
+          LocationCode: locationCode,
+          VehiclePlateNo: plateNo,
+          Plateregognizer: platerecognizer,
+          ModifiedBy: officer,
+          TypeVehicle: typeVehicle,
+          PathPhotoImage: `/uploads/${file.filename}`,
+          Status: "In Area",
+          PhotoImage: null,
+          ModifiedOn: currentTime,
+        });
+
+        await TransactionOverNightOficcers.create({
+          LocationCode: locationCode,
+          Status: "In Area",
+          ModifiedBy: officer,
+          VehiclePlateNo: plateNo,
+          PathPhotoImage: `/uploads/${file.filename}`,
+          TypeVehicle: typeVehicle,
+          PhotoImage: null,
+          ModifiedOn: currentTime,
+        });
+
+        return res.status(200).send("Data berhasil disimpan!");
+      }
     });
-
-    if (existingRecord) {
-      await existingRecord.update({
-        Status: "In Area",
-        ModifiedBy: officer,
-        ModifiedOn: currentTime,
-        TypeVehicle: typeVehicle,
-        PathPhotoImage: newFilePath,
-        UploadedAt: currentTime,
-      });
-
-      await TransactionOverNightOficcers.create({
-        LocationCode: locationCode,
-        Status: "In Area",
-        ModifiedBy: officer,
-        ModifiedOn: currentTime,
-        VehiclePlateNo: plateNo,
-        TypeVehicle: typeVehicle,
-        PathPhotoImage: newFilePath,
-        PhotoImage: null,
-      });
-
-      res.status(200).send("Data berhasil diperbarui!");
-    } else {
-      await TransactionOverNights.create({
-        LocationCode: locationCode,
-        VehiclePlateNo: plateNo,
-        Plateregognizer: platerecognizer,
-        ModifiedBy: officer,
-        TypeVehicle: typeVehicle,
-        PathPhotoImage: newFilePath,
-        Status: "In Area",
-        PhotoImage: null,
-        ModifiedOn: currentTime,
-      });
-
-      await TransactionOverNightOficcers.create({
-        LocationCode: locationCode,
-        Status: "In Area",
-        ModifiedBy: officer,
-        VehiclePlateNo: plateNo,
-        PathPhotoImage: newFilePath,
-        TypeVehicle: typeVehicle,
-        PhotoImage: null,
-        ModifiedOn: currentTime,
-      });
-      res.status(200).send("Data berhasil disimpan!");
-    }
   } catch (error) {
     console.error("Error menyimpan data:", error);
     res.status(500).json({ message: "Terjadi kesalahan saat menyimpan data" });
