@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    container_name: 'server_transaksi'
+    container_name: 'backend_overnight'
     build: 
       context: .
       dockerfile: Dockerfile
@@ -16,15 +16,6 @@ services:
       - "8090:3002"
     networks:
       - backend_network
-    restart: always
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '1.0'
-    #       memory: 512M
-    #     reservations:
-    #       cpus: '0.5'
-    #       memory: 256M
 
 volumes:
   node_modules:
