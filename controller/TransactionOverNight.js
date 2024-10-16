@@ -170,7 +170,7 @@ export const validationData = async (req, res) => {
     const { locationCode, plateNo, platerecognizer, officer, typeVehicle } =
       req.body;
     const file = req.file;
-    const currentTime = moment().tz("Asia/Jakarta").format();
+    const currentTime = moment().tz("UTC").format();
 
     if (!locationCode || !plateNo || !officer) {
       return res.status(400).json({ message: "Semua field harus diisi" });
