@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   app:
-    container_name: 'backend_transaksi_ON'
+    container_name: 'backend_occ'
     build: 
       context: .
       dockerfile: Dockerfile
