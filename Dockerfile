@@ -27,4 +27,4 @@ COPY . .
 EXPOSE 3002
 
 # Start the application using PM2
-CMD [""pm2-runtime", "start", "npm", "--", "start""]
+CMD ["pm2-runtime", "start", "npm", "--", "start"]
