@@ -1,7 +1,7 @@
 #getdatadailysummary
 ###
 GET http://147.139.135.195:8090/api/getAllOverNight
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImxvY2F0aW9uQ29kZSI6IjAwM1NLIiwibG9jYXRpb25OYW1lIjoiU0tZIFBMVUlUIFZJTExBR0UiLCJpYXQiOjE3MTYzMDIwODgsImV4cCI6MTcxNjMwMjEwM30.1G_KcK7MNwn3cRnwlCfdzrDCvB04pCAy4QgNj3cmofo
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MjksImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcyOTA5MDExMSwiaXNzIjoiaHR0cHM6Ly9za3lwYXJraW5nLm9ubGluZSIsInN1YiI6IkFkbWluVmFsZXQzIiwiZXhwIjoxNzI5MTc2NTExfQ.UAdURIhAN8BKOzmgmBgQoNe7krc-zo8Xd1csP1C4GhA
 Content-Type: application/json
 
 #getdatadailysummary
@@ -12,7 +12,7 @@ Content-Type: application/json
 
 #getDataByLocation
 ###
-GET http://localhost:3008/api/getDatabyLocation?location=["003SK","007SK"]&date=2024-06-21
+GET http://localhost:3002/api/getDatabyLocation?location=["TEST01"]&date=2024-10-16
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI5LCJuYW1lIjoidmFsZXQgMyIsImVtYWlsIjoidjNAZ21haWwuY29tbiIsImxvY2F0aW9uQ29kZSI6IjAwM1NLIiwibG9jYXRpb25OYW1lIjoiU0tZIFBMVUlUIFZJTExBR0UiLCJpYXQiOjE3MTY4Mjk4MDYsImV4cCI6MTcxNjgyOTgyMX0.tg8LpqiQFrMWsLUYI-lX4I4heuCOR_xZM8_-5vAk6Qw
 Content-Type: application/json
 

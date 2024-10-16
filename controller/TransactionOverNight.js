@@ -414,12 +414,18 @@ export const getDataOverNightLocation = async (req, res) => {
     });
 
     if (result) {
+      const formattedData = result.rows.map((row) => {
+        return {
+          ...row.dataValues, // Copy dataValues untuk setiap baris
+          ModifiedOn: moment(row.createdAt).tz("Asia/Jakarta").format(), // Format createdAt ke zona waktu Asia/Jakarta
+        };
+      });
       const response = {
         success: true,
         totalPages: Math.ceil(result.count / limit),
         totalItems: result.count,
         summary: summary,
-        data: result.rows,
+        data: formattedData,
       };
       res.status(201).json(response);
     } else {
