@@ -444,10 +444,10 @@ export const getDataOverNightPetugas = async (req, res) => {
   const locationCode = req.query.location || "";
 
   // Menentukan awal dan akhir hari ini berdasarkan zona waktu Asia/Jakarta
-  const startDay = moment.tz("Asia/Jakarta").startOf("day").toDate();
-  const endDay = moment.tz("Asia/Jakarta").endOf("day").toDate();
-  const startOfDay = moment(startDay).format();
-  const endOfDay = moment(endDay).format();
+  const startOfDay = moment.tz("UTC").startOf("day").toDate();
+  const endOfDay = moment.tz("UTC").endOf("day").toDate();
+  // const startOfDay = moment(startDay).format();
+  // const endOfDay = moment(endDay).format();
 
   console.log("Start of Day (Jakarta):", startOfDay); // Format bisa disesuaikan
   console.log("End of Day (Jakarta):", endOfDay);
