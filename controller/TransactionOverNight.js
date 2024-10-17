@@ -289,6 +289,7 @@ export const getDataOverNightLocation = async (req, res) => {
   const sortBy = req.query.sortBy || "ASC";
   const keyword = req.query.keyword || "";
   let locationCodes = [];
+
   try {
     locationCodes = req.query.location ? JSON.parse(req.query.location) : [];
   } catch (error) {
@@ -443,8 +444,13 @@ export const getDataOverNightPetugas = async (req, res) => {
   const locationCode = req.query.location || "";
 
   // Menentukan awal dan akhir hari ini berdasarkan zona waktu Asia/Jakarta
-  const startOfDay = moment.tz("Asia/Jakarta").startOf("day").toDate();
-  const endOfDay = moment.tz("Asia/Jakarta").endOf("day").toDate();
+  const startDay = moment.tz("Asia/Jakarta").startOf("day").toDate();
+  const endDay = moment.tz("Asia/Jakarta").endOf("day").toDate();
+  const startOfDay = moment(startDay).format();
+  const endOfDay = moment(endDay).format();
+
+  console.log("Start of Day (Jakarta):", startOfDay); // Format bisa disesuaikan
+  console.log("End of Day (Jakarta):", endOfDay);
 
   try {
     const queries = {

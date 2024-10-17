@@ -21,7 +21,8 @@ GET http://localhost:3002/api/getByLocation?userId=154
 GET http://localhost:3008/api/getAllLocation
 
 ###
-GET http://localhost:3008/api/getDatabyLocation
+GET http://localhost:3002/api/getDatabyLocation?locationCodes=YKTSK&date=2024-10-17
+
 ###
 GET http://localhost:3002/api/exportDataOn?location=["YKTSK"]&date=2024-10-17
 
