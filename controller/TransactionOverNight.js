@@ -329,7 +329,7 @@ export const getDataOverNightLocation = async (req, res) => {
       ];
 
       whereCount[Op.and] = [
-        ...Object.keys(where).map((key) => ({ [key]: where[key] })), // Menyalin kondisi where yang ada
+        ...Object.keys(where).map((key) => ({ [key]: where[key] })),
         {
           [Op.or]: [
             { TransactionNo: { [Op.like]: `%${keyword}%` } },
@@ -375,29 +375,25 @@ export const getDataOverNightLocation = async (req, res) => {
 
     const summary = await TransactionOverNightOficcers.findAll({
       attributes: [
+        [Sequelize.fn("COUNT", Sequelize.literal("1")), "TotalCount"],
         [
           Sequelize.fn(
             "COUNT",
             Sequelize.literal(
-              "CASE WHEN Status = 'In Area' IS NULL THEN 1 ELSE 0 END"
+              "CASE WHEN Status = 'In Area' AND ModifiedOn >= DATE('" +
+                date +
+                "') AND ModifiedOn < DATE_ADD(DATE('" +
+                date +
+                "'), INTERVAL 1 DAY) THEN 1 ELSE 0 END"
             )
           ),
-          "TotalCount",
+          "InAreaCount",
         ],
         [
           Sequelize.fn(
             "COUNT",
             Sequelize.literal(
-              "CASE WHEN Status = 'In Area' IS NULL THEN 1 ELSE 0 END"
-            )
-          ),
-          "InareaCount",
-        ],
-        [
-          Sequelize.fn(
-            "COUNT",
-            Sequelize.literal(
-              "CASE WHEN TIMESTAMPDIFF(DAY, `CreatedAt`, `ModifiedOn`) > 1 AND Status = 'In Area' THEN 1 ELSE 0 END"
+              "CASE WHEN TIMESTAMPDIFF(DAY, `CreatedAt`, `ModifiedOn`) > 1 THEN 1 ELSE 0 END"
             )
           ),
           "MoreThanOneDayCount",
@@ -410,7 +406,15 @@ export const getDataOverNightLocation = async (req, res) => {
           "OutCount",
         ],
       ],
-      where: summaryWhere,
+      where: {
+        LocationCode: whereCount.LocationCode, // Menggunakan LocationCode
+        ModifiedOn: {
+          [Op.gte]: Sequelize.literal(`DATE('${date}')`),
+          [Op.lt]: Sequelize.literal(
+            `DATE_ADD(DATE('${date}'), INTERVAL 1 DAY)`
+          ),
+        },
+      },
     });
 
     if (result) {
@@ -517,7 +521,6 @@ export const exportDataOverNight = async (req, res) => {
     ? JSON.parse(req.query.location)
     : [];
   const date = req.query.date || "";
-
   try {
     const whereClause = {};
 
@@ -526,15 +529,20 @@ export const exportDataOverNight = async (req, res) => {
       whereClause.LocationCode = { [Sequelize.Op.in]: locationCodes };
     }
 
-    // Buat kondisi tanggal menggunakan Sequelize.literal di luar whereClause
+    // Buat kondisi tanggal menggunakan rentang waktu
     const dateCondition = date
-      ? Sequelize.where(Sequelize.fn("DATE", Sequelize.col("ModifiedOn")), date)
+      ? {
+          ModifiedOn: {
+            [Sequelize.Op.gte]: Sequelize.literal(`'${date} 00:00:00'`),
+            [Sequelize.Op.lt]: Sequelize.literal(`'${date} 23:59:59'`),
+          },
+        }
       : null;
-
+    console.log(dateCondition);
     const result = await TransactionOverNightOficcers.findAndCountAll({
       where: {
         ...whereClause,
-        ...(dateCondition ? { [Sequelize.Op.and]: dateCondition } : {}),
+        ...(dateCondition ? dateCondition : {}),
       },
       include: [
         {
