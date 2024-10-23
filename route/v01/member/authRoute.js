@@ -22,7 +22,7 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/verifikasi", getUserByIdDetail);
 router.get("/logout", logout);
-router.get("/user/:id", getUserById);
+router.get("/user/byId", protect, getUserById);
 router.get("/user", getAllUsers);
 router.patch("/user/:id", getUserById);
 router.get("/activate/:token", activateAccount);
@@ -30,15 +30,17 @@ router.put("/usersDetail/:id", updateUserDetails);
 
 router.post("/role", userRole);
 router.get("/role", getRoles);
-router.get("/rolesDetail/:id", getRoleById);
+router.get("/rolesDetail/byId", protect, getRoleById);
 
 router.post("/request-password-reset", requestPasswordReset);
 router.post("/reset-password", resetPassword);
 
 router.get("/protected", protect, (req, res) => {
+  const token = req.cookies.refreshToken;
   res.status(200).json({
     status: "success",
     message: "You have access to this route",
+    token: token,
   });
 });
 

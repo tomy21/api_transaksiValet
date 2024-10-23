@@ -4,8 +4,9 @@ import User from "../../../models/v01/member/Users.js";
 export const protect = async (req, res, next) => {
   let token;
 
-  if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+  // Pastikan Anda menggunakan nama cookie yang benar ('refreshToken' dalam hal ini)
+  if (req.cookies.refreshToken) {
+    token = req.cookies.refreshToken;
   }
 
   if (!token) {
@@ -15,16 +16,26 @@ export const protect = async (req, res, next) => {
     });
   }
 
-  const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+  try {
+    // Verifikasi token
+    const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.Id;
+    // Cari user berdasarkan ID yang ada di token
+    const currentUser = await User.findByPk(decoded.Id);
+    if (!currentUser) {
+      return res.status(401).json({
+        status: "fail",
+        message: "The user belonging to this token no longer exists.",
+      });
+    }
 
-  const currentUser = await User.findByPk(decoded.id);
-  if (!currentUser) {
+    // Simpan data user yang terverifikasi ke req.user untuk digunakan di rute selanjutnya
+    req.user = currentUser;
+    next(); // Lanjut ke handler berikutnya
+  } catch (err) {
     return res.status(401).json({
       status: "fail",
-      message: "The user belonging to this token no longer exists.",
+      message: "Invalid token or token has expired.",
     });
   }
-
-  req.user = currentUser;
-  next();
 };

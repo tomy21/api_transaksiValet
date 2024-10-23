@@ -182,10 +182,10 @@ export const activateAccount = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
-    const userById = await User.findByPk(req.params.id);
+    const userById = await User.findByPk(req.userId);
     const usersDetailById = await UserDetails.findOne({
       where: {
-        MemberUserId: req.params.id,
+        MemberUserId: req.userId,
       },
     });
     if (!userById) {
@@ -235,14 +235,17 @@ export const getUserByIdDetail = async (req, res) => {
   }
 };
 
-export const logout = (req, res) => {
-  res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 10 * 1000),
+export const logout = async (req, res) => {
+  res.cookie("refreshToken", "", {
+    expires: new Date(0),
     httpOnly: true,
+    // secure: process.env.NODE_ENV === "production",  // Hanya secure di production (HTTPS)
+    // sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",  // SameSite none untuk secure
   });
 
   res.status(200).json({
     status: "success",
+    message: "Logged out successfully",
   });
 };
 
@@ -319,7 +322,7 @@ export const getRoles = async (req, res) => {
 
 export const getRoleById = async (req, res) => {
   try {
-    const dataRoles = await MemberUserRole.findByPk(req.params.id);
+    const dataRoles = await MemberUserRole.findByPk(req.userId);
     return successResponse(res, 200, "Get Data successfully", {
       data: dataRoles,
     });

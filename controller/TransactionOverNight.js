@@ -449,9 +449,6 @@ export const getDataOverNightPetugas = async (req, res) => {
   // const startOfDay = moment(startDay).format();
   // const endOfDay = moment(endDay).format();
 
-  console.log("Start of Day (Jakarta):", startOfDay); // Format bisa disesuaikan
-  console.log("End of Day (Jakarta):", endOfDay);
-
   try {
     const queries = {
       where: {
