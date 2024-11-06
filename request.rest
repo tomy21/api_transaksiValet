@@ -48,10 +48,10 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Feby",
+    "Name": "Denta putra",
     "Gender": "M",
-    "Username": "feby_mypd",
-    "Email": "feby_mypd@testing.com",
+    "Username": "denta_putra",
+    "Email": "denta_putra@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,

@@ -15,11 +15,11 @@ POST http://localhost:3008/v01/member/api/auth/register
 
 #register users
 ###
-POST http://localhost:3008/v01/member/api/auth/login
+POST https://dev-valetapi.skyparking.online/v01/member/api/auth/login
 Content-Type: application/json
 
 {
-    "identifier":"newTenant01",
+    "identifier":"heru_uph",
     "password":"sky123",
     "rememberMe":true
 }
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 #getUserById
 ###
-GET http://localhost:3008/v01/member/api/auth/user/byId
+GET https://dev-valetapi.skyparking.online/v01/member/api/auth/user/byId
 Content-Type: application/json
 
 #getUserById
