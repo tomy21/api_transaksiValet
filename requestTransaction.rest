@@ -39,7 +39,7 @@ Content-Type: application/json
 
 #GetAllTransactions
 ###
-GET http://localhost:3008/api/transaction
+GET http://localhost:3002/api/transaction?location=TEST01
 # Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjY3LCJuYW1lIjoidGVzdDEiLCJlbWFpbCI6InRlc3RAZW1haWwudGVzdCIsImlhdCI6MTcxNDk2ODI5NiwiZXhwIjoxNzE0OTY4MzExfQ.WVCgEDkD9orP1nGUMN1lunxYb728s--whFJwUw5_1aE
 Content-Type: application/json
 
@@ -53,3 +53,34 @@ Content-Type: application/json
     "ReceivedUserId": 99,
     "CreatedBy": "testValet56"
 }
+
+###
+POST http://localhost:3002/api/login
+Content-Type: application/json
+
+{
+    "identifier":"admin01_@gmail.comn",
+    "password":"sky123"
+}
+
+###
+PUT http://localhost:3002/api/updatePayment/15249
+Content-Type: application/json
+
+{
+    "PaymentBy":"admin01_@gmail.comn",
+    "userName":"sky123"
+}
+
+#GetAllTransactions
+###
+GET http://localhost:3002/api/getTransactionByLocation?LocationCode=TEST01
+
+
+#GetAllTransactions
+###
+GET http://localhost:3002/api/getTransactionHistory?LocationCode=TEST01
+
+#GetAllTransactions
+###
+GET http://localhost:3002/api/getTransactionById/15256

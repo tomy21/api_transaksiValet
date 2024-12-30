@@ -2,16 +2,20 @@ GET http://localhost:3008/api/getUsers
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJZCI6MjksImVtYWlsIjoidjNAZ21haWwuY29tbiIsImlhdCI6MTcyNDk1NzQxNywiaXNzIjoiaHR0cHM6Ly9za3lwYXJraW5nLm9ubGluZSIsInN1YiI6IkFkbWluVmFsZXQzIiwiZXhwIjoxNzI1MDQzODE3fQ.DVMNXZfVfXeQsR_uet9QjXgPXeyDu43VL6rgufoAKMA
 
 ###
-POST http://147.139.135.195:8090/api/login
+POST http://192.168.245.201:3002/api/login
 Content-Type: application/json
 
 {
-    "identifier":"v3@gmail.comn",
+    "identifier":"admin01_@gmail.comn",
     "password":"sky123"
 }
 
 ###
 GET http://147.139.135.195:8090/api/token
+###
+GET http://192.168.245.201:3002/api/protected
+###
+GET http://localhost:3002/api/getUsersById
 ###
 GET http://localhost:3008/api/logout
 ###
@@ -48,15 +52,15 @@ Content-Type: application/json
 {
     "SetupRoleId": 14,
     "IpAddress": "192.168.43.201",
-    "Name": "Denta putra",
+    "Name": "Test_valet",
     "Gender": "M",
-    "Username": "denta_putra",
-    "Email": "denta_putra@testing.com",
+    "Username": "valet_oc",
+    "Email": "valet_oc@testing.com",
     "Phone": "XXXXXXX",
     "MerchantId": 0,
     "IsFirstpassword":0,
     "FlagAllLocation":0,
-    "LocationCode": ["05TSK"]
+    "LocationCode": ["001OC"]
 }
 
 #register users
@@ -75,14 +79,17 @@ Content-Type: application/json
 
 #register users
 ###
-POST http://localhost:3008/v01/member/api/auth/login
+POST http://localhost:3002/v01/member/api/auth/login
 Content-Type: application/json
 
 {
     "identifier":"tomy21",
-    "password":"123456",
+    "password":"sky123",
     "rememberMe":true
 }
+
+###
+GET http://localhost:3002/v01/member/api/auth/protected
 
 
 

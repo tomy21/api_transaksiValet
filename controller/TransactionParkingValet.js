@@ -8,6 +8,9 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import db from "../config/dbConfig.js";
+import { Users } from "../models/Users.js";
+import { transactionValetHistory } from "../models/TransactionValteHistory.js";
+import moment from "moment";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -27,8 +30,10 @@ export const getTransaction = async (req, res) => {
   const sortBy = req.query.sortBy || "DESC";
   const keyword = req.query.keyword || "";
   const locationCode = req.query.location || "";
-  const startDate = req.query.startDate || "";
-  const endDate = req.query.endDate || "";
+
+  const today = new Date().toISOString().split("T")[0];
+  const startDate = req.query.startDate || today;
+  const endDate = req.query.endDate || today;
 
   try {
     const whereConditions = locationCode ? { LocationCode: locationCode } : {};
@@ -67,7 +72,7 @@ export const getTransaction = async (req, res) => {
         success: true,
         summary: {
           totalTrx: totalTrx,
-          totalTarif: totalTariff,
+          totalTarif: totalTariff || 0,
         },
         totalPages: Math.ceil(result.count / limit),
         totalItems: result.count,
@@ -95,11 +100,25 @@ export const getTransactionById = async (req, res) => {
         Id: id,
       },
       attributes: [
+        "Id",
         "TrxNo",
+        "TicketNumber",
         "VehiclePlate",
         "InTime",
+        "OutTime",
         "foto1",
         "fotoBuktiPayment1",
+        "NoKeySlot",
+        "LocationCode",
+        "ParkingType",
+        "CreatedBy",
+        "RecordStatus",
+      ],
+      include: [
+        {
+          model: Location,
+          attributes: ["Code", "Name"],
+        },
       ],
     });
     const response = {
@@ -114,53 +133,116 @@ export const getTransactionById = async (req, res) => {
 };
 
 export const getTransactionByLocation = async (req, res) => {
-  const { LocationCode } = req.query;
-  const page = req.query.page || 1;
-  const limit = req.query.limit || 3;
-  const orderBy = req.query.orderBy || "UpdatedOn";
+  const { LocationCode, startDate, endDate } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 5;
+  const orderBy = req.query.orderBy || "InTime";
   const sortBy = req.query.sortBy || "DESC";
   const keyword = req.query.keyword || "";
 
   try {
-    const queries = {
-      offset: (page - 1) * limit,
-      limit,
+    // Tentukan tanggal default jika tidak ada filter tanggal
+    let filterStartDate, filterEndDate;
+    if (startDate && endDate) {
+      filterStartDate = new Date(startDate);
+      filterEndDate = new Date(endDate);
+    } else {
+      // Set ke tanggal hari ini
+      const today = moment();
+      filterStartDate = today.clone().startOf("day").toISOString(); // Mulai hari ini
+      filterEndDate = today.clone().endOf("day").toISOString();
+    }
+
+    const today = new Date();
+    console.log(new Date(today.setHours(0, 0, 0, 0)).toLocaleString());
+    console.log(new Date(today.setHours(23, 59, 59, 999)).toLocaleString());
+    // Bangun kondisi where
+    const whereConditions = {
+      LocationCode: LocationCode,
+      InTime: {
+        [Op.between]: [filterStartDate, filterEndDate],
+      },
     };
 
+    // Tambahkan kondisi keyword jika ada
     if (keyword) {
-      queries.where = {
-        where: { LocationCode: LocationCode },
-        [Op.or]: [
-          { LocationCode: { [Op.like]: `%${keyword}%` } },
-          { TrxNo: { [Op.like]: `%${keyword}%` } },
-          { TicketNumber: { [Op.like]: `%${keyword}%` } },
-          { VehiclePlate: { [Op.like]: `%${keyword}%` } },
-          { ReferenceNo: { [Op.like]: `%${keyword}%` } },
-          // Tambahkan kolom lainnya jika diperlukan
-        ],
-      };
+      whereConditions[Op.or] = [
+        { LocationCode: { [Op.like]: `%${keyword}%` } },
+        { TrxNo: { [Op.like]: `%${keyword}%` } },
+        { TicketNumber: { [Op.like]: `%${keyword}%` } },
+        { VehiclePlate: { [Op.like]: `%${keyword}%` } },
+        { ReferenceNo: { [Op.like]: `%${keyword}%` } },
+        // Tambahkan kolom lainnya jika diperlukan
+      ];
     }
+
+    const queries = {
+      where: whereConditions,
+      offset: (page - 1) * limit,
+      limit,
+      attributes: [
+        "Id",
+        "TrxNo",
+        "TicketNumber",
+        "VehiclePlate",
+        "InTime",
+        "OutTime",
+        "foto1",
+        "ParkingType",
+        "fotoBuktiPayment1",
+        "CreatedBy",
+      ],
+      include: [
+        {
+          model: Location,
+          attributes: ["Code", "Name"],
+        },
+      ],
+    };
+
     if (orderBy) {
       queries.order = [[orderBy, sortBy]];
     }
 
-    const result = await TransactionValet.findAndCountAll({
-      ...queries,
+    const result = await TransactionValet.findAndCountAll(queries);
+    const countIn = await TransactionValet.count({
+      where: {
+        LocationCode: LocationCode,
+        OutTime: null,
+        InTime: {
+          [Op.between]: [filterStartDate, filterEndDate],
+        },
+      },
+      order: [["InTime", "ASC"]],
+    });
+    const countOut = await TransactionValet.count({
+      where: {
+        LocationCode: LocationCode,
+        OutTime: { [Op.not]: null },
+        InTime: {
+          [Op.between]: [filterStartDate, filterEndDate],
+        },
+      },
+      order: [["OutTime", "ASC"]],
     });
 
     if (result) {
       const response = {
         success: true,
-        totalPages: Math.ceil(result?.count / limit),
-        totalItems: result?.count,
-        data: result?.rows,
+        totalPages: Math.ceil(result.count / limit),
+        totalItems: result.count,
+        currentPage: page,
+        countIn: countIn,
+        countOut: countOut,
+        data: result.rows,
       };
-      res.status(201).json(response);
+      res.status(200).json(response); // Ubah status ke 200 untuk permintaan GET yang berhasil
     } else {
       res.status(400).json({ success: false, message: "Get data failed" });
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -183,6 +265,9 @@ export const addTransaction = async (req, res) => {
       ReceivedUserId,
       CreatedBy,
     } = req.body;
+    // const userId = req.userId;
+    // const userData = await Users.findByPk(userId);
+
     if (err instanceof multer.MulterError) {
       return res
         .status(400)
@@ -240,7 +325,7 @@ export const addTransaction = async (req, res) => {
           [Op.and]: { TypeValet: ticketCategory.Code },
           LocationCode: LocationCode,
         },
-        attributes: ["TypeValet", "Name", "Tariff"],
+        attributes: ["TypeValet", "Name", "Tariff", "QrisCode", "NMID"],
       });
 
       const typeValet = resultQris.map((qris) => qris.TypeValet);
@@ -296,12 +381,25 @@ export const addTransaction = async (req, res) => {
         foto4: photoPaths[3],
         foto5: photoPaths[4],
         foto6: photoPaths[5],
+        RecordStatus: 1,
       });
 
       if (addTransaction) {
-        res
-          .status(201)
-          .json({ success: true, message: "Insert data successfully" });
+        await transactionValetHistory.create({
+          LocationCode: LocationCode,
+          TransactionParkingValetId: addTransaction.Id,
+          Description: "Create New Transaction",
+          CreatedOn: new Date(),
+          CreatedBy: CreatedBy,
+          RecordStatus: 1,
+        });
+
+        res.status(201).json({
+          success: true,
+          message: "Insert data successfully",
+          data: addTransaction,
+          paymentData: resultQris,
+        });
       } else {
         res.status(500).json({ success: false, message: "Insert data failed" });
       }
@@ -348,7 +446,7 @@ export const updatePayment = async (req, res) => {
     const photoPaths = [];
 
     for (let i = 1; i <= 6; i++) {
-      let fieldName = "payment" + i;
+      let fieldName = "payment1";
       if (req.files[fieldName] && req.files[fieldName].length > 0) {
         photoPaths.push(req.files[fieldName][0].path);
       } else {
@@ -357,7 +455,7 @@ export const updatePayment = async (req, res) => {
     }
 
     try {
-      const updatedTransaction = await TransactionValet.update(
+      const updateResult = await TransactionValet.update(
         {
           PaymentOn: new Date(),
           OutTime: new Date(),
@@ -372,18 +470,41 @@ export const updatePayment = async (req, res) => {
           },
         }
       );
+
       // Cek apakah pembaruan berhasil
-      if (updatedTransaction[0] === 1) {
+      if (updateResult[0] === 1) {
         console.log("Data berhasil diperbarui.");
+
+        // Ambil data hasil pembaruan
+        const updatedTransaction = await TransactionValet.findOne({
+          where: { Id: id },
+        });
+
+        res.status(200).json({
+          message: "Payment Success",
+          data: updatedTransaction,
+        });
+
+        await transactionValetHistory.create({
+          LocationCode: updatedTransaction.LocationCode,
+          TransactionParkingValetId: updatedTransaction.Id,
+          Description: "Paid Transaction and Out",
+          CreatedOn: new Date(),
+          CreatedBy: PaymentBy,
+          RecordStatus: 1,
+        });
       } else {
         console.log(
           "Data tidak ditemukan atau tidak ada perubahan yang dilakukan."
         );
+        res.status(404).json({
+          message:
+            "Data tidak ditemukan atau tidak ada perubahan yang dilakukan.",
+        });
       }
-
-      res.status(200).json({ message: "Payment Success" });
     } catch (error) {
       console.log(error);
+      res.status(500).json({ message: "Terjadi kesalahan pada server", error });
     }
   });
 };
@@ -405,6 +526,14 @@ export const cancelTransaction = async (req, res) => {
         },
       }
     );
+    await transactionValetHistory.create({
+      LocationCode: updatedTransaction.LocationCode,
+      TransactionParkingValetId: updatedTransaction.Id,
+      Description: "Cancel Transaction",
+      CreatedOn: new Date(),
+      CreatedBy: CreatedBy,
+      RecordStatus: 1,
+    });
     // Cek apakah pembaruan berhasil
     if (updatedTransaction[0] === 1) {
       console.log("Data berhasil diperbarui.");
@@ -417,5 +546,95 @@ export const cancelTransaction = async (req, res) => {
     res.status(200).json({ message: "Transaction Cancel" });
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const getTransaskiHistory = async (req, res) => {
+  const { LocationCode, startDate, endDate } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 3;
+  const orderBy = req.query.orderBy || "CreatedOn";
+  const sortBy = req.query.sortBy || "DESC";
+  const keyword = req.query.keyword || "";
+
+  try {
+    // Tentukan tanggal default jika tidak ada filter tanggal
+    let filterStartDate, filterEndDate;
+    if (startDate && endDate) {
+      filterStartDate = new Date(startDate);
+      filterEndDate = new Date(endDate);
+    } else {
+      // Set ke tanggal hari ini
+      const today = new Date();
+      filterStartDate = new Date(today.setHours(0, 0, 0, 0)); // Mulai hari ini
+      filterEndDate = new Date(today.setHours(23, 59, 59, 999)); // Akhir hari ini
+    }
+
+    // Bangun kondisi where
+    const whereConditions = {
+      LocationCode: LocationCode,
+      CreatedOn: {
+        // Gantilah 'TransactionDate' dengan nama kolom tanggal Anda
+        [Op.between]: [filterStartDate, filterEndDate],
+      },
+    };
+
+    // Tambahkan kondisi keyword jika ada
+    if (keyword) {
+      whereConditions[Op.or] = [
+        { LocationCode: { [Op.like]: `%${keyword}%` } },
+        { Description: { [Op.like]: `%${keyword}%` } },
+        // Tambahkan kolom lainnya jika diperlukan
+      ];
+    }
+
+    const queries = {
+      where: whereConditions,
+      offset: (page - 1) * limit,
+      limit,
+      attributes: [
+        "LocationCode",
+        "TransactionParkingValetId",
+        "Description",
+        "CreatedOn",
+        "CreatedBy",
+      ],
+      include: [
+        {
+          model: TransactionValet,
+          attributes: [
+            "Id",
+            "TrxNo",
+            "TicketNumber",
+            "VehiclePlate",
+            "ParkingType",
+            "InTime",
+            "OutTime",
+          ],
+        },
+      ],
+    };
+
+    if (orderBy) {
+      queries.order = [[orderBy, sortBy]];
+    }
+
+    const result = await transactionValetHistory.findAndCountAll(queries);
+
+    if (result) {
+      const response = {
+        success: true,
+        totalPages: Math.ceil(result.count / limit),
+        totalItems: result.count,
+        currentPage: page,
+        data: result.rows,
+      };
+      res.status(200).json(response); // Ubah status ke 200 untuk permintaan GET yang berhasil
+    } else {
+      res.status(400).json({ success: false, message: "Get data failed" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };

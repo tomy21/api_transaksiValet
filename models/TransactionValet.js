@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../config/dbConfig.js";
 import { Location } from "./RefLocation.js";
+import { Users } from "./Users.js";
 
 export const TransactionValet = db.define(
   "TransactionParkingValet",
@@ -137,4 +138,8 @@ export const TransactionValet = db.define(
 TransactionValet.belongsTo(Location, {
   foreignKey: "LocationCode",
   targetKey: "Code",
+});
+TransactionValet.belongsTo(Users, {
+  foreignKey: "ReceivedBy",
+  targetKey: "Id",
 });

@@ -53,6 +53,36 @@ export const getUsers = async (req, res) => {
   }
 };
 
+export const getUsersById = async (req, res) => {
+  try {
+    const users = await Users.findByPk(req.userId, {
+      attributes: ["Id", "Name", "Email", "Username"],
+    });
+    const usersLocation = await UsersLocations.findOne({
+      where: {
+        UserId: req.userId,
+      },
+      attributes: ["LocationCode"],
+    });
+
+    const response = {
+      statusCode: 200,
+      message: "Get Data Successfuly",
+      data: {
+        user: users,
+        location: usersLocation,
+      },
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res
+      .status(500)
+      .json({ msg: "Terjadi kesalahan saat mengambil data pengguna" });
+  }
+};
+
 export const register = async (req, res) => {
   const {
     SetupRoleId,

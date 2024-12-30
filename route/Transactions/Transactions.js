@@ -7,16 +7,18 @@ import {
   updatePayment,
   cancelTransaction,
   getTransactionById,
+  getTransaskiHistory,
 } from "../../controller/TransactionParkingValet.js";
-import { VerifyToken } from "../../middleware/VerifyToken.js";
+import { protectAuth } from "../../middleware/authMidOcc.js";
 const router = express.Router();
 
 router.get("/transaction", getTransaction);
-router.get("/getKeySlot", VerifyToken, getNumberKyeSlot);
+router.get("/getKeySlot", protectAuth, getNumberKyeSlot);
 router.get("/getTransactionByLocation", getTransactionByLocation);
-router.get("/getTransactionById/:id", VerifyToken, getTransactionById);
-router.put("/updatePayment/:id", VerifyToken, updatePayment);
-router.put("/cancelTransaction/:id", VerifyToken, cancelTransaction);
-router.post("/transaction", VerifyToken, addTransaction);
+router.get("/getTransactionHistory", getTransaskiHistory);
+router.get("/getTransactionById/:id", getTransactionById);
+router.put("/updatePayment/:id", updatePayment);
+router.put("/cancelTransaction/:id", cancelTransaction);
+router.post("/transaction", addTransaction);
 
 export default router;
